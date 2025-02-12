@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.api.v1.endpoints import auth_router
+# from app.api.v1.endpoints import auth_router
 import uvicorn
 
 # later to be replaced by .env file
@@ -39,7 +39,7 @@ app.add_middleware(
 async def read_root():
     return {"message": f"Welcome to {settings.PROJECT_TITLE}!"}
 
-app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
+# app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
 #other routes will go here    
 
 # Run the application
