@@ -1,0 +1,30 @@
+# General
+.DS_Store
+*.log
+*.swp
+*.swo
+*.env*
+*.py[cod]
+__pycache__/
+.Python
+build/
+dist/
+downloads/
+.eggs/
+*.egg-info/
+.installed.cfg
+
+# Virtual Environments
+venv*/
+env*/
+.venv*/
+
+# Node.js / Next.js
+node_modules/
+.next/
+out/
+.cache/
+.yarn/
+.pnp.*
+.npm
+.eslintcache
