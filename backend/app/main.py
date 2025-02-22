@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-# from app.api.v1.endpoints import auth_router
+from db.mongodb import connect_to_mongo, close_mongo_connection
+from api.v1.endpoints import auth_router
 import uvicorn
 
 # later to be replaced by .env file
@@ -34,12 +35,24 @@ app.add_middleware(
 # Mount static files (e.g., JS, CSS)
 # app.mount("/scripts", StaticFiles(directory="scripts"), name="scripts")
 
+# Startup and shutdown events
+async def startup_handler():
+    await connect_to_mongo()
+
+
+async def shutdown_handler():
+    await close_mongo_connection()
+
+
+app.add_event_handler("startup", startup_handler)
+app.add_event_handler("shutdown", shutdown_handler)
+
 # Root endpoint
 @app.get("/", tags=["Root"])
 async def read_root():
     return {"message": f"Welcome to {settings.PROJECT_TITLE}!"}
 
-# app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
+app.include_router(auth_router, prefix="/api/v1/user", tags=["User"])
 #other routes will go here    
 
 # Run the application
