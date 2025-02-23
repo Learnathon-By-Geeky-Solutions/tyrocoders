@@ -1,8 +1,7 @@
-// app/components/FileUpload.tsx
 "use client";
 
 import { useState, useCallback } from "react";
-import { useDropzone, DropzoneOptions } from "react-dropzone";
+import { useDropzone, DropzoneOptions, FileRejection } from "react-dropzone";
 import FileItem from "./FileItem";
 import { FaCloudUploadAlt } from "react-icons/fa";
 
@@ -18,19 +17,42 @@ const FileUpload: React.FC = () => {
     setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
   }, []);
 
-  const onDropRejected = useCallback(() => {
-    setErrorMessage(
-      "Some files were rejected. Please upload only CSV, JSON, SQL, XLSX, or XLS files."
-    );
+  // Provide detailed error messages when files are rejected
+  const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
+    const errorMessages = fileRejections
+      .map((rejection) => {
+        const fileName = rejection.file.name;
+        const errors = rejection.errors
+          .map((err) => {
+            if (err.code === "file-invalid-type") {
+              return "Invalid file type. Only CSV, JSON, SQL, XLSX, or XLS files are allowed.";
+            }
+            if (err.code === "file-too-large") {
+              return "File is too large (max 10MB).";
+            }
+            return err.message;
+          })
+          .join(" ");
+        return `${fileName}: ${errors}`;
+      })
+      .join("\n");
+    setErrorMessage(errorMessages || "Some files were rejected.");
   }, []);
 
+  // Use an object for the accept prop to strictly allow only specific file types.
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     onDropRejected,
-    accept: ".csv, .json, .sql, .xlsx, .xls",
+    accept: {
+      "text/csv": [".csv"],
+      "application/json": [".json"],
+      "application/sql": [".sql"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+      "application/vnd.ms-excel": [".xls"],
+    },
     multiple: true,
     maxSize: 10 * 1024 * 1024, // 10 MB size limit
-  } as unknown as DropzoneOptions);
+  } as DropzoneOptions);
 
   const handleRemoveFile = (fileToRemove: File) => {
     setFiles((prevFiles) =>
@@ -95,7 +117,11 @@ const FileUpload: React.FC = () => {
             Only CSV, JSON, SQL, XLSX, or XLS files are allowed (max 10MB).
           </p>
         </div>
-        {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
+        {errorMessage && (
+          <pre className="text-red-500 mt-4 whitespace-pre-wrap">
+            {errorMessage}
+          </pre>
+        )}
         <ul className="mt-6 space-y-4">
           {files.map((file) => (
             <FileItem
