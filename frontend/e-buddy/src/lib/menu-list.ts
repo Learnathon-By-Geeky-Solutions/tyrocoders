@@ -51,8 +51,12 @@ export function getMenuList(pathname: string): Group[] {
           icon: Bot,
           submenus: [
             {
-              href: "/bots/source",
-              label: "Source"
+              href: "/bots/viewbots",
+              label: "My Bots"
+            },
+            {
+              href: "/bots/setup",
+              label: "Set-up"
             },
             {
               href: "/bots/widget",
