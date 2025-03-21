@@ -59,6 +59,10 @@ export function getMenuList(pathname: string): Group[] {
               label: "Set-up"
             },
             {
+              href: "/bots/chat",
+              label: "Chat"
+            },
+            {
               href: "/bots/widget",
               label: "Widget"
             }
