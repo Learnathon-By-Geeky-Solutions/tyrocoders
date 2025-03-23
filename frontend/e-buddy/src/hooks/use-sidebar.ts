@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { produce } from "immer";
 
 type SidebarSettings = { disabled: boolean; isHoverOpen: boolean };
-type SidebarStore = {
+type SidebarStore = { 
   isOpen: boolean;
   isHover: boolean;
   settings: SidebarSettings;
@@ -39,11 +39,11 @@ export const useSidebar = create(
             state.settings = { ...state.settings, ...settings };
           })
         );
-      }
+      },
     }),
     {
       name: "sidebar",
-      storage: createJSONStorage(() => localStorage)
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

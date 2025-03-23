@@ -16,10 +16,10 @@ export function SidebarToggle({ isOpen, setIsOpen }: SidebarToggleProps) {
       <Button
         onClick={() => {
           sidebar.toggleOpen(); // Toggle sidebar state
-          setIsOpen?.();
+          // setIsOpen?.();
         }}
-        className="rounded-md w-8 h-8"
-        variant="outline"
+        className="rounded-md w-8 h-8 bg-accent"
+        variant="custom"
         size="icon"
       >
         <ChevronLeft

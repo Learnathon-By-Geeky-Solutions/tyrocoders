@@ -38,62 +38,43 @@ export function getMenuList(pathname: string): Group[] {
           href: "/dashboard",
           label: "Dashboard",
           icon: LayoutGrid,
-          submenus: []
-        }
-      ]
-    },
-    {
-      groupLabel: "Automation",
-      menus: [
+        },
         {
-          href: "",
-          label: "Bots",
+          href: "/bots/viewbots",
+          label: "My Bots",
           icon: Bot,
-          submenus: [
-            {
-              href: "/bots/viewbots",
-              label: "My Bots"
-            },
-            {
-              href: "/bots/setup",
-              label: "Set-up"
-            },
-            {
-              href: "/bots/chat",
-              label: "Chat"
-            },
-            {
-              href: "/bots/widget",
-              label: "Widget"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      groupLabel: "Collaboration",
-      menus: [
+        },
+        {
+          href: "/bots/setup",
+          label: "Set-up",
+          icon: Bot,
+        },
+        {
+          href: "/bots/chat",
+          label: "Chat",
+          icon: Bot,
+        },
+        {
+          href: "/bots/widget",
+          label: "Widget",
+          icon: Bot,
+        },
         {
           href: "/teams",
           label: "Teams",
-          icon: UsersRound
-        }
-      ]
-    },
-    {
-      groupLabel: "Settings",
-      menus: [
+          icon: UsersRound,
+        },
         {
           href: "/users",
           label: "Users",
-          icon: Users
+          icon: Users,
         },
         {
-          href: "/account",
-          label: "Account",
-          icon: Settings
-        }
-      ]
-    }
+          href: "/settings",
+          label: "Settings",
+          icon: Settings,
+        },
+      ],
+    },
   ];
 }
