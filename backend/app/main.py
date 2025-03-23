@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from db.mongodb import connect_to_mongo, close_mongo_connection
-from api.v1.endpoints import auth_router
+from api.v1.endpoints import auth_router, chatbot_router
 import uvicorn
 
 # later to be replaced by .env file
@@ -53,6 +53,7 @@ async def read_root():
     return {"message": f"Welcome to {settings.PROJECT_TITLE}!"}
 
 app.include_router(auth_router, prefix="/api/v1/user", tags=["User"])
+app.include_router(chatbot_router, prefix="/api/v1/chatbot", tags=["Chatbot"])
 #other routes will go here    
 
 # Run the application
