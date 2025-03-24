@@ -38,7 +38,5 @@ async def close_mongo_connection():
     await mongodb_client.close()
 
 
-base_admin_users_collection = mongodb_client.get_collection("admin_users")
-
-def get_tenant_collection(collection_name: str):
-    return mongodb_client.get_collection(collection_name)
+base_admin_users_collection = mongodb_client.get_collection("customer_users")
+base_chatbot_collection = mongodb_client.get_collection("chatbots")
