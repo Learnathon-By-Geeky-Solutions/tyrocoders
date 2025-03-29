@@ -28,3 +28,7 @@ out/
 .pnp.*
 .npm
 .eslintcache
+
+# The error of nvm
+# nvm install 20
+# nvm use 20
