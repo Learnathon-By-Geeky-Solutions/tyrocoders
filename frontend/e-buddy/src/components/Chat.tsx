@@ -37,7 +37,7 @@ export function Chat() {
     
     // IMPORTANT: Wrap the message in a JSON object with required keys.
     const payload = JSON.stringify({
-      chatbot_id: "chatbot_B",  // Change this to the appropriate chatbot ID if needed.
+      chatbot_id: "chatbot_A",  // Change this to the appropriate chatbot ID if needed.
       query: messageText
     });
     

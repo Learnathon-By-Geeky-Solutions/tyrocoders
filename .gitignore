@@ -29,6 +29,10 @@ out/
 .npm
 .eslintcache
 
+
+# chatbot_data/
+data/
+kb_storage/
 # The error of nvm
 # nvm install 20
 # nvm use 20
