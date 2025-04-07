@@ -28,3 +28,9 @@ out/
 .pnp.*
 .npm
 .eslintcache
+# credits https://github.com/ChristophHandschuh/chatbot-ui
+# credits https://github.com/salimi-my/shadcn-ui-sidebar
+
+# inspiration https://www.chatbot.com/help/build-your-chatbot/how-to-build-your-chatbot/
+# inpiration https://github.com/JiteshGaikwad/Chatbot-Widget.git
+# inspiration https://www.npmjs.com/package/chatbot-widget-ui

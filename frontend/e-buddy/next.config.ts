@@ -1,10 +1,20 @@
-import type { NextConfig } from "next";
+// import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  images: {
-    domains: ['source.unsplash.com'],
+// const nextConfig: NextConfig = {
+//   /* config options here */
+//   images: {
+//     domains: ['source.unsplash.com'],
+//   },
+// };
+
+// export default nextConfig;
+
+const nextConfig = {
+  output: 'export',
+  eslint: {
+    ignoreDuringBuilds: true,
   },
+  images: { unoptimized: true },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
