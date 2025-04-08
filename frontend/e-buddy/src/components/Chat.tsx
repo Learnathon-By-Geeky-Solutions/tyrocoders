@@ -5,9 +5,10 @@ import { useState, useRef } from "react";
 import { message } from "@/components/interfaces/interfaces"
 import { Overview } from "@/components/custom/overview";
 import { Header } from "@/components/custom/header";
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
-const socket = new WebSocket("ws://localhost:8090"); //change to your websocket endpoint
+// Change this to your WebSocket endpoint if needed.
+const socket = new WebSocket("ws://localhost:8090");
 
 export function Chat() {
   const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
@@ -24,59 +25,60 @@ export function Chat() {
     }
   };
 
-async function handleSubmit(text?: string) {
-  if (!socket || socket.readyState !== WebSocket.OPEN || isLoading) return;
+  async function handleSubmit(text?: string) {
+    if (!socket || socket.readyState !== WebSocket.OPEN || isLoading) return;
 
-  const messageText = text || question;
-  setIsLoading(true);
-  cleanupMessageHandler();
-  
-  const traceId = uuidv4();
-  setMessages(prev => [...prev, { content: messageText, role: "user", id: traceId }]);
-  const messageData = {
-    chatbot_id: "chatbot_A", // You'd need to add UI for selecting which bot to use
-    query: messageText
-  };
-  socket.send(JSON.stringify(messageData));
-  setQuestion("");
+    const messageText = text || question;
+    setIsLoading(true);
+    cleanupMessageHandler();
+    
+    const traceId = uuidv4();
+    setMessages(prev => [...prev, { content: messageText, role: "user", id: traceId }]);
+    
+    // IMPORTANT: Wrap the message in a JSON object with required keys.
+    const payload = JSON.stringify({
+      chatbot_id: "chatbot_B",  // Change this to the appropriate chatbot ID if needed.
+      query: messageText
+    });
+    
+    socket.send(payload);
+    setQuestion("");
 
-  try {
-    const messageHandler = (event: MessageEvent) => {
-      setIsLoading(false);
-      if(event.data.includes("[END]")) {
-        return;
-      }
-      
-      setMessages(prev => {
-        const lastMessage = prev[prev.length - 1];
-        const newContent = lastMessage?.role === "assistant" 
-          ? lastMessage.content + event.data 
-          : event.data;
+    try {
+      const messageHandler = (event: MessageEvent) => {
+        // Check if the message contains the "[END]" marker.
+        if (event.data.includes("[END]")) {
+          cleanupMessageHandler();
+          setIsLoading(false);
+          return;
+        }
         
-        const newMessage = { content: newContent, role: "assistant", id: traceId };
-        return lastMessage?.role === "assistant"
-          ? [...prev.slice(0, -1), newMessage]
-          : [...prev, newMessage];
-      });
+        setMessages(prev => {
+          const lastMessage = prev[prev.length - 1];
+          const newContent = lastMessage?.role === "assistant" 
+            ? lastMessage.content + event.data 
+            : event.data;
+          
+          const newMessage = { content: newContent, role: "assistant", id: traceId };
+          return lastMessage?.role === "assistant"
+            ? [...prev.slice(0, -1), newMessage]
+            : [...prev, newMessage];
+        });
+      };
 
-      if (event.data.includes("[END]")) {
-        cleanupMessageHandler();
-      }
-    };
-
-    messageHandlerRef.current = messageHandler;
-    socket.addEventListener("message", messageHandler);
-  } catch (error) {
-    console.error("WebSocket error:", error);
-    setIsLoading(false);
+      messageHandlerRef.current = messageHandler;
+      socket.addEventListener("message", messageHandler);
+    } catch (error) {
+      console.error("WebSocket error:", error);
+      setIsLoading(false);
+    }
   }
-}
 
   return (
     <div className="flex flex-col min-w-0 h-dvh bg-background">
       <Header/>
       <div className="flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4" ref={messagesContainerRef}>
-        {messages.length == 0 && <Overview />}
+        {messages.length === 0 && <Overview />}
         {messages.map((message, index) => (
           <PreviewMessage key={index} message={message} />
         ))}
@@ -93,4 +95,4 @@ async function handleSubmit(text?: string) {
       </div>
     </div>
   );
-};
+}
