@@ -107,7 +107,7 @@ class ChatbotService:
                 f"Querying chatbot with ID: {chatbot_id}"
             )
             
-            chatbot_data = await chatbot_crud.get_chatbot_by_id(chatbot_id)
+            chatbot_data = await chatbot_crud.get_chatbot_by_id(chatbot_id, str(user_id))
             
             if not chatbot_data:
                 logger.info(
@@ -157,7 +157,7 @@ class ChatbotService:
                 content={"message": f"Internal server error. ERROR: {e}"},
             )
     
-    async def update_chatbot(self, user_id: ObjectId, chatbot_id: str, update_data: ChatbotUpdate):
+    async def update_chatbot(self, user_id: ObjectId, chatbot_id: str, chatbot_data: ChatbotUpdate):
         try:
             logger.debug(
                 f"Validating user with ID: {user_id}"
@@ -173,7 +173,7 @@ class ChatbotService:
                 f"Updating chatbot with ID: {chatbot_id}"
             )
             
-            chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id)
+            chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id, str(user_id))
             
             if not chatbot:
                 logger.info(
@@ -184,24 +184,10 @@ class ChatbotService:
                     content={"message": "Chatbot not found"},
                 )
             
-            # Verify the chatbot belongs to the user
-            if str(chatbot.get("user_id")) != str(user_id):
-                logger.info(
-                    f"Chatbot with ID {chatbot_id} does not belong to user {user_id}"
-                )
-                return JSONResponse(
-                    status_code=HTTPStatus.FORBIDDEN,
-                    content={"message": "You don't have permission to update this chatbot"},
-                )
-            
-            logger.info(
-                f"Chatbot with ID {chatbot_id} found"
-            )
-            
             logger.debug(f"Applying update to chatbot")
-            result = await chatbot_crud.update_chatbot(chatbot_id, update_data)
+            result = await chatbot_crud.update_chatbot(chatbot_id, chatbot_data)
             
-            updated_chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id)
+            updated_chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id, str(user_id))
             updated_chatbot = convert_object_id_to_string(updated_chatbot)
             
             logger.info(f"Chatbot updated successfully")
@@ -236,7 +222,7 @@ class ChatbotService:
                 f"Deleting chatbot with ID: {chatbot_id}"
             )
             
-            chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id)
+            chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id, str(user_id))
             
             if not chatbot:
                 logger.info(
