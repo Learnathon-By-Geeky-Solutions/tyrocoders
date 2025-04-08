@@ -1,174 +1,110 @@
-import re
-import pandas as pd
 import os
-import json
-import yaml
+import pandas as pd
+import logging
+from typing import List, Optional
 
-def detect_file_type(path):
-    """Detect file type based on extension."""
-    _, ext = os.path.splitext(path)
-    return ext.lower()
+# Configure logging
+logger = logging.getLogger(__name__)
 
-def load_data(path, **kwargs):
-    """Dynamic loader that detects file type and calls appropriate loader."""
-    file_type = detect_file_type(path)
+def load_file(file_path: str) -> List[str]:
+    """Load documents from various file types"""
+    if not os.path.exists(file_path):
+        logger.error(f"File not found: {file_path}")
+        return []
     
-    loaders = {
-        '.md': load_markdown,
-        '.markdown': load_markdown,
-        '.csv': load_csv,
-        '.xlsx': load_excel,
-        '.xls': load_excel,
-        '.json': load_json,
-        '.yaml': load_yaml,
-        '.yml': load_yaml,
-        '.txt': load_text
-    }
+    ext = os.path.splitext(file_path)[1].lower()
     
-    if file_type in loaders:
-        return loaders[file_type](path, **kwargs)
-    else:
-        raise ValueError(f"Unsupported file type: {file_type}")
+    try:
+        if ext == '.md':
+            return load_markdown(file_path)
+        elif ext == '.csv':
+            return load_csv(file_path)
+        elif ext == '.xlsx':
+            return load_excel(file_path)
+        else:
+            logger.warning(f"Unsupported file type: {file_path}")
+            return []
+    except Exception as e:
+        logger.error(f"Error loading file {file_path}: {e}")
+        return []
 
-def load_markdown(path, product_pattern=r"##\s*Product:", **kwargs):
-    """Load Markdown file and extract product sections with configurable pattern."""
-    with open(path, "r", encoding='utf-8') as f:
-        md_content = f.read()
-    
-    docs = []
-    # Split by the product pattern (customizable)
-    md_sections = re.split(product_pattern, md_content)
-    
-    for section in md_sections[1:]:  # Skip first empty section if present
-        lines = section.strip().splitlines()
-        if not lines:
-            continue
+def load_markdown(file_path: str) -> List[str]:
+    """
+    Load and chunk markdown files
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
         
-        name = lines[0].strip()
-        details = " ".join(line.strip("- ").strip() for line in lines[1:])
-        docs.append(f"Name: {name}. {details}")
-    
-    return docs
-
-def load_csv(path, id_field='id', **kwargs):
-    """Load CSV file with configurable column mapping."""
-    docs = []
-    df = pd.read_csv(path, **kwargs)
-    
-    # Use kwargs to determine fields to include
-    fields = kwargs.get('fields', df.columns)
-    
-    for _, row in df.iterrows():
-        doc_parts = []
-        for field in fields:
-            if field in row and pd.notna(row[field]):
-                doc_parts.append(f"{field.capitalize()}: {row[field]}")
+        # Split by headers or paragraphs
+        chunks = []
+        lines = content.split('\n')
+        current_chunk = []
         
-        docs.append(". ".join(doc_parts) + ".")
-    
-    return docs
-
-def load_excel(path, sheet_name=0, **kwargs):
-    """Load Excel file with configurable sheet selection."""
-    docs = []
-    df = pd.read_excel(path, sheet_name=sheet_name, **kwargs)
-    
-    # Use kwargs to determine fields to include
-    fields = kwargs.get('fields', df.columns)
-    
-    for _, row in df.iterrows():
-        doc_parts = []
-        for field in fields:
-            if field in row and pd.notna(row[field]):
-                doc_parts.append(f"{field.capitalize()}: {row[field]}")
-        
-        docs.append(". ".join(doc_parts) + ".")
-    
-    return docs
-
-def load_json(path, **kwargs):
-    """Load JSON file and convert to document strings."""
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    docs = []
-    
-    # Handle both list and dict formats
-    if isinstance(data, list):
-        for item in data:
-            if isinstance(item, dict):
-                doc_parts = []
-                for key, value in item.items():
-                    if value is not None:
-                        doc_parts.append(f"{key.capitalize()}: {value}")
-                docs.append(". ".join(doc_parts) + ".")
-    elif isinstance(data, dict):
-        # Handle nested structures
-        flat_items = flatten_dict(data, **kwargs)
-        for item in flat_items:
-            docs.append(item)
-    
-    return docs
-
-def flatten_dict(d, parent_key='', sep='.', **kwargs):
-    """Flatten nested dictionary structure."""
-    items = []
-    
-    if isinstance(d, dict):
-        for k, v in d.items():
-            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        for line in lines:
+            # If we encounter a header, start a new chunk
+            if line.startswith('#'):
+                if current_chunk:
+                    chunks.append('\n'.join(current_chunk))
+                    current_chunk = []
             
-            if isinstance(v, dict):
-                items.extend(flatten_dict(v, new_key, sep))
-            elif isinstance(v, list):
-                for i, item in enumerate(v):
-                    if isinstance(item, dict):
-                        item_parts = []
-                        for ik, iv in item.items():
-                            if iv is not None:
-                                item_parts.append(f"{ik.capitalize()}: {iv}")
-                        items.append(". ".join(item_parts) + ".")
-            else:
-                if v is not None:
-                    items.append(f"{new_key.capitalize()}: {v}")
-    
-    return items
+            current_chunk.append(line)
+            
+            # If the chunk gets too large, split it
+            if len('\n'.join(current_chunk)) > 1000:
+                chunks.append('\n'.join(current_chunk))
+                current_chunk = []
+        
+        # Add the last chunk if it exists
+        if current_chunk:
+            chunks.append('\n'.join(current_chunk))
+        
+        return chunks
+    except Exception as e:
+        logger.error(f"Error loading markdown: {e}")
+        return []
 
-def load_yaml(path, **kwargs):
-    """Load YAML file and convert to document strings."""
-    with open(path, 'r', encoding='utf-8') as f:
-        data = yaml.safe_load(f)
-    
-    # Reuse the JSON loader logic as YAML structure is similar
-    docs = []
-    
-    if isinstance(data, list):
-        for item in data:
-            if isinstance(item, dict):
-                doc_parts = []
-                for key, value in item.items():
-                    if value is not None:
-                        doc_parts.append(f"{key.capitalize()}: {value}")
-                docs.append(". ".join(doc_parts) + ".")
-    elif isinstance(data, dict):
-        flat_items = flatten_dict(data, **kwargs)
-        for item in flat_items:
-            docs.append(item)
-    
-    return docs
+def load_csv(file_path: str) -> List[str]:
+    """
+    Load CSV files and convert rows to text chunks
+    """
+    try:
+        df = pd.read_csv(file_path)
+        
+        # Convert each row to a text chunk
+        chunks = []
+        for _, row in df.iterrows():
+            # Format row as key-value pairs
+            row_text = " | ".join([f"{col}: {val}" for col, val in row.items() if pd.notna(val)])
+            chunks.append(row_text)
+        
+        return chunks
+    except Exception as e:
+        logger.error(f"Error loading CSV: {e}")
+        return []
 
-def load_text(path, delimiter="\n\n", **kwargs):
-    """Load text file with configurable delimiter for documents."""
-    with open(path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    # Split by delimiter
-    chunks = content.split(delimiter)
-    docs = [chunk.strip() for chunk in chunks if chunk.strip()]
-    
-    return docs
-
-# Example usage:
-# documents = load_data('products.csv', fields=['name', 'description', 'price'])
-# documents = load_data('inventory.xlsx', sheet_name='Sheet1')
-# documents = load_data('catalog.md', product_pattern=r"#\s*Item:")
+def load_excel(file_path: str) -> List[str]:
+    """
+    Load Excel files and convert rows to text chunks
+    """
+    try:
+        # Read all sheets
+        xl = pd.ExcelFile(file_path)
+        chunks = []
+        
+        for sheet_name in xl.sheet_names:
+            df = pd.read_excel(file_path, sheet_name=sheet_name)
+            
+            # Add sheet name as context
+            sheet_prefix = f"Sheet: {sheet_name} | "
+            
+            # Convert each row to a text chunk
+            for _, row in df.iterrows():
+                # Format row as key-value pairs with sheet name
+                row_text = sheet_prefix + " | ".join([f"{col}: {val}" for col, val in row.items() if pd.notna(val)])
+                chunks.append(row_text)
+        
+        return chunks
+    except Exception as e:
+        logger.error(f"Error loading Excel: {e}")
+        return []

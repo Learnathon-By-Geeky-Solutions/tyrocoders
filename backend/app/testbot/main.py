@@ -1,47 +1,51 @@
 import os
-from kb import get_or_create_kb
+import logging
+from pathlib import Path
 from server import run_server
+from kb import discover_and_index_files
+from config import DATA_DIR
 
-def knowledge_base_exists(chatbot_id):
-    """
-    Check if the KB already exists.
-    For example, check if the FAISS index file is present.
-    """
-    index_path = os.path.join("kb_indexes", f"{chatbot_id}_index.faiss")
-    return os.path.exists(index_path)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+def discover_chatbots():
+    """Discover all chatbot directories in the chatbot_data directory"""
+    chatbots = []
+    
+    # Create data dir if it doesn't exist
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+        logger.info(f"Created data directory: {DATA_DIR}")
+        return chatbots
+    
+    # Find all subdirectories in the data directory (each is a chatbot)
+    for item in os.listdir(DATA_DIR):
+        item_path = os.path.join(DATA_DIR, item)
+        if os.path.isdir(item_path):
+            chatbots.append(item)
+    
+    return chatbots
 
 def main():
-    # Compute the base directory (i.e. testbot directory)
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    data_dir = os.path.join(base_dir, "chatbot_data")
+    """Main entry point for the application"""
+    logger.info(f"Starting chatbot service using data from {DATA_DIR}...")
     
-    # Build KB for Chatbot A
-    chatbot_A_id = "chatbot_A"
-    dir_chatbot_A = os.path.join(data_dir, "chatbot_A")
-    data_paths_A = [
-        os.path.join(dir_chatbot_A, "products.md"),
-        os.path.join(dir_chatbot_A, "products.csv"),
-        os.path.join(dir_chatbot_A, "axarobd_products.csv")
-    ]
-    if not knowledge_base_exists(chatbot_A_id):
-        print(f"Building knowledge base for {chatbot_A_id}...")
-        get_or_create_kb(chatbot_A_id, data_paths_A)
-    else:
-        print(f"Knowledge base for {chatbot_A_id} already exists.")
+    # Discover chatbots
+    chatbots = discover_chatbots()
+    logger.info(f"Discovered {len(chatbots)} chatbots: {', '.join(chatbots)}")
     
-    # Build KB for Chatbot B
-    chatbot_B_id = "chatbot_B"
-    dir_chatbot_B = os.path.join(data_dir, "chatbot_B")
-    data_paths_B = [
-        os.path.join(dir_chatbot_B, "products.xlsx")
-    ]
-    if not knowledge_base_exists(chatbot_B_id):
-        print(f"Building knowledge base for {chatbot_B_id}...")
-        get_or_create_kb(chatbot_B_id, data_paths_B)
-    else:
-        print(f"Knowledge base for {chatbot_B_id} already exists.")
+    # Index all chatbot knowledge bases
+    for chatbot_id in chatbots:
+        logger.info(f"Indexing knowledge base for {chatbot_id}...")
+        chatbot_data_dir = os.path.join(DATA_DIR, chatbot_id)
+        discover_and_index_files(chatbot_id, chatbot_data_dir)
     
-    # Continue with the rest of your chatbot initialization (e.g., starting the WebSocket server)
+    # Start the server
+    logger.info("Starting WebSocket server...")
     run_server()
 
 if __name__ == "__main__":
