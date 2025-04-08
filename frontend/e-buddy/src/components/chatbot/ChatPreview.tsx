@@ -22,7 +22,7 @@ export const ChatPreview = ({ customization, onClose }: ChatPreviewProps) => {
     if (messages.length === 0) {
       setMessages([
         {
-          id: '1',
+          id: Date.now().toString(),  // Use dynamic ID based on timestamp
           sender: 'bot',
           content: customization.welcomeMessage,
           timestamp: new Date()
@@ -35,7 +35,7 @@ export const ChatPreview = ({ customization, onClose }: ChatPreviewProps) => {
           setMessages(prev => [
             ...prev,
             {
-              id: '2',
+              id: Date.now().toString(),  // Use dynamic ID based on timestamp
               sender: 'bot',
               content: "Here are some questions you might want to ask:",
               timestamp: new Date()
@@ -92,7 +92,7 @@ export const ChatPreview = ({ customization, onClose }: ChatPreviewProps) => {
       }
       
       const botMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: Date.now().toString(),  // Changed from (Date.now() + 1).toString() to avoid potential conflicts
         sender: 'bot',
         content: botResponse,
         timestamp: new Date()
@@ -174,7 +174,7 @@ export const ChatPreview = ({ customization, onClose }: ChatPreviewProps) => {
                     customization.chatBubbleStyle === 'sharp' ? 'rounded-none' : '',
                     customization.chatBubbleStyle === 'bubble' ? 'rounded-full' : ''
                   )}
-                  style={message.sender === 'bot' && customization.primaryColor.startsWith('#') ? {
+                  style={message.sender === 'bot' && customization.primaryColor?.startsWith('#') ? {
                     backgroundColor: customization.primaryColor
                   } : {}}
                 >
@@ -191,7 +191,7 @@ export const ChatPreview = ({ customization, onClose }: ChatPreviewProps) => {
                     customization.chatBubbleStyle === 'sharp' ? 'rounded-none' : '',
                     customization.chatBubbleStyle === 'bubble' ? 'rounded-full' : ''
                   )}
-                  style={customization.primaryColor.startsWith('#') ? {
+                  style={customization.primaryColor?.startsWith('#') ? {
                     backgroundColor: customization.primaryColor
                   } : {}}
                 >
@@ -209,7 +209,7 @@ export const ChatPreview = ({ customization, onClose }: ChatPreviewProps) => {
               <div className="mt-4 space-y-2">
                 {customization.predefinedQuestions.map((question, index) => (
                   <Button 
-                    key={index} 
+                    key={`question-${index}`}  // Unique key for each question 
                     variant="outline" 
                     className="text-left text-sm p-2 w-full justify-start"
                     onClick={() => {

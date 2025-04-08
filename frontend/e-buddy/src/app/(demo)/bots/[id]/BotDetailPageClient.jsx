@@ -55,7 +55,7 @@ import {
 import { CustomizationForm } from '@/components/chatbot/CustomizationForm';
 import { ChatPreview } from '@/components/chatbot/ChatPreview';
 import { ChatTrigger } from '@/components/chatbot/ChatTrigger';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { BotCustomization } from '@/types/chatbot';
 import { dummyBots } from '@/data/botData';
 
@@ -66,6 +66,7 @@ export default function BotDetailPageClient({bot}) {
   const [currentBot, setCurrentBot] = useState(bot)
   const [customization, setCustomization] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
+  const { toast } = useToast();
 
   // State to hold dummy custom fields for lead generation.
   const [welcomeMessage, setWelcomeMessage] = useState("Welcome! Please provide your information to get started.");
@@ -109,7 +110,9 @@ export default function BotDetailPageClient({bot}) {
       title: "Changes saved successfully",
       description: "Your chatbot customization has been updated.",
       duration: 3000,
+      className: "animate-slide-in-from-right", // custom class added here
     });
+    
   };
 
   const addCustomField = () => {
