@@ -20,7 +20,8 @@ def main():
     dir_chatbot_A = os.path.join(data_dir, "chatbot_A")
     data_paths_A = [
         os.path.join(dir_chatbot_A, "products.md"),
-        os.path.join(dir_chatbot_A, "products.csv")
+        os.path.join(dir_chatbot_A, "products.csv"),
+        os.path.join(dir_chatbot_A, "axarobd_products.csv")
     ]
     if not knowledge_base_exists(chatbot_A_id):
         print(f"Building knowledge base for {chatbot_A_id}...")

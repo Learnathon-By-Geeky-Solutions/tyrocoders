@@ -20,7 +20,7 @@ async def process_query(websocket):
                     response_text = "Invalid message format. Expected keys: 'chatbot_id' and 'query'."
                 else:
                     # Retrieve context from the KB
-                    context_docs, _ = search_kb(chatbot_id, query, k=2)
+                    context_docs, _ = search_kb(chatbot_id, query, k=100)
                     context_text = "\n".join(context_docs)
                     prompt = (f"Use the following information to answer the question.\n\n"
                               f"Context:\n{context_text}\n\nQuestion: {query}\nAnswer:")

@@ -4,7 +4,7 @@ import json
 import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
-from data_loader import load_markdown, load_csv, load_xlsx
+from data_loader import load_markdown, load_csv, load_excel
 from config import KB_STORAGE_DIR
 
 # Load the embedding model (make sure you have the model installed)
@@ -24,7 +24,7 @@ def build_kb(chatbot_id, data_paths):
         elif path.endswith('.csv'):
             documents.extend(load_csv(path))
         elif path.endswith('.xlsx'):
-            documents.extend(load_xlsx(path))
+            documents.extend(load_excel(path))
         else:
             print(f"Unsupported file type: {path}")
     if not documents:
@@ -66,7 +66,7 @@ def get_or_create_kb(chatbot_id, data_paths):
         print(f"Loaded existing KB for {chatbot_id} with {len(documents)} documents.")
     return index, documents
 
-def search_kb(chatbot_id, query, k=1000):
+def search_kb(chatbot_id, query, k=100):
     """Given a query and chatbot ID, embed the query and retrieve the top-k similar documents."""
     index, documents = load_kb(chatbot_id)
     if index is None or documents is None:

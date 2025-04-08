@@ -33,7 +33,11 @@ async function handleSubmit(text?: string) {
   
   const traceId = uuidv4();
   setMessages(prev => [...prev, { content: messageText, role: "user", id: traceId }]);
-  socket.send(messageText);
+  const messageData = {
+    chatbot_id: "chatbot_A", // You'd need to add UI for selecting which bot to use
+    query: messageText
+  };
+  socket.send(JSON.stringify(messageData));
   setQuestion("");
 
   try {
