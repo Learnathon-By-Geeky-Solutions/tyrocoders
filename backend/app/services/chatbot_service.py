@@ -1,4 +1,5 @@
 from training.web_scraper import WebScraper
+from training.scrape_products import scrape_from_website
 from training.chatbot_training import ContextualChatbot
 from crud.chatbot import ChatbotCrud
 from crud.user import UserCrud
@@ -8,6 +9,9 @@ from fastapi.responses import JSONResponse
 from http import HTTPStatus
 from utils.converter import convert_object_id_to_string
 from bson import ObjectId
+import uuid
+import json
+from datetime import datetime
 
 chatbot_crud = ChatbotCrud()
 user_crud = UserCrud()
@@ -23,53 +27,55 @@ class ChatbotService:
         logger.info(f"User with ID {user_id} found")
         return True
     
-    async def create_chatbot(
-        self,
-        user_id: ObjectId,
-        chatbot: ChatbotCreate,
-    ):
+    async def create_chatbot(self, user_id: ObjectId, chatbot: ChatbotCreate):
         try:
-            logger.debug(
-                f"Validating user with ID: {user_id}"
-            )
-            
+            logger.debug(f"Validating user with ID: {user_id}")
             if not await self.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
                     content={"message": "User not found"},
                 )
-            
-            logger.debug(
-                f"Attempting to create new chatbot for website: {chatbot.website_url}"
+
+            logger.debug(f"Scraping website for products: {chatbot.website_url}")
+            products = await scrape_from_website(
+                str(chatbot.website_url),
+                scrape_limit=10,
+                sample_size=3,
+                max_concurrent=20
             )
-            
-            logger.debug(f"Scraping website for products")
-            scraper = WebScraper(str(chatbot.website_url))
-            products = scraper.crawl()
-            
+
             if not products:
                 logger.info(f"No products found for website: {chatbot.website_url}")
                 return JSONResponse(
                     status_code=HTTPStatus.BAD_REQUEST,
                     content={"message": "No products could be scraped from the provided URL"},
                 )
-            
-            logger.info(f"Found {len(products)} products from website")
-            chatbot.products = products
-            chatbot.user_id = user_id
-            
-            logger.debug(f"Saving chatbot to database")
+
+            # Generate a unique file name using user_id, current timestamp, and a unique suffix.
+            timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+            unique_suffix = uuid.uuid4().hex[:6]  # A short random string.
+            products_file_name = f"products_user_{str(user_id)}_{timestamp}_{unique_suffix}.json"
+
+            try:
+                with open(products_file_name, "w", encoding="utf-8") as f:
+                    json.dump(products, f, indent=4)
+                logger.info(f"Products JSON saved locally to {products_file_name}")
+            except Exception as e:
+                logger.error(f"Failed to save product JSON locally: {e}")
+                return JSONResponse(
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                    content={"message": "Error saving products file."},
+                )
+
+            chatbot.products_file = products_file_name
+            chatbot.user_id = str(user_id)  
+
+            logger.debug("Saving chatbot to database")
             new_inserted_chatbot = await chatbot_crud.create_chatbot(chatbot)
-            new_chatbot = await chatbot_crud.get_chatbot_by_id(
-                new_inserted_chatbot.inserted_id
-            )
-            
+            new_chatbot = await chatbot_crud.get_chatbot_by_id(new_inserted_chatbot.inserted_id)
             new_chatbot = convert_object_id_to_string(new_chatbot)
-            logger.info(f"Chatbot created successfully")
-            
-            logger.debug(f"Initializing contextual chatbot model")
-            chatbot_instance = ContextualChatbot(products, new_chatbot.get("_id"))
-            
+            logger.info("Chatbot created successfully")
+
             return JSONResponse(
                 status_code=HTTPStatus.CREATED,
                 content={
@@ -83,7 +89,8 @@ class ChatbotService:
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 content={"message": f"Internal server error. ERROR: {e}"},
             )
-    
+
+        
     async def query_chatbot(self, user_id: ObjectId, chatbot_id: str, query: str):
         try:
             logger.debug(
