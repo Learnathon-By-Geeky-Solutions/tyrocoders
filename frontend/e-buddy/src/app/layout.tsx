@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import RootLayoutClient from "./RootLayoutClient";
+import { Toaster } from "@/components/ui/toaster";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className={jetbrainsMono.variable}>
         <RootLayoutClient>{children}</RootLayoutClient>{" "}
         {/* Use Client Component */}
+        <Toaster />
       </body>
     </html>
   );
