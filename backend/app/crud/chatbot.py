@@ -8,7 +8,7 @@ class ChatbotCrud():
         
     async def create_chatbot(self, chatbot: ChatbotCreate):
         collection = self.collection
-        chatbot_dict = chatbot.model_dump()
+        chatbot_dict = chatbot.model_dump(mode='json')
         new_chatbot = await collection.insert_one(chatbot_dict)
         return new_chatbot
     
