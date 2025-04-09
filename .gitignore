@@ -28,3 +28,4 @@ out/
 .pnp.*
 .npm
 .eslintcache
+botVenv/
