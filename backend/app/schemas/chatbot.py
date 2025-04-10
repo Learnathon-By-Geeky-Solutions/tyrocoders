@@ -1,22 +1,38 @@
 from pydantic import BaseModel, HttpUrl, Field
 from typing import List, Optional
-from datetime import datetime
 
 class ProductSchema(BaseModel):
+    url: HttpUrl
     name: str
-    price: Optional[str] = None
     description: Optional[str] = None
-    url: Optional[str] = None
-    image_url: Optional[str] = None
-    
+    sku: Optional[str] = None
+    image: List[HttpUrl] = []
+    originalPrice: Optional[str] = None
+    discount: Optional[str] = None
+    priceCurrency: Optional[str] = None
+    availability: Optional[str] = None
+    seller: Optional[str] = None
+    ratingValue: Optional[str] = None
+    ratingCount: Optional[str] = None
+
     class Config:
         json_schema_extra = {
             "example": {
-                "name": "Product Name",
-                "price": "$99.99",
-                "description": "This is a product description",
                 "url": "https://example.com/product",
-                "image_url": "https://example.com/image.jpg"
+                "name": "Product Name",
+                "description": "This is a product description",
+                "sku": "ABC123",
+                "image": [
+                    "https://example.com/image1.jpg",
+                    "https://example.com/image2.jpg"
+                ],
+                "originalPrice": "99.99",
+                "discount": "79.99",
+                "priceCurrency": "USD",
+                "availability": "In Stock",
+                "seller": "Example Seller",
+                "ratingValue": "4.5",
+                "ratingCount": "100"
             }
         }
 
@@ -25,9 +41,9 @@ class ChatbotCreate(BaseModel):
     website_url: HttpUrl
     description: Optional[str] = None
     is_active: bool = True
-    created_at: datetime = datetime.utcnow()
-    products: List[ProductSchema] = []
-    
+    user_id: Optional[str] = None
+    products_file: Optional[str] = None  
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -43,8 +59,8 @@ class ChatbotUpdate(BaseModel):
     website_url: Optional[HttpUrl] = None
     description: Optional[str] = None
     is_active: Optional[bool] = None
-    products: Optional[List[ProductSchema]] = None
-    
+    products_file: Optional[str] = None
+
     class Config:
         json_schema_extra = {
             "example": {
