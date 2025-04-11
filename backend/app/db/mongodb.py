@@ -40,3 +40,4 @@ async def close_mongo_connection():
 
 base_admin_users_collection = mongodb_client.get_collection("customer_users")
 base_chatbot_collection = mongodb_client.get_collection("chatbots")
+base_chatbot_conversation_collection = mongodb_client.get_collection("chatbot_conversations")

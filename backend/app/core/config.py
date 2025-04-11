@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_MINUTES: int
     PASS_RESET_TOKEN_EXPIRE_MINUTES: int
+    ASSEMBLYAI_API_KEY: str
 
     # IS_RELOAD: bool
 
