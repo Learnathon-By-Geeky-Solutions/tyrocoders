@@ -35,6 +35,23 @@ class ChatbotService:
                     status_code=HTTPStatus.NOT_FOUND,
                     content={"message": "User not found"},
                 )
+            existing_chatbot = (
+                await chatbot_crud.get_chatbot_by_chatbot_name_and_user_id(
+                    chatbot.name, str(user_id)
+                )
+            )
+            if existing_chatbot:
+                logger.info(
+                   f"User ID: {user_id} | Chatbot with name '{chatbot.name}' already exists"
+                )
+                existing_chatbot = convert_object_id_to_string(existing_chatbot)
+                return JSONResponse(
+                    status_code=HTTPStatus.CONFLICT,
+                    content={
+                        "message": f"Chatbot with name {chatbot.name} already exists",
+                        # "data": existing_chatbot,
+                    },
+                )
 
             logger.debug(f"Scraping website for products: {chatbot.website_url}")
             products = await scrape_from_website(
@@ -52,7 +69,7 @@ class ChatbotService:
                 )
 
             # Generate a unique file name using user_id, current timestamp, and a unique suffix.
-            timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
             unique_suffix = uuid.uuid4().hex[:6]  # A short random string.
             products_file_name = f"products_user_{str(user_id)}_{timestamp}_{unique_suffix}.json"
 
@@ -72,7 +89,7 @@ class ChatbotService:
 
             logger.debug("Saving chatbot to database")
             new_inserted_chatbot = await chatbot_crud.create_chatbot(chatbot)
-            new_chatbot = await chatbot_crud.get_chatbot_by_id(new_inserted_chatbot.inserted_id)
+            new_chatbot = await chatbot_crud.get_chatbot_by_id(new_inserted_chatbot.inserted_id, str(user_id))
             new_chatbot = convert_object_id_to_string(new_chatbot)
             logger.info("Chatbot created successfully")
 
@@ -85,6 +102,41 @@ class ChatbotService:
             )
         except Exception as e:
             logger.error(f"Internal server error. ERROR: {e}")
+            return JSONResponse(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                content={"message": f"Internal server error. ERROR: {e}"},
+            )
+    
+    async def read_chatbot(self, user_id: ObjectId, chatbot_id: str):
+        try:
+            if not await self.validate_user(user_id):
+                return JSONResponse(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    content={"message": "User not found"},
+                )
+
+            existing_chatbot = await chatbot_crud.get_chatbot_by_id(
+                chatbot_id, str(user_id)
+            )
+            if not existing_chatbot:
+                return JSONResponse(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    content={"message": f"Chatbot not found"},
+                )
+
+            existing_chatbot = convert_object_id_to_string(existing_chatbot)
+
+            return JSONResponse(
+                status_code=HTTPStatus.OK,
+                content={
+                    "message": f"Chatbot Fetched successfully",
+                    "data": existing_chatbot,
+                },
+            )
+        except Exception as e:
+            logger.error(
+                f" User ID: {user_id} | Internal server error. ERROR: {e}"
+            )
             return JSONResponse(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 content={"message": f"Internal server error. ERROR: {e}"},
