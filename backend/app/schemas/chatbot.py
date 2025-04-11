@@ -39,6 +39,7 @@ class ProductSchema(BaseModel):
 class ChatbotCreate(BaseModel):
     name: str = Field(..., min_length=3, max_length=100)
     website_url: HttpUrl
+    ai_model_name: str
     description: Optional[str] = None
     is_active: bool = True
     user_id: Optional[str] = None
@@ -49,6 +50,7 @@ class ChatbotCreate(BaseModel):
             "example": {
                 "name": "My Store Chatbot",
                 "website_url": "https://example.com",
+                "ai_model_name": "GPT-4o",
                 "description": "A chatbot for my online store",
                 "is_active": True
             }
@@ -79,7 +81,7 @@ class ChatbotUpdate(BaseModel):
     # Conversation
     welcome_message: Optional[str] = None
     predefined_questions: Optional[List[str]] = None
-    fallback_messages: Optional[List[str]] = None
+    fallback_message: Optional[str] = None
 
     # Lead Collection
     enable_lead_collection: Optional[bool] = None
@@ -118,10 +120,7 @@ class ChatbotUpdate(BaseModel):
                     "What's your best-selling product?",
                     "Are there any current promotions?"
                 ],
-                "fallback_messages": [
-                    "Sorry, I didn't understand that.",
-                    "Can you please rephrase?"
-                ],
+                "fallback_message": "Sorry, I didn't understand that.",
                 "enable_lead_collection": True,
                 "lead_collection_after_messages": 2,
                 "collect_name": True,
