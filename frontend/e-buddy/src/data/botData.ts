@@ -21,6 +21,14 @@ export interface Bot {
     sales: number;
   }[];
   customization: BotCustomization;
+  files : {
+    id: string;
+    name: string;
+    type: string;
+    size: number;
+    url: string;
+    createdAt: string;
+  }[]; 
 }
 
 export const dummyBots: Bot[] = [
@@ -45,6 +53,32 @@ export const dummyBots: Bot[] = [
       { date: '2024-03', conversations: 9800, leads: 3908, sales: 4800 },
       { date: '2024-04', conversations: 3908, leads: 4800, sales: 3800 },
       { date: '2024-05', conversations: 4800, leads: 3800, sales: 4300 },
+    ],
+    files: [
+      {
+        id: '1',
+        name: 'faq-document.pdf',
+        type: 'application/pdf',
+        size: 3.8 * 1024 * 1024,
+        url: '/files/faq-document.pdf',
+        createdAt: '2023-06-02T09:45:00Z'
+      },
+      {
+        id: '2',
+        name: 'troubleshooting-guide.pdf',
+        type: 'application/pdf',
+        size: 5.1 * 1024 * 1024,
+        url: '/files/troubleshooting-guide.pdf',
+        createdAt: '2023-06-05T11:30:00Z'
+      },
+      {
+        id: '3',
+        name: 'support-protocol.docx',
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        size: 1.7 * 1024 * 1024,
+        url: '/files/support-protocol.docx',
+        createdAt: '2023-06-10T16:20:00Z'
+      }
     ],
     customization: {
       name: 'ShopAssist Pro',
@@ -98,6 +132,24 @@ export const dummyBots: Bot[] = [
       { date: '2024-03', conversations: 5700, leads: 1540, sales: 670 },
       { date: '2024-04', conversations: 5900, leads: 1620, sales: 710 },
       { date: '2024-05', conversations: 6100, leads: 1800, sales: 780 },
+    ],
+    files: [
+      {
+        id: '1',
+        name: 'product-catalog.pdf',
+        type: 'application/pdf',
+        size: 2.4 * 1024 * 1024,
+        url: '/files/product-catalog.pdf',
+        createdAt: '2023-05-20T10:30:00Z'
+      },
+      {
+        id: '2',
+        name: 'sales-script.docx',
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        size: 1.2 * 1024 * 1024,
+        url: '/files/sales-script.docx',
+        createdAt: '2023-05-22T14:15:00Z'
+      }
     ],
     customization: {
       name: 'Support Helper',

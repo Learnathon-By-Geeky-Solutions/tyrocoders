@@ -41,6 +41,7 @@ import {
   CheckCircle2,
   Plus,
   X,
+  FileText
 } from 'lucide-react';
 import {
   LineChart,
@@ -56,6 +57,7 @@ import { CustomizationForm } from '@/components/chatbot/CustomizationForm';
 import { ChatPreview } from '@/components/chatbot/ChatPreview';
 import { ChatTrigger } from '@/components/chatbot/ChatTrigger';
 import { useToast } from '@/hooks/use-toast';
+import BotFileManager from '@/components/chatbot/BotFileManager'
 import { BotCustomization } from '@/types/chatbot';
 import { dummyBots } from '@/data/botData';
 
@@ -256,21 +258,26 @@ export default function BotDetailPageClient({bot}) {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="performance" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 rounded-lg bg-gray-100 p-1">
-            <TabsTrigger value="performance" className="data-[state=active]:bg-white">
-              Performance
-            </TabsTrigger>
-            <TabsTrigger value="customization" className="data-[state=active]:bg-white">
-              Customization
-            </TabsTrigger>
-            <TabsTrigger value="leads" className="data-[state=active]:bg-white">
-              Lead Generation
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="data-[state=active]:bg-white">
-              Settings
-            </TabsTrigger>
-          </TabsList>
+        {/* <Main Content Tabs */}
+          <Tabs defaultValue="performance" className="w-full">
+            <TabsList className="flex flex-wrap justify-between gap-2 rounded-lg bg-gray-100 p-1">
+              <TabsTrigger value="performance" className="flex-1 text-center data-[state=active]:bg-white">
+                Performance
+              </TabsTrigger>
+              <TabsTrigger value="customization" className="flex-1 text-center data-[state=active]:bg-white">
+                Customization
+              </TabsTrigger>
+              <TabsTrigger value="files" className="flex-1 text-center data-[state=active]:bg-white">
+                Files
+              </TabsTrigger>
+              <TabsTrigger value="leads" className="flex-1 text-center data-[state=active]:bg-white">
+                Lead Generation
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex-1 text-center data-[state=active]:bg-white">
+                Settings
+              </TabsTrigger>
+            </TabsList>
+
 
           <TabsContent value="performance" className="mt-6">
             <Card>
@@ -349,6 +356,50 @@ export default function BotDetailPageClient({bot}) {
                   customization={customization}
                   onChange={handleCustomizationChange}
                 />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+           {/* NEW FILES TAB */}
+           <TabsContent value="files" className="mt-6">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold mb-2">Bot Files and Training Data</h3>
+              <p className="text-gray-600 mb-4">
+                Upload files to train your bot with domain-specific knowledge. Supported file types include PDFs, 
+                Office documents, text files, and images.
+              </p>
+            </div>
+            
+            <BotFileManager botId={currentBot.id} />
+            
+            <Card className="mt-6">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-blue-50 text-blue-600 rounded-full">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-medium mb-1">Using Files with Your Bot</h4>
+                    <p className="text-gray-600 mb-3">
+                      Files uploaded to your bot will be processed and indexed for your bot to reference 
+                      during conversations. This helps your bot provide more accurate and domain-specific responses.
+                    </p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-start gap-2">
+                        <span className="font-medium">•</span>
+                        <p>PDF documents with product specifications will help your bot answer detailed product questions</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="font-medium">•</span>
+                        <p>Support documentation helps your bot troubleshoot customer issues</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="font-medium">•</span>
+                        <p>Training materials help keep your bot's knowledge up-to-date</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
