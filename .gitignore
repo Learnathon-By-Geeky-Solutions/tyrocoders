@@ -29,4 +29,5 @@ out/
 .npm
 .eslintcache
 botVenv/
+venv/
 
