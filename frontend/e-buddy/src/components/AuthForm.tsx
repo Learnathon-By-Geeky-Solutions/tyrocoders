@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -86,6 +86,8 @@ const AuthForm = () => {
       }
     }
   };
+
+  // ... keep existing code (validation functions)
 
   const validateSignInForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -177,16 +179,16 @@ const AuthForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-lg border-neutral-100/20 overflow-hidden">
-      <CardHeader className="space-y-1 bg-gradient-to-r from-[#97d343]/10 to-[#86c232]/10 pb-8">
-        <CardTitle className="text-2xl font-bold text-center">
+    <Card className="w-full max-w-sm mx-auto shadow-lg border-[#3a3e42] bg-[#2a2e33] overflow-hidden">
+      <CardHeader className="space-y-1 bg-[#222629] pb-12">
+        <CardTitle className="text-2xl font-bold text-center text-white">
           {activeTab === "signin" ? "Welcome back" : "Create an account"}
         </CardTitle>
-        <CardDescription className="text-center">
+        {/* <CardDescription className="text-center text-gray-400">
           {activeTab === "signin"
             ? "Enter your credentials to access your account"
             : "Fill out the form to create your account"}
-        </CardDescription>
+        </CardDescription> */}
       </CardHeader>
       <Tabs
         defaultValue="signin"
@@ -194,17 +196,17 @@ const AuthForm = () => {
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <TabsList className="grid grid-cols-2 w-[80%] mx-auto -mt-6 relative z-10 bg-white shadow-md rounded-full">
+        <TabsList className="grid grid-cols-2 w-[80%] mx-auto -mt-6 relative z-10 bg-[#343a40] shadow-md rounded-full">
           <TabsTrigger
             value="signin"
-            className="rounded-full data-[state=active]:bg-[#97d343] data-[state=active]:text-white"
+            className="rounded-full data-[state=active]:bg-[#97d343] data-[state=active]:text-[#1a1a1a] text-gray-300"
           >
             <LogIn className="w-4 h-4 mr-2" />
             Sign In
           </TabsTrigger>
           <TabsTrigger
             value="signup"
-            className="rounded-full data-[state=active]:bg-[#97d343] data-[state=active]:text-white"
+            className="rounded-full data-[state=active]:bg-[#97d343] data-[state=active]:text-[#1a1a1a] text-gray-300"
           >
             <UserPlus className="w-4 h-4 mr-2" />
             Sign Up
@@ -224,7 +226,7 @@ const AuthForm = () => {
                     type="email"
                     name="email"
                     placeholder="Email"
-                    className={`pl-10 ${
+                    className={`pl-10 bg-[#343a40] border-[#4a5056] text-white ${
                       errors.email
                         ? "border-red-500"
                         : "focus:border-[#97d343] focus:ring-[#97d343]"
@@ -234,7 +236,7 @@ const AuthForm = () => {
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-red-500 text-xs">{errors.email}</p>
+                  <p className="text-red-400 text-xs">{errors.email}</p>
                 )}
               </div>
 
@@ -247,7 +249,7 @@ const AuthForm = () => {
                     type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Password"
-                    className={`pl-10 pr-10 ${
+                    className={`pl-10 pr-10 bg-[#343a40] border-[#4a5056] text-white ${
                       errors.password
                         ? "border-red-500"
                         : "focus:border-[#97d343] focus:ring-[#97d343]"
@@ -267,7 +269,7 @@ const AuthForm = () => {
                   </div>
                 </div>
                 {errors.password && (
-                  <p className="text-red-500 text-xs">{errors.password}</p>
+                  <p className="text-red-400 text-xs">{errors.password}</p>
                 )}
               </div>
 
@@ -279,11 +281,11 @@ const AuthForm = () => {
                     onCheckedChange={(checked) =>
                       setRememberMe(checked as boolean)
                     }
-                    className="data-[state=checked]:bg-[#97d343] data-[state=checked]:border-[#97d343]"
+                    className="data-[state=checked]:bg-[#97d343] data-[state=checked]:border-[#97d343] border-gray-500"
                   />
                   <label
                     htmlFor="remember"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-sm font-medium leading-none text-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     Remember me
                   </label>
@@ -302,7 +304,7 @@ const AuthForm = () => {
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full bg-[#97d343] hover:bg-[#86c232] transition-colors"
+                className="w-full bg-[#97d343] hover:bg-[#86c232] text-[#1a1a1a] font-medium transition-colors"
                 disabled={loading}
               >
                 {loading ? "Signing in..." : "Sign In"}
@@ -324,7 +326,7 @@ const AuthForm = () => {
                     type="text"
                     name="name"
                     placeholder="Full Name"
-                    className={`pl-10 ${
+                    className={`pl-10 bg-[#343a40] border-[#4a5056] text-white ${
                       errors.name
                         ? "border-red-500"
                         : "focus:border-[#97d343] focus:ring-[#97d343]"
@@ -334,7 +336,7 @@ const AuthForm = () => {
                   />
                 </div>
                 {errors.name && (
-                  <p className="text-red-500 text-xs">{errors.name}</p>
+                  <p className="text-red-400 text-xs">{errors.name}</p>
                 )}
               </div>
 
@@ -347,7 +349,7 @@ const AuthForm = () => {
                     type="email"
                     name="email"
                     placeholder="Email"
-                    className={`pl-10 ${
+                    className={`pl-10 bg-[#343a40] border-[#4a5056] text-white ${
                       errors.email
                         ? "border-red-500"
                         : "focus:border-[#97d343] focus:ring-[#97d343]"
@@ -357,7 +359,7 @@ const AuthForm = () => {
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-red-500 text-xs">{errors.email}</p>
+                  <p className="text-red-400 text-xs">{errors.email}</p>
                 )}
               </div>
 
@@ -370,7 +372,7 @@ const AuthForm = () => {
                     type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Password"
-                    className={`pl-10 pr-10 ${
+                    className={`pl-10 pr-10 bg-[#343a40] border-[#4a5056] text-white ${
                       errors.password
                         ? "border-red-500"
                         : "focus:border-[#97d343] focus:ring-[#97d343]"
@@ -390,7 +392,7 @@ const AuthForm = () => {
                   </div>
                 </div>
                 {errors.password && (
-                  <p className="text-red-500 text-xs">{errors.password}</p>
+                  <p className="text-red-400 text-xs">{errors.password}</p>
                 )}
               </div>
 
@@ -403,7 +405,7 @@ const AuthForm = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     name="confirmPassword"
                     placeholder="Confirm Password"
-                    className={`pl-10 pr-10 ${
+                    className={`pl-10 pr-10 bg-[#343a40] border-[#4a5056] text-white ${
                       errors.confirmPassword
                         ? "border-red-500"
                         : "focus:border-[#97d343] focus:ring-[#97d343]"
@@ -423,7 +425,7 @@ const AuthForm = () => {
                   </div>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-red-500 text-xs">
+                  <p className="text-red-400 text-xs">
                     {errors.confirmPassword}
                   </p>
                 )}
@@ -432,11 +434,11 @@ const AuthForm = () => {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="terms"
-                  className="data-[state=checked]:bg-[#97d343] data-[state=checked]:border-[#97d343]"
+                  className="data-[state=checked]:bg-[#97d343] data-[state=checked]:border-[#97d343] border-gray-500"
                 />
                 <label
                   htmlFor="terms"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium leading-none text-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   I agree to the{" "}
                   <span className="text-[#97d343] hover:text-[#86c232] cursor-pointer">
@@ -449,7 +451,7 @@ const AuthForm = () => {
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full bg-[#97d343] hover:bg-[#86c232] transition-colors"
+                className="w-full bg-[#97d343] hover:bg-[#86c232] text-[#1a1a1a] font-medium transition-colors"
                 disabled={loading}
               >
                 {loading ? "Creating account..." : "Create Account"}
