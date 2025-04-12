@@ -17,16 +17,16 @@ const Navbar = () => {
       path: "/",
     },
     {
-      name: "Dashboard",
-      path: "/dashboard",
+      name: "Feature",
+      path: "/feature",
     },
     {
-      name: "Schema",
-      path: "/schema",
+      name: "Pricing",
+      path: "/pricing",
     },
     {
-      name: "Chatbot",
-      path: "/chatbot",
+      name: "FAQ",
+      path: "/faq",
     },
   ];
 

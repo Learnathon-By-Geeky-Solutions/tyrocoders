@@ -18,12 +18,13 @@ const AuthPage = () => {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f8fafc] via-white to-[#eef5e5] p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-[#0F151C] p-4">
+      <div className="w-full max-w-sm">
+        
 
         <AuthForm />
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
+        <p className="text-center text-sm text-gray-500 mt-6">
           By using this service, you agree to our Terms of Service and Privacy
           Policy.
         </p>
