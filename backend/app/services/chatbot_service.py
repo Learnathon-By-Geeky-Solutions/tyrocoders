@@ -56,7 +56,7 @@ class ChatbotService:
             logger.debug(f"Scraping website for products: {chatbot.website_url}")
             products = await scrape_from_website(
                 str(chatbot.website_url),
-                scrape_limit=10,
+                scrape_limit=10000,
                 sample_size=3,
                 max_concurrent=20
             )
