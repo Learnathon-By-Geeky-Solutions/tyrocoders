@@ -32,7 +32,7 @@ def discover_chatbots():
 
 def main():
     """Main entry point for the application"""
-    logger.info(f"Starting chatbot service using data from {DATA_DIR}...")
+    logger.info(f"Starting simplified chatbot service using data from {DATA_DIR}...")
     
     # Discover chatbots
     chatbots = discover_chatbots()
@@ -44,8 +44,8 @@ def main():
         chatbot_data_dir = os.path.join(DATA_DIR, chatbot_id)
         discover_and_index_files(chatbot_id, chatbot_data_dir)
     
-    # Start the server
-    logger.info("Starting WebSocket server...")
+    # Start the server with direct LLM integration
+    logger.info("Starting WebSocket server with direct LLM processing...")
     run_server()
 
 if __name__ == "__main__":

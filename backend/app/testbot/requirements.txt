@@ -6,3 +6,5 @@ websockets
 requests
 python-dotenv
 tqdm
+PyPDF2
+beautifulsoup4
