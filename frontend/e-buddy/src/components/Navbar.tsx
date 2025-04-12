@@ -57,7 +57,7 @@ const Navbar = () => {
               );
             })}
           </nav>
-          <Link href="/signin">
+          <Link href="/auth">
             <Button variant="custom">Sign in</Button>
           </Link>
         </div>
