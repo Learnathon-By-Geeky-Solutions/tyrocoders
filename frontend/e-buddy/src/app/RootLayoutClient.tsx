@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Navbar from "../components/Navbar";
+import { AuthProvider } from "@/context/AuthContext";
 
 export default function RootLayoutClient({
   children,
@@ -18,9 +19,9 @@ export default function RootLayoutClient({
     pathname.startsWith("/settings");
 
   return (
-    <>
+    <AuthProvider>
       {!isDemoPage && <Navbar />}
       {children}
-    </>
+    </AuthProvider>
   );
 }

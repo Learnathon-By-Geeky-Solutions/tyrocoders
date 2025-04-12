@@ -1,18 +1,20 @@
-from pydantic import BaseModel, EmailStr, validator, constr
+from pydantic import BaseModel, EmailStr, validator, constr, Field
 from datetime import datetime, timedelta
 import re, secrets
 from typing import Optional
 
 class UserCreate(BaseModel):
-    username: constr(min_length=3)  # type: ignore
-    name: constr(min_length=3)  # type: ignore
+    username: Optional[constr(min_length=3)] = Field(
+        default_factory=lambda: "user_" + secrets.token_hex(4)
+    )
+    name: constr(min_length=3)
     email: EmailStr
-    password: constr(min_length=8)  # type: ignore
+    password: constr(min_length=8)
 
     class Config:
         json_schema_extra = {
             "example": {
-                "username": "Mohtasim",
+                "username": "user_ab12cd34",  # Example output from the lambda function.
                 "name": "M. Mohtasim Hossain",
                 "email": "mohtasim@gmail.com",
                 "password": "Strongpassword123@",
@@ -60,7 +62,7 @@ class GenerateResetPassword(BaseModel):
 
 class ResetPassword(BaseModel):
     pass_reset_token: str
-    new_password: constr(min_length=8)  # type: ignore
+    new_password: constr(min_length=8)
 
     class Config:
         json_schema_extra = {
@@ -85,5 +87,3 @@ class ResetPassword(BaseModel):
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str = "dasdasdsadsad"
-
-
