@@ -21,7 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
-    !!localStorage.getItem("auth_token")
+    false
   );
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -39,8 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoading(true);
     try {
       const response = await authAPI.signIn({ email, password });
-      const { token, user } = response.data;
-
+      const { access_token: token, user } = response.data.data;
       localStorage.setItem("auth_token", token);
       console.log('auth token: ', token);
       setIsAuthenticated(true);
@@ -61,6 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoading(true);
     try {
       const response = await authAPI.signUp({ name, email, password });
+      
       const { token, user } = response.data;
 
       localStorage.setItem("auth_token", token);

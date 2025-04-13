@@ -38,7 +38,7 @@ class ChatbotConversationCrud():
                     {
                         "message_id": str(ObjectId()),
                         "message": greeting_msg
-                        or f"Hello, my name is {chatbot.get("name")}. How may I help you today?",
+                        or f"Hello, my name is {chatbot.get('name')}. How may I help you today?",
                         "sender": "bot",
                         "timestamp": int(datetime.datetime.now().timestamp()),
                         "confidence_score": 100.00,
