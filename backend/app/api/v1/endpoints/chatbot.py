@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, File, UploadFile
+from typing import List, Optional
 from middlewares import authenticate_token
 from services.chatbot_service import ChatbotService
 from schemas.chatbot import (
@@ -20,6 +21,12 @@ async def create_chatbot(
         chatbot_data
     )
 
+@chatbot_router.get("/get-all-chatbots")
+async def get_all_chatbots(
+     user_id = Depends(authenticate_token)
+):
+    return await chatbot_service.get_all_chatbots(user_id)
+
 @chatbot_router.get("/{chatbot_id}")
 async def read_chatbot(
     chatbot_id: str,
@@ -39,8 +46,21 @@ async def update_chatbot(
     return await chatbot_service.update_chatbot(
         user_id, 
         chatbot_id,
-        update_data
+        update_data,
     )
+
+@chatbot_router.post("/{chatbot_id}/files")
+async def upload_knowledge_files(
+    chatbot_id: str,
+    files: List[UploadFile] = File(...),
+    user_id=Depends(authenticate_token),
+):
+    return await chatbot_service.upload_chatbot_files(
+        user_id,
+        chatbot_id,
+        files
+    )
+
 
 @chatbot_router.delete("/{chatbot_id}")
 async def delete_chatbot(
