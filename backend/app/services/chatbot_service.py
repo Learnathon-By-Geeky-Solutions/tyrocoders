@@ -5,6 +5,8 @@ from crud.chatbot import ChatbotCrud
 from crud.user import UserCrud
 from schemas.chatbot import ChatbotCreate, ChatbotUpdate
 from core.logger import logger
+from fastapi import UploadFile
+from typing import List
 from fastapi.responses import JSONResponse
 from http import HTTPStatus
 from utils.converter import convert_object_id_to_string
@@ -12,6 +14,8 @@ from bson import ObjectId
 import uuid
 import json
 from datetime import datetime
+from pathlib import Path
+import shutil
 
 chatbot_crud = ChatbotCrud()
 user_crud = UserCrud()
@@ -312,6 +316,231 @@ class ChatbotService:
             )
         except Exception as e:
             logger.error(f"Internal server error. ERROR: {e}")
+            return JSONResponse(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                content={"message": f"Internal server error. ERROR: {e}"},
+            )
+        
+    async def get_all_chatbots(self, user_id: ObjectId):
+        try:
+            logger.debug(
+                f"Validating user with ID: {user_id}"
+            )
+            
+            if not await self.validate_user(user_id):
+                return JSONResponse(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    content={"message": "User not found"},
+                )
+
+            logger.debug(
+                f"Getting all chatbots for user with id {user_id}"
+            )
+            chatbots_list = await chatbot_crud.get_all_chatbots_by_user_id(
+                str(user_id)
+            )
+            
+            chatbots_list = [
+                convert_object_id_to_string(chatbot) for chatbot in chatbots_list
+            ]
+            logger.info(
+                f"User ID: {user_id} | All Chatbots fetched successfully for user with id {user_id}"
+            )
+
+            return JSONResponse(
+                status_code=HTTPStatus.OK,
+                content={
+                    "message": f"List of all chatbots retrieved successfully for user_id: {user_id}",
+                    "data": chatbots_list,
+                },
+            )
+        except Exception as e:
+            logger.error(
+                f"User ID: {user_id} | Internal server error. ERROR: {e}"
+            )
+            return JSONResponse(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                content={"message": f"Internal server error. ERROR: {e}"},
+            )
+        
+    async def upload_clatbot_files(self, user_id: ObjectId, chatbot_id: str, uploaded_files: List[UploadFile]):
+        try:
+            logger.debug(
+                f"Validating user with ID: {user_id}"
+            )
+            
+            if not await self.validate_user(user_id):
+                return JSONResponse(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    content={"message": "User not found"},
+                )
+            
+            logger.debug(
+                f"Fetching chatbot with ID: {chatbot_id}"
+            )
+            
+            chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id, str(user_id))
+            
+            if not chatbot:
+                logger.info(
+                    f"Chatbot with ID {chatbot_id} not found"
+                )
+                return JSONResponse(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    content={"message": "Chatbot not found"},
+                )
+
+            current_files = chatbot.get("knowledge_files", [])
+            knowledge_dir = Path("knowledge_bases") / str(chatbot_id)
+            knowledge_dir.mkdir(parents=True, exist_ok=True)
+
+            # Create mapping of original filenames to their current UUID versions
+            existing_files_map = {}
+            for f in current_files:
+                try:
+                    parts = f.split('_', 1)
+                    if len(parts) == 2:
+                        uuid_part, original_name = parts
+                        existing_files_map[original_name] = f
+                except:
+                    continue
+
+            final_files = []
+            processed_names = set()
+
+            # Process new uploads
+            for new_file in uploaded_files:
+                original_name = new_file.filename
+                processed_names.add(original_name)
+
+                # Only replace if this exact filename existed before
+                if original_name in existing_files_map:
+                    # Delete old version
+                    old_path = knowledge_dir / existing_files_map[original_name]
+                    if old_path.exists():
+                        old_path.unlink()
+
+                # Save new file with new UUID
+                new_uuid = str(uuid.uuid4())
+                new_filename = f"{new_uuid}_{original_name}"
+                file_path = knowledge_dir / new_filename
+                with open(file_path, "wb") as buffer:
+                    shutil.copyfileobj(new_file.file, buffer)
+                final_files.append(new_filename)
+
+            # Preserve all files that weren't modified
+            for original_name, uuid_filename in existing_files_map.items():
+                if original_name not in processed_names:
+                    final_files.append(uuid_filename)
+
+            # Update database with complete file list
+            chatbot_data = ChatbotUpdate(upload_files=final_files)
+            await chatbot_crud.update_chatbot(chatbot_id, chatbot_data)
+
+            return JSONResponse(
+                status_code=HTTPStatus.OK,
+                content={
+                    "message": "Files processed successfully",
+                    "updated_files": [f for f in final_files if f.split('_', 1)[1] in processed_names],
+                    "preserved_files": [f for f in final_files if f.split('_', 1)[1] not in processed_names],
+                    "total_files": len(final_files)
+                },
+            )
+
+        except Exception as e:
+            logger.error(f"File upload failed. ERROR: {e}")
+            return JSONResponse(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                content={"message": f"Internal server error. ERROR: {e}"},
+            )
+        
+    async def upload_chatbot_files(self, user_id: ObjectId, chatbot_id: str, uploaded_files: List[UploadFile]):
+        """
+        Update files for a chatbot knowledge base.
+        Each call completely replaces the previous set of files with the new set.
+        
+        Args:
+            user_id: The ID of the user
+            chatbot_id: The ID of the chatbot
+            uploaded_files: Complete list of files that should exist after this update
+        """
+        try:
+            logger.debug(f"Validating user with ID: {user_id}")
+            if not await self.validate_user(user_id):
+                return JSONResponse(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    content={"message": "User not found"},
+                )
+                
+            logger.debug(f"Fetching chatbot with ID: {chatbot_id}")
+            chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id, str(user_id))
+            if not chatbot:
+                logger.info(f"Chatbot with ID {chatbot_id} not found")
+                return JSONResponse(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    content={"message": "Chatbot not found"},
+                )
+                
+            # Get current files and prepare directory
+            current_files = chatbot.get("knowledge_files", [])
+            knowledge_dir = Path("knowledge_bases") / str(chatbot_id)
+            knowledge_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Map original filenames to their UUID versions
+            existing_files_map = {}
+            for f in current_files:
+                try:
+                    parts = f.split('_', 1)
+                    if len(parts) == 2:
+                        uuid_part, original_name = parts
+                        existing_files_map[original_name] = f
+                except:
+                    continue
+                    
+            # Get all original file names being uploaded
+            new_file_names = [file.filename for file in uploaded_files]
+            
+            # Clean up old files that aren't in the new upload
+            for original_name, uuid_filename in existing_files_map.items():
+                if original_name not in new_file_names:
+                    # Delete file that's not in the new upload
+                    file_path = knowledge_dir / uuid_filename
+                    if file_path.exists():
+                        file_path.unlink()
+                        logger.debug(f"Deleted file: {uuid_filename}")
+            
+            # Process all uploads, whether new or replacements
+            final_files = []
+            for new_file in uploaded_files:
+                original_name = new_file.filename
+                
+                # If this filename already exists, delete the old version
+                if original_name in existing_files_map:
+                    old_path = knowledge_dir / existing_files_map[original_name]
+                    if old_path.exists():
+                        old_path.unlink()
+                        
+                # Save new file with UUID prefix
+                new_uuid = str(uuid.uuid4())
+                new_filename = f"{new_uuid}_{original_name}"
+                file_path = knowledge_dir / new_filename
+                with open(file_path, "wb") as buffer:
+                    shutil.copyfileobj(new_file.file, buffer)
+                final_files.append(new_filename)
+            
+            # Update database with complete file list
+            chatbot_data = ChatbotUpdate(knowledge_files=final_files)
+            await chatbot_crud.update_chatbot(chatbot_id, chatbot_data)
+            
+            return JSONResponse(
+                status_code=HTTPStatus.OK,
+                content={
+                    "message": "Files processed successfully",
+                    "total_files": len(final_files)
+                },
+            )
+        except Exception as e:
+            logger.error(f"File upload failed. ERROR: {e}")
             return JSONResponse(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 content={"message": f"Internal server error. ERROR: {e}"},

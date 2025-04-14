@@ -4,17 +4,16 @@ import re, secrets
 from typing import Optional
 
 class UserCreate(BaseModel):
-    username: Optional[constr(min_length=3)] = Field(
-        default_factory=lambda: "user_" + secrets.token_hex(4)
-    )
-    name: constr(min_length=3)
+    username: Optional[str] = Field(..., min_length=3)
+    name: str = Field(..., min_length=3)
     email: EmailStr
-    password: constr(min_length=8)
+    password: str = Field(..., min_length=8)
 
     class Config:
+        extra = "allow"
         json_schema_extra = {
             "example": {
-                "username": "user_ab12cd34",  # Example output from the lambda function.
+                "username": "mohtasim",
                 "name": "M. Mohtasim Hossain",
                 "email": "mohtasim@gmail.com",
                 "password": "Strongpassword123@",
@@ -62,7 +61,7 @@ class GenerateResetPassword(BaseModel):
 
 class ResetPassword(BaseModel):
     pass_reset_token: str
-    new_password: constr(min_length=8)
+    new_password: str = Field(..., min_length=8)
 
     class Config:
         json_schema_extra = {

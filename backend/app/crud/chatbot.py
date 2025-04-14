@@ -34,3 +34,14 @@ class ChatbotCrud():
     async def delete_chatbot(self, chatbot_id: str):
         result = await self.collection.delete_one({"_id": ObjectId(chatbot_id)})
         return result
+    
+    async def get_all_chatbots_by_user_id(
+        self, user_id: str
+    ):
+        collection = self.collection
+        chatbots = []
+        async for chatbot in collection.find(
+            {"user_id": user_id}
+        ):
+            chatbots.append(chatbot)
+        return chatbots
