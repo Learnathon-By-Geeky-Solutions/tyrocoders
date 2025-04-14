@@ -5,9 +5,7 @@ import logging
 import re
 from typing import Dict, Any, List, Optional
 from config import GROQ_API_KEY, GEMINI_API_URL
-
 from config import FREE_LLM_API_URL, FREE_LLM_API_KEY
-
 
 logger = logging.getLogger(__name__)
 
@@ -23,53 +21,192 @@ def create_prompt(query: str, context_docs: list, conversation_history=None) -> 
             for exchange in conversation_history[-3:]
         ]) + "\n\n"
     
+    # if is_product_query(query):
+    #     prompt = f"""
+    #     You are an expert ecommerce assistant with access to a vector-based product knowledge base. The conversation history is provided as:
+    #     {history_text}
+
+    #     The product knowledge base data is:
+    #     {context_text}
+
+    #     The current user query is:
+    #     {query}
+
+    #     Your task is to generate a concise and user-friendly response in JSON format. Please follow these guidelines:
+
+    #     1. Context Determination:
+    #     - If the product is being introduced for the first time, or if multiple products are returned:
+    #         - Include the "row_index" key with a single integer (if one product) or an array of integers (if multiple products).
+    #         - Set the "target" key to "card".
+    #         - In the "response" key, provide a brief, generic summary (e.g., "Here are the products...").
+    #     - If the query is a follow-up for additional details about an already presented product:
+    #         - Include the "row_index" key referencing the specific product.
+    #         - Set the "target" key to "text".
+    #         - In the "response" key, provide a concise textual explanation with the additional details requested (e.g., paraphrased product description, features, or specific attributes).
+    #     - If the query is to compare products:
+    #         - Include the "row_index" key as an array of integers referencing the products to be compared.
+    #         - Set the "target" key to "compare".
+    #         - In the "response" key, provide a brief summary of the comparison.
+    #         - Also include an additional attribute "comparison_table" containing a JSON object with a comparison table. This table should compare key fields like price, features, and availability, and any other relevant product details.
+
+    #     2. Engagement:
+    #         - Each response should include at most one engagement question (e.g., "Do you need any further assistance?" or "Would you like to know more details?").
+    #         - Avoid duplicative greetings or including multiple engagement prompts within a single response.
+
+    #     3. Final JSON Format:
+    #     - For product-related queries, the final response must follow this structure:
+    #         {{
+    #             "row_index": <integer or array of integers, if applicable>,
+    #             "target": "<card | text | compare>",
+    #             "response": "<concise textual answer including an engagement question>"
+    #             // Include the "comparison_table" key only if target is "compare"
+    #         }}
+    #     """
+    # else:
+    #     prompt = f"""
+    #     The query does not appear to be directly related to product information. However, please analyze the nature of the query:
+
+    #     - If the query is totally irrelevant (e.g., off-topic, spam, or unrelated to our ecommerce context), please respond with a message advising the user to contact our support team for further assistance.
+        
+    #     - If the query is a normal, casual conversational query (e.g., greetings, small talk, or general chit-chat), then respond in a friendly and conversational manner.
+
+    #     In either case, you must return your final response as a JSON object with the following structure:
+    #         {{
+    #         "response": "<textual answer for the UI>"
+    #         }}
+    #     """
+    
     if is_product_query(query):
-        prompt = f"""You are a helpful AI product assistant. Answer user queries about products based only on the provided context. If the answer is not found in the context, reply with "I don't know" (inside the JSON response) without fabricating details.
+        prompt = f"""
+        You are an AI shopping assistant for an ecommerce website. Your goal is to help users find products, answer questions about products, and provide a helpful shopping experience.
 
-    When answering a product query, examine the context for product details. If product details are available, return your answer as a JSON object with the following structure:
-    {{
-    "status": "success",
-    "response": "Your complete natural language answer here",
-    "product_data": {{
-        "product_name": "Name of the product (or null if not available)",
-        "product_description": "Brief description (or null)",
-        "price": "Price information (or null)",
-        "url": "The URL to the product (or null)",
-        "picture": "The picture URL (or null)",
-        "availability": "Availability information (or null)",
-        "related_products": ["Product 1", "Product 2", "Product 3"]   // Use an empty list if no related products
-    }}
-    }}
+        ## Input Data
+        You will receive:
+        - `{history_text}`: Previous conversation history with the user
+        - `{context_text}`: Product database information in JSON format
+        - `{query}`: The user's current question or request
 
-    {history_text}
-    ## CONTEXT:
-    {context_text}
+        ## Response Format
+        Your responses must always be in the following JSON format:
 
-    ## CURRENT QUESTION:
-    {query}
+        ```json
+        {{
+        "response": "Your conversational response to the user here",
+        "display_type": "text|product_card|product_grid|comparison_table",
+        "follow_up_question": "An optional follow-up question to engage the user",
+        "products": [
+            {{
+            "row_index": 1,
+            "url": "product-url-slug",
+            "name": "Product Name",
+            "price": "Price as string with currency symbol",
+            "image": "URL to product image"
+            }}
+        ]
+        }}
+        ```
 
-    ## RESPONSE:
-    """
+        ## Mandatory and Optional Fields
+
+        ### Mandatory Fields for All Products:
+        - `row_index`: Numeric position in the list (starting at 1)
+        - `url`: The product URL slug
+        - `name`: Product name
+        - `price`: Product price with currency symbol
+        - `image`: URL to product image
+
+        ### Optional Fields (Add Only When Relevant):
+        For detailed product views:
+        - `description_summary`: A concise summary of the product description
+        - `key_features`: Array of important product features
+        - `ratings`: Customer rating if available
+        - `availability`: Stock status
+
+        For comparison tables, include relevant comparison attributes like:
+        - `processor`: For electronics comparisons
+        - `material`: For clothing or furniture
+        - `size_options`: For products with size variations
+        - Any other attributes relevant to the specific product category being compared
+
+        ## Guidelines
+
+        1. **Display Types**:
+        - `text`: For general responses with no product display needed
+        - `product_card`: For displaying a single product in detail
+        - `product_grid`: For displaying multiple products in a grid
+        - `comparison_table`: For comparing multiple products side by side
+
+        2. **Product Information**:
+        - Always include the five mandatory fields for all products
+        - Add optional fields only when they're relevant to the user's query
+        - For comparison tables, include the specific attributes needed for comparison
+        - Summarize product descriptions in clear, concise language
+        - Correct any spelling or formatting issues from the original product data
+
+        3. **User Interaction**:
+        - Be conversational, friendly, and helpful
+        - Include a follow-up question when appropriate to guide the user
+        - If user query is vague, ask for clarification
+        - If you can't find a product in the context, apologize and suggest alternatives
+
+        4. **Search Understanding**:
+        - Handle queries about product categories ("show me laptops")
+        - Handle specific product searches ("tell me about the iPhone 13")
+        - Handle feature-based searches ("waterproof cameras under $500")
+        - Handle comparison requests ("compare Dell XPS vs MacBook Pro")
+
+        5. **Special Cases**:
+        - For product comparisons, set `display_type` to "comparison_table" and include relevant comparison attributes
+        - For browsing multiple products, set `display_type` to "product_grid" with mandatory fields only
+        - For detailed product information, set `display_type` to "product_card" with additional descriptive fields
+        - For general questions or when no products match, set `display_type` to "text" and omit the products array
+
+        Remember to always format your response as valid JSON with the structure shown above.
+        """
     else:
-        prompt = f"""Answer the question concisely based on the provided context. If you don't find the answer in the context, reply with "I don't know". 
-    Return your answer as a JSON object with these properties:
-    {{
-    "status": "success",
-    "answer": "Your answer here"
-    }}
+        prompt = f"""
+        You are an AI shopping assistant for an ecommerce website. Your goal is to help users primarily with shopping, but you can also handle casual conversation. For queries unrelated to products, respond appropriately based on the type of query.
 
-    Only output the JSON object and nothing else.
+        ## Input Data
+        You will receive:
+        - `{history_text}`: Previous conversation history with the user
+        - `{query}`: The user's current question or request
 
-    {history_text}
-    ## CONTEXT:
-    {context_text}
+        ## Response Format
+        Your responses must always be in the following JSON format:
 
-    ## QUESTION:
-    {query}
+        ```json
+        {{
+        "response": "Your conversational response to the user here",
+        "display_type": "text",
+        "follow_up_question": "An optional follow-up question to engage the user",
+        "conversation_type": "casual|support|irrelevant"
+        }}
+        ```
 
-    ## ANSWER:
-    """
+        ## Guidelines for Non-Product Queries
 
+        1. **Casual Conversation** (set conversation_type to "casual"):
+        - Handle greetings, thanks, and general chitchat politely and briefly
+        - Be friendly and conversational, but concise
+        - Include a follow-up question that gently steers the conversation back to shopping when appropriate
+        - Examples: "Hello", "How are you?", "Thanks for your help", etc.
+
+        2. **Support Questions** (set conversation_type to "support"):
+        - For questions about orders, shipping, returns, account issues, technical problems
+        - Politely apologize and direct the user to contact customer support 
+        - Provide a helpful, empathetic response without attempting to solve complex support issues
+        - Examples: "Where is my order?", "How do I return this item?", "I can't log into my account", etc.
+
+        3. **Irrelevant Queries** (set conversation_type to "irrelevant"):
+        - For completely off-topic questions or requests unrelated to shopping or the website
+        - Politely explain that you're a shopping assistant and can't help with the specific request
+        - Redirect the conversation to shopping-related topics
+        - Examples: "Write me an essay", "What's the capital of France?", "Tell me a joke", etc.
+
+        Remember to always format your response as valid JSON with the structure shown above, and use display_type "text" for all non-product queries.
+        """
+    
     return prompt
 
 def prioritize_context_docs(query: str, context_docs: list) -> list:
@@ -77,17 +214,13 @@ def prioritize_context_docs(query: str, context_docs: list) -> list:
     if len(context_docs) <= 5:
         return context_docs
 
-    # Ensure query is a string
     if not isinstance(query, str):
         logger.warning(f"Query is not a string: {type(query)}")
-        return context_docs[:5] if len(context_docs) > 5 else context_docs
+        return context_docs[:5]
         
     query_keywords = set(query.lower().split())
-    
-    # Handle different context document types safely
     scored_docs = []
     for doc in context_docs:
-        # Check if doc is a string; if not, convert to string or handle appropriately
         if not isinstance(doc, str):
             try:
                 doc_str = str(doc)
@@ -98,13 +231,14 @@ def prioritize_context_docs(query: str, context_docs: list) -> list:
         else:
             doc_str = doc
             
-        # Calculate score based on keyword matches
         score = sum(1 for kw in query_keywords if kw in doc_str.lower())
         scored_docs.append((score, doc))
     
-    # Sort using only the score
-    return [doc for _, doc in sorted(scored_docs, key=lambda x: x[0], reverse=True)][:5]
-
+    # For product queries, return more items. Otherwise limit to 5.
+    if is_product_query(query):
+        return [doc for _, doc in sorted(scored_docs, key=lambda x: x[0], reverse=True)][:10]
+    else:
+        return [doc for _, doc in sorted(scored_docs, key=lambda x: x[0], reverse=True)][:5]
 
 def summarize_response(response: str, max_length=100) -> str:
     """Summarize a response to reduce token usage in history"""
@@ -119,21 +253,22 @@ def summarize_response(response: str, max_length=100) -> str:
             pass
     return response if len(response) <= max_length else response[:max_length] + "..."
 
-def is_product_query(query: str) -> bool:
+def is_product_query(query: str, history_text: str = "") -> bool:
     """
-    Determine if a query is about products using a Hugging Face model
+    Determine if a query is about products using a Hugging Face model.
     """
     try:
-        # Create a prompt for the model to classify the query
         prompt = f"""
-        Task: Determine if the following query is related to shopping, products, purchases, or e-commerce.
+        Task: Using the conversation context provided, determine if the new query is related to shopping, products, purchases, or e-commerce.
+
+        Conversation History:
+        {history_text}
         
-        Query: "{query}"
+        New Query: "{query}"
         
-        Is this a product-related query? Please analyze the query and respond with only "Yes" if it's related to products, shopping, or purchasing, or "No" if it's not.
+        Is this a product-related query? Please analyze the conversation history and the new query, and respond with only "Yes" if it's related to products, shopping, or purchasing, or "No" if it is not.
         """
         
-        # Use Hugging Face model to analyze the query
         headers = {
             "Authorization": f"Bearer {FREE_LLM_API_KEY}",
             "Content-Type": "application/json"
@@ -142,8 +277,8 @@ def is_product_query(query: str) -> bool:
         payload = {
             "inputs": prompt,
             "parameters": {
-                "max_length": 100,  # Short response is fine for Yes/No
-                "temperature": 0.95,  # Low temperature for more deterministic response
+                "max_length": 100,
+                "temperature": 0.95,
                 "top_p": 0.9
             }
         }
@@ -156,20 +291,15 @@ def is_product_query(query: str) -> bool:
         
         if response.status_code != 200:
             logger.error(f"Error querying Hugging Face API: {response.status_code} - {response.text}")
-            # Fall back to keyword-based detection as a backup
             return fallback_product_detection(query)
             
         response_text = response.json()[0]["generated_text"].strip().lower()
-        
-        # Check if the response contains "yes"
-        is_product = "yes" in response_text.lower()
+        is_product = "yes" in response_text
         
         logger.info(f"Query classified as product query: {is_product}")
         return is_product
-        
     except Exception as e:
-        logger.error(f"Error determining if query is product-related: {e}")
-        # Fall back to keyword-based detection
+        logger.error(f"Exception during product query detection: {e}")
         return fallback_product_detection(query)
 
 def fallback_product_detection(query: str) -> bool:
@@ -215,7 +345,6 @@ def ask_groq(prompt: str, model="llama3-70b-8192") -> str:
         
         if response.status_code != 200:
             logger.error(f"Groq API request failed with status {response.status_code}: {response.text}")
-            # Fallback to Gemini if Groq fails
             logger.info("Falling back to Gemini API")
             return ask_llm_gemini(prompt)
         
@@ -224,7 +353,6 @@ def ask_groq(prompt: str, model="llama3-70b-8192") -> str:
     
     except Exception as e:
         logger.error(f"Error in Groq request: {e}")
-        # Fallback to Gemini
         logger.info(f"Falling back to Gemini API due to error: {e}")
         return ask_llm_gemini(prompt)
 
@@ -291,14 +419,8 @@ def process_query_llm(chatbot_id: str, query: str, context_docs: list, conversat
     prompt = create_prompt(query, context_docs, conversation_history)
     logger.info(f"Sending prompt to Groq LLM for chatbot {chatbot_id}")
     
-    # Try to estimate if the prompt is too large
     estimated_tokens = estimate_token_count(prompt)
-    if estimated_tokens > 7000:  # Conservative limit for llama3-70b-8192
-        logger.warning("Prompt too large, reducing context")
-        prompt = reduce_prompt_size(prompt)
-    
-    # Use Groq as the primary LLM provider now
-    response = ask_groq(prompt)
+    response = ask_llm_gemini(prompt)
     
     prompt_tokens = estimate_token_count(prompt)
     response_tokens = estimate_token_count(response)

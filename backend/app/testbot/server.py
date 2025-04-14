@@ -7,7 +7,7 @@ import os
 
 # Import the necessary modules directly
 from kb import search_kb
-from llm import  create_prompt, ask_groq, process_query_llm
+from llm import create_prompt, ask_groq, process_query_llm, ask_llm_gemini, is_product_query
 from free_llm_formatter import format_response
 
 # Configure logging
@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 # Store conversation history 
 conversation_history = {}
+
 def clean_json_response(response_data: dict) -> dict:
     """
     Cleans the provided JSON object by stripping leading and trailing whitespace
@@ -78,26 +79,26 @@ async def process_query(client_id: str, chatbot_id: str, query: str) -> Dict[str
         # Search the knowledge base
         logger.info(f"Searching KB for chatbot {chatbot_id}, query: {query}")
         context_docs = search_kb(chatbot_id, query, 1000)
-        
+        logger.info(f"context docs: {len(context_docs)}")
         # Get conversation history for this client
         client_history = conversation_history.get(client_id, [])
         
         # Create prompt
         prompt = create_prompt(query, context_docs, client_history)
         
-        # Get raw response from primary LLM
-        raw_response = process_query_llm(client_id, chatbot_id, context_docs, client_history)
-
+        # Get raw response from primary LLM (Gemini as fallback is used inside ask_llm_gemini)
+        raw_response = ask_llm_gemini(prompt)
+        
         json_response = parse_and_clean_json_generic(raw_response)
         
-        logger.info(f"The json_response  is : {json_response}")
+        logger.info(f"The json_response is : {json_response}")
         
-        # Check if response is JSON (for product queries)
+        # Check if the response contains product-specific keys
         is_json_response = False
         product_data = None
-        
-        
-        # Format the text response using the free LLM
+        if "row_index" in json_response and "target" in json_response:
+            is_json_response = True
+            product_data = json_response
         
         # Update conversation history with the formatted response
         client_history.append({"query": query, "response": raw_response})
@@ -106,7 +107,7 @@ async def process_query(client_id: str, chatbot_id: str, query: str) -> Dict[str
         
         # Return the appropriate response format
         if is_json_response and product_data:
-            return  json_response       
+            return product_data       
         else:
             return json_response
     
@@ -140,7 +141,7 @@ async def handle_client(websocket):
                     continue
                 
                 # Update client on progress
-                await websocket.send(json.dumps({"status": "searching", "message": "Searching knowledge base..."}))
+                # await websocket.send(json.dumps({"status": "searching", "message": "Searching knowledge base..."}))
                 
                 # Process query with dual LLM approach
                 response = await process_query(client_id, chatbot_id, query)
