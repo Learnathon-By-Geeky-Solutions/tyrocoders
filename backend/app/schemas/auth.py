@@ -41,7 +41,7 @@ class UserLogin(BaseModel):
         json_schema_extra = {
             "example": {
                 "email": "mohtasim@gmail.com",
-                "password": "Temp@1234"
+                "password": "Strongpassword123@"
             }
         }
 
