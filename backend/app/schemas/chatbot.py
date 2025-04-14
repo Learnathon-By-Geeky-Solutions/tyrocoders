@@ -46,6 +46,7 @@ class ChatbotCreate(BaseModel):
     products_file: Optional[str] = None  
 
     class Config:
+        extra = "allow"
         json_schema_extra = {
             "example": {
                 "name": "My Store Chatbot",
@@ -69,6 +70,7 @@ class ChatbotUpdate(BaseModel):
     ai_model_name: Optional[str] = None
     role_of_chatbot: Optional[str] = None
     language: Optional[str] = None
+    upload_files: Optional[List[str]] = None
 
     # Appearance
     primary_color: Optional[str] = None
@@ -102,6 +104,7 @@ class ChatbotUpdate(BaseModel):
     handover_emails: Optional[List[str]] = None
 
     class Config:
+        extra = "allow"
         json_schema_extra = {
             "example": {
                 "name": "ShopAssist Pro",

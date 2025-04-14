@@ -99,7 +99,7 @@ To run the backend, use the following commands:
    ```
 
 The backend will be accessible at:
-- **API Docs (Swagger UI):** http://localhost:8000/docs
+- **API Docs (Swagger UI):** http://localhost:8000/api/docs
 - **Redoc:** http://localhost:8000/redoc
 
 ### Folder Structure

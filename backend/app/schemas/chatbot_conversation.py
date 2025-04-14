@@ -76,6 +76,7 @@ class ChatbotConversationModel(BaseModel):
     conversation_history: List[ConversationMessage]
 
     class Config:
+        extra = "allow"
         json_schema_extra = {
             "example": {
                 "_id": "67077476f896412f11e8a7c8",
