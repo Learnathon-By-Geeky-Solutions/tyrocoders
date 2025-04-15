@@ -16,6 +16,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 import shutil
+import os
 
 chatbot_crud = ChatbotCrud()
 user_crud = UserCrud()
@@ -75,17 +76,6 @@ class ChatbotService:
             new_uuid = str(uuid.uuid4())
             products_file_name = f"products_user_{new_uuid}.json"
 
-            try:
-                with open(products_file_name, "w", encoding="utf-8") as f:
-                    json.dump(products, f, indent=4)
-                logger.info(f"Products JSON saved locally to {products_file_name}")
-            except Exception as e:
-                logger.error(f"Failed to save product JSON locally: {e}")
-                return JSONResponse(
-                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                    content={"message": "Error saving products file."},
-                )
-
             chatbot.products_file = products_file_name
             chatbot.user_id = str(user_id)  
 
@@ -94,6 +84,23 @@ class ChatbotService:
             new_chatbot = await chatbot_crud.get_chatbot_by_id(new_inserted_chatbot.inserted_id, str(user_id))
             new_chatbot = convert_object_id_to_string(new_chatbot)
             logger.info("Chatbot created successfully")
+
+            folder_path = os.path.join("scrapped_files", new_chatbot["_id"])
+            os.makedirs(folder_path, exist_ok=True)
+            full_path = os.path.join(folder_path, products_file_name)\
+            
+            logger.debug("Saving scrapped json file to directory")
+
+            try:
+                with open(full_path, "w", encoding="utf-8") as f:
+                    json.dump(products, f, indent=4)
+                logger.info(f"Products JSON saved locally to {products_file_name}")
+            except Exception as e:
+                logger.error(f"Failed to save product JSON locally: {e}")
+                return JSONResponse(
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                    content={"message": "Error saving products file."},
+                )
 
             return JSONResponse(
                 status_code=HTTPStatus.CREATED,
@@ -356,97 +363,6 @@ class ChatbotService:
             logger.error(
                 f"User ID: {user_id} | Internal server error. ERROR: {e}"
             )
-            return JSONResponse(
-                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                content={"message": f"Internal server error. ERROR: {e}"},
-            )
-        
-    async def upload_clatbot_files(self, user_id: ObjectId, chatbot_id: str, uploaded_files: List[UploadFile]):
-        try:
-            logger.debug(
-                f"Validating user with ID: {user_id}"
-            )
-            
-            if not await self.validate_user(user_id):
-                return JSONResponse(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
-                )
-            
-            logger.debug(
-                f"Fetching chatbot with ID: {chatbot_id}"
-            )
-            
-            chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id, str(user_id))
-            
-            if not chatbot:
-                logger.info(
-                    f"Chatbot with ID {chatbot_id} not found"
-                )
-                return JSONResponse(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "Chatbot not found"},
-                )
-
-            current_files = chatbot.get("knowledge_files", [])
-            knowledge_dir = Path("knowledge_bases") / str(chatbot_id)
-            knowledge_dir.mkdir(parents=True, exist_ok=True)
-
-            # Create mapping of original filenames to their current UUID versions
-            existing_files_map = {}
-            for f in current_files:
-                try:
-                    parts = f.split('_', 1)
-                    if len(parts) == 2:
-                        uuid_part, original_name = parts
-                        existing_files_map[original_name] = f
-                except:
-                    continue
-
-            final_files = []
-            processed_names = set()
-
-            # Process new uploads
-            for new_file in uploaded_files:
-                original_name = new_file.filename
-                processed_names.add(original_name)
-
-                # Only replace if this exact filename existed before
-                if original_name in existing_files_map:
-                    # Delete old version
-                    old_path = knowledge_dir / existing_files_map[original_name]
-                    if old_path.exists():
-                        old_path.unlink()
-
-                # Save new file with new UUID
-                new_uuid = str(uuid.uuid4())
-                new_filename = f"{new_uuid}_{original_name}"
-                file_path = knowledge_dir / new_filename
-                with open(file_path, "wb") as buffer:
-                    shutil.copyfileobj(new_file.file, buffer)
-                final_files.append(new_filename)
-
-            # Preserve all files that weren't modified
-            for original_name, uuid_filename in existing_files_map.items():
-                if original_name not in processed_names:
-                    final_files.append(uuid_filename)
-
-            # Update database with complete file list
-            chatbot_data = ChatbotUpdate(upload_files=final_files)
-            await chatbot_crud.update_chatbot(chatbot_id, chatbot_data)
-
-            return JSONResponse(
-                status_code=HTTPStatus.OK,
-                content={
-                    "message": "Files processed successfully",
-                    "updated_files": [f for f in final_files if f.split('_', 1)[1] in processed_names],
-                    "preserved_files": [f for f in final_files if f.split('_', 1)[1] not in processed_names],
-                    "total_files": len(final_files)
-                },
-            )
-
-        except Exception as e:
-            logger.error(f"File upload failed. ERROR: {e}")
             return JSONResponse(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 content={"message": f"Internal server error. ERROR: {e}"},
