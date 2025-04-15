@@ -72,10 +72,8 @@ class ChatbotService:
                     content={"message": "No products could be scraped from the provided URL"},
                 )
 
-            # Generate a unique file name using user_id, current timestamp, and a unique suffix.
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            unique_suffix = uuid.uuid4().hex[:6]  # A short random string.
-            products_file_name = f"products_user_{str(user_id)}_{timestamp}_{unique_suffix}.json"
+            new_uuid = str(uuid.uuid4())
+            products_file_name = f"products_user_{new_uuid}.json"
 
             try:
                 with open(products_file_name, "w", encoding="utf-8") as f:
