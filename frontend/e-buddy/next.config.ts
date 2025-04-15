@@ -10,7 +10,7 @@
 // export default nextConfig;
 
 const nextConfig = {
-  output: 'export',
+  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },
