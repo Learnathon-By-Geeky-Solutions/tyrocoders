@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ArrowRight, ArrowLeft } from "lucide-react";
-
-
+import { Check, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import axios from "axios";
+import { botAPI } from "@/services/api";
 
 const MyBotsPage = () => {
+  // State for tracking the current step in the wizard
   const [step, setStep] = useState(1);
+  
+  // State for storing all form data across steps
   const [formData, setFormData] = useState({
     botName: "",
     model: "",
@@ -14,8 +17,16 @@ const MyBotsPage = () => {
     initialMessage: "",
     faqInfo: "",
     contactNumber: "",
+    isActive: true,  // Default value
+    description: "",
   });
+  
+  // Loading and error states for API interactions
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
+  // Handler for form input changes
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -25,12 +36,53 @@ const MyBotsPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Navigation functions for the wizard
   const nextStep = () => setStep((prev) => Math.min(prev + 1, 3));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
-  const handleSubmit = () => {
-    // In a real implementation, you would submit the data here
-    alert("Bot setup completed! Ready to deploy.");
+  // Form submission handler with API call
+  // Form submission handler with API call
+  const handleSubmit = async () => {
+    try {
+      // Transform form data to match the API structure
+      const apiData = {
+        name: formData.botName,
+        ai_model_name: formData.model === "gpt" ? "GPT-4o" : formData.model,
+        description: formData.description || "A chatbot for my online store",
+        is_active: true,
+        website_url: formData.url,
+        initial_message: formData.initialMessage,
+        faq_info: formData.faqInfo,
+        contact_info: formData.contactNumber
+      };
+      
+      // Log the data that will be sent to the API
+      console.log("Data to be sent to API:", apiData);
+      
+      // Set loading state
+      setIsLoading(true);
+      setError(null);
+      
+      // Use the imported botAPI service instead of axios directly
+      const response = await botAPI.createBot(apiData);
+      
+      // Handle success
+      setIsLoading(false);
+      setSuccess(true);
+      console.log('Bot created successfully:', response.data);
+      
+      // Show success message
+      setTimeout(() => {
+        alert("Bot setup completed! Ready to deploy.");
+      }, 500);
+      
+    } catch (err) {
+      setIsLoading(false);
+      // Type assertion
+      const error = err as any; // or as Error or as AxiosError
+      setError(error.response?.data?.message || "Failed to create bot. Please try again.");
+      console.error('Error creating bot:', err);
+    }
   };
 
   return (
@@ -112,6 +164,19 @@ const MyBotsPage = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">
+                    Description
+                  </label>
+                  <input
+                    type="text"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="A short description of your bot"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 shadow-sm form-input-focus"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2">
                     AI Model
                   </label>
                   <select
@@ -121,8 +186,8 @@ const MyBotsPage = () => {
                     className="w-full border border-gray-200 rounded-lg px-4 py-3 shadow-sm form-input-focus"
                   >
                     <option value="">Select a model</option>
-                    <option value="gemini">Gemini Pro</option>
-                    <option value="gpt">GPT-4</option>
+                    <option value="gemini">Gemini-Flash</option>
+                    <option value="gpt">GPT-4o</option>
                     <option value="claude">Claude</option>
                     <option value="custom">Custom</option>
                   </select>
@@ -238,16 +303,45 @@ const MyBotsPage = () => {
                 <button
                   onClick={prevStep}
                   className="btn-secondary flex items-center gap-2"
+                  disabled={isLoading}
                 >
                   <ArrowLeft className="w-4 h-4" /> Back
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="bg-gradient-to-r from-bot-success to-emerald-500 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2"
+                  disabled={isLoading}
+                  className={`${isLoading 
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : success
+                      ? 'bg-gradient-to-r from-bot-success to-emerald-500'
+                      : 'bg-gradient-to-r from-bot-success to-emerald-500'
+                  } text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2`}
                 >
-                  <Check className="w-4 h-4" /> Complete Setup
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" /> Complete Setup
+                    </>
+                  )}
                 </button>
               </div>
+            </div>
+          )}
+          
+          {/* Error message display */}
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+              {error}
+            </div>
+          )}
+          
+          {/* Success message */}
+          {success && !isLoading && (
+            <div className="mt-4 p-3 bg-green-50 text-green-700 rounded-lg border border-green-200">
+              Bot successfully created!
             </div>
           )}
         </div>

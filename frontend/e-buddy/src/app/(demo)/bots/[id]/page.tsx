@@ -1,6 +1,9 @@
-// This is a server component – do NOT include "use client" here
-import BotDetailPageClient from './BotDetailPageClient';
 import { dummyBots } from '@/data/botData';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+
+// Dynamically import the client component without SSR
+const BotDetailPageClient = dynamic(() => import('./BotDetailPageClient'));
 
 interface ParamsProps {
   params: {
@@ -8,22 +11,17 @@ interface ParamsProps {
   };
 }
 
-// Export generateStaticParams to satisfy the "output: export" configuration.
-export async function generateStaticParams() {
-  return dummyBots.map((bot) => ({ id: bot.id.toString() }));
-}
-
-// The main page is a server component that finds the correct bot and passes it to the client component.
 export default async function BotDetailPage(props: ParamsProps) {
-  // Properly handle the params object
-  const params = await Promise.resolve(props.params);
-  // Now use params.id after it's been properly resolved
-  const botId = params.id;
-  const bot = dummyBots.find((bot) => bot.id.toString() === botId);
+  // Await the dynamic parameters before accessing them
+  const params = await Promise.resolve(props.params); // Ensure params are resolved
+  const { id } = params;
 
-  if (!bot) {
-    return <p>Bot not found.</p>;
-  }
+  // Find the fallback bot data
+  const fallbackBot = dummyBots.find((bot) => bot.id.toString() === id);
 
-  return <BotDetailPageClient bot={bot} />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BotDetailPageClient id={id} fallbackBot={fallbackBot} />
+    </Suspense>
+  );
 }
