@@ -8,8 +8,6 @@ export default function Home() {
   );
 }
 
-
-
 // import { NextPage } from 'next'
 // import Head from 'next/head'
 // import Link from "next/link";
@@ -47,7 +45,6 @@ export default function Home() {
 //           </Link>
 //         </div>
 //       </section> */}
-      
 
 //       {/* Key Features Grid */}
 //       <section className="py-20 px-4 bg-gray-50">
