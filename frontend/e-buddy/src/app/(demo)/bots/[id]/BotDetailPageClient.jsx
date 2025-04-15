@@ -58,12 +58,89 @@ import { ChatTrigger } from '@/components/chatbot/ChatTrigger';
 import { useToast } from '@/hooks/use-toast';
 import { BotCustomization } from '@/types/chatbot';
 import { dummyBots } from '@/data/botData';
+import { botAPI } from '@/services/api';
 
-export default function BotDetailPageClient({bot}) {
+// Utility functions for mapping API values to expected enums
+function mapChatBubbleStyle(style) {
+  if (!style) return "rounded";
+  switch (style.toLowerCase()) {
+    case "bubble": return "bubble";
+    case "sharp": return "sharp";
+    default: return "rounded";
+  }
+}
+
+function mapFontStyle(style) {
+  if (!style) return "default";
+  switch (style.toLowerCase()) {
+    case "modern": return "modern";
+    case "classic": return "classic";
+    case "playful": return "playful";
+    default: return "default";
+  }
+}
+
+
+function mapPosition(position) {
+  if (!position) return "right";
+  return position.toLowerCase() === "left" ? "left" : "right";
+}
+// Transform API data to match the expected Bot structure
+function transformApiBot(apiBot) {
+  return {
+    id: apiBot._id, // Ensure type consistency if necessary (e.g., parseInt(apiBot._id))
+    name: apiBot.name,
+    model: apiBot.ai_model_name,
+    createdAt: apiBot.created_at || new Date().toISOString().split('T')[0],
+    description: apiBot.description,
+    stats: {
+      conversations: apiBot.stats?.conversations || 0,
+      leadGeneration: apiBot.stats?.leadGeneration || apiBot.stats?.leads || 0,
+      conversionRate: apiBot.stats?.conversionRate || apiBot.stats?.conversion_rate || 0,
+      avgResponseTime: apiBot.stats?.avgResponseTime || apiBot.stats?.avg_response_time || 'N/A',
+      customerSatisfaction: apiBot.stats?.customerSatisfaction || apiBot.stats?.satisfaction || 0,
+      activeUsers: apiBot.stats?.activeUsers || apiBot.stats?.active_users || 0,
+    },
+    performance: apiBot.performance || [], // Use performance data if available, else empty array
+    customization: {
+      name: (apiBot.customization && apiBot.customization.name) || apiBot.name,
+      avatarUrl: (apiBot.customization && apiBot.customization.avatarUrl) || apiBot.avatar_url,
+      primaryColor: (apiBot.customization && apiBot.customization.primaryColor) ||
+                    apiBot.primary_color ||
+                    "#6366f1",
+      secondaryColor: (apiBot.customization && apiBot.customization.secondaryColor) ||
+                      apiBot.secondary_color ||
+                      "#f9fafb",
+      chatBubbleStyle: mapChatBubbleStyle(
+        (apiBot.customization && apiBot.customization.chatBubbleStyle) || apiBot.chat_bubble_style
+      ),
+      welcomeMessage: (apiBot.customization && apiBot.customization.welcomeMessage) ||
+                      apiBot.welcome_message ||
+                      apiBot.initial_message,
+      font: mapFontStyle(
+        (apiBot.customization && apiBot.customization.font) || apiBot.font_style
+      ),
+      position: mapPosition(
+        (apiBot.customization && apiBot.customization.position) || apiBot.position
+      ),
+      predefinedQuestions: (apiBot.customization && apiBot.customization.predefinedQuestions) ||
+                           apiBot.predefined_questions ||
+                           [],
+      responseTemplates: (apiBot.customization && apiBot.customization.responseTemplates) ||
+                         apiBot.response_templates ||
+                         []
+    }
+  };
+}
+
+
+
+
+export default function BotDetailPageClient({ id, fallbackBot }) {
   // const { id } = useParams();
   // const [bot, setBot] = useState(dummyBots.find(b => b.id.toString() === id));
   // const [customization, setCustomization] = useState<BotCustomization | null>(null);
-  const [currentBot, setCurrentBot] = useState(bot)
+  const [currentBot, setCurrentBot] = useState(fallbackBot)
   const [customization, setCustomization] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const { toast } = useToast();
@@ -74,6 +151,32 @@ export default function BotDetailPageClient({bot}) {
   const [customFields, setCustomFields] = useState([]);
   const [newFieldName, setNewFieldName] = useState("");
   const [newFieldType, setNewFieldType] = useState("text");
+  const [loading, setLoading] = useState(false);
+   // Fetch bot data from API
+   useEffect(() => {
+    async function fetchBotData() {
+      try {
+        setLoading(true);
+        const response = await botAPI.getBot(id);
+        
+        // Transform the API data
+        console.log(response.data.data)
+        const bot = transformApiBot(response.data.data);
+        setCurrentBot(bot);
+      } catch (err) {
+        console.error("Error fetching bot:", err);
+        setError("Failed to load bot details. Using fallback data if available.");
+        // Fallback to dummy data already set in initial state
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // Only fetch if we have an ID
+    if (id) {
+      fetchBotData();
+    }
+  }, [id]);
 
   useEffect(() => {
     if (!currentBot) return;

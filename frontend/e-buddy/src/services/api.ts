@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const API_URL = "http://127.0.0.1:8000/api/v1";
-
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -25,17 +24,60 @@ api.interceptors.request.use(
 export const authAPI = {
   signUp: (data: { name: string; email: string; password: string }) =>
     api.post("/user/signup", data),
-
   signIn: (data: { email: string; password: string }) =>
     api.post("/user/login", data),
-
   renewToken: () => api.post("/user/renew-access-token"),
-
   generateResetToken: (data: { email: string }) =>
     api.post("/user/generate-pass-reset", data),
-
   resetPassword: (data: { token: string; password: string }) =>
     api.post("/user/reset-password", data),
+};
+
+// Bot APIs
+export const botAPI = {
+  // Create a new bot
+  createBot: (data: {
+    name: string;
+    ai_model_name: string;
+    description: string;
+    is_active: boolean;
+    website_url: string;
+    initial_message?: string;
+    faq_info?: string;
+    contact_info?: string;
+  }) => api.post("/chatbot/create", data),
+  
+  // Get all bots for the current user
+  getAllBots: () => api.get("/chatbot/get-all-chatbots"),
+  
+  // Get a specific bot by ID
+  getBot: (botId: string) => api.get(`/chatbot/${botId}`),
+  
+  // Update an existing bot
+  updateBot: (
+    botId: string,
+    data: {
+      name?: string;
+      ai_model_name?: string;
+      description?: string;
+      is_active?: boolean;
+      website_url?: string;
+      initial_message?: string;
+      faq_info?: string;
+      contact_info?: string;
+    }
+  ) => api.put(`/bots/${botId}`, data),
+  
+  // Delete a bot
+  deleteBot: (botId: string) => api.delete(`/chatbot/${botId}`),
+  
+  // Toggle bot active status
+  toggleBotStatus: (botId: string, isActive: boolean) => 
+    api.patch(`/chatbot/${botId}/status`, { is_active: isActive }),
+  
+  // Get bot analytics
+  getBotAnalytics: (botId: string, period?: string) => 
+    api.get(`/chatbot/${botId}/analytics`, { params: { period } }),
 };
 
 export default api;
