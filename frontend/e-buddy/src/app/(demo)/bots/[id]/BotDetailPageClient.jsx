@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import BotFileManager from '@/components/chatbot/BotFileManager';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import {
   Dialog,
@@ -41,6 +42,8 @@ import {
   CheckCircle2,
   Plus,
   X,
+  FileText,
+  Loader2
 } from 'lucide-react';
 import {
   LineChart,
@@ -151,22 +154,37 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
   const [customFields, setCustomFields] = useState([]);
   const [newFieldName, setNewFieldName] = useState("");
   const [newFieldType, setNewFieldType] = useState("text");
-  const [loading, setLoading] = useState(false);
-   // Fetch bot data from API
-   useEffect(() => {
+  const [loading, setLoading] = useState(true);
+  const [error,setError] =  useState(null);
+
+
+  // Fetch bot data from API
+  useEffect(() => {
     async function fetchBotData() {
+      // Always show loading state when fetching data
+      setLoading(true);
+      
       try {
-        setLoading(true);
         const response = await botAPI.getBot(id);
         
-        // Transform the API data
-        console.log(response.data.data)
-        const bot = transformApiBot(response.data.data);
-        setCurrentBot(bot);
+        if (response.data.data) {
+          const bot = transformApiBot(response.data.data);
+          setCurrentBot(bot);
+          setError(null); // Clear any errors if successful
+        } else {
+          setError("Bot not found");
+          // Keep fallback data if available
+          if (!fallbackBot) {
+            setCurrentBot(null);
+          }
+        }
       } catch (err) {
         console.error("Error fetching bot:", err);
         setError("Failed to load bot details. Using fallback data if available.");
-        // Fallback to dummy data already set in initial state
+        // Keep fallback data if available
+        if (!fallbackBot) {
+          setCurrentBot(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -175,27 +193,56 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
     // Only fetch if we have an ID
     if (id) {
       fetchBotData();
+    } else {
+      setError("No bot ID provided");
+      setLoading(false);
     }
-  }, [id]);
+  }, [id, fallbackBot]);
+
 
   useEffect(() => {
-    if (!currentBot) return;
+    if (currentBot) {
       setCustomization(currentBot.customization);
-    }, [currentBot]);
+    }
+  }, [currentBot]);
 
-    if (!currentBot || !customization) {
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">Bot not found</h2>
-            <p className="text-gray-600 mb-4">We couldn't find the bot you're looking for.</p>
-            <Link href="/bots/my-bots" className="text-blue-600 hover:underline">
-              Back to My Bots
-            </Link>
-          </div>
-        </div>
-      );
+  // FIX: First check loading state
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+        <p className="text-gray-500">Loading bot details...</p>
+      </div>
+    );
   }
+
+  // Then check for error state when there's no bot
+  if ((error && !currentBot) || (!currentBot && !loading)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Bot not found</h2>
+          <p className="text-gray-600 mb-4">We couldn't find the bot you're looking for.</p>
+          <Link href="/bots/my-bots" className="text-blue-600 hover:underline">
+            Back to My Bots
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Finally check if we need to wait for customization
+  if (!customization && currentBot) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+        <p className="text-gray-500">Preparing bot customization...</p>
+      </div>
+    );
+  }
+
+
+
 
   const handleCustomizationChange = (newCustomization) => {
     setCustomization(newCustomization);
@@ -242,6 +289,27 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
     setFormLayout(newLayout);
   };
 
+  // Show loading state first
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+        <p className="text-gray-500">Loading bot details...</p>
+      </div>
+    );
+  }
+
+  // Only show error if we have no bot data at all
+  if (error && !bot) {
+    return (
+      <div className="p-6 text-center">
+        <div className="p-4 border border-red-300 bg-red-50 text-red-700 rounded-md">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ContentLayout title={currentBot.name}>
       <Breadcrumb>
@@ -269,6 +337,7 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+
       
 
 
@@ -360,20 +429,23 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="performance" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 rounded-lg bg-gray-100 p-1">
-            <TabsTrigger value="performance" className="data-[state=active]:bg-white">
-              Performance
-            </TabsTrigger>
-            <TabsTrigger value="customization" className="data-[state=active]:bg-white">
-              Customization
-            </TabsTrigger>
-            <TabsTrigger value="leads" className="data-[state=active]:bg-white">
-              Lead Generation
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="data-[state=active]:bg-white">
-              Settings
-            </TabsTrigger>
-          </TabsList>
+        <TabsList className="flex flex-wrap justify-between gap-2 rounded-lg bg-gray-100 p-1">
+              <TabsTrigger value="performance" className="flex-1 text-center data-[state=active]:bg-white">
+                Performance
+              </TabsTrigger>
+              <TabsTrigger value="customization" className="flex-1 text-center data-[state=active]:bg-white">
+                Customization
+              </TabsTrigger>
+              <TabsTrigger value="files" className="flex-1 text-center data-[state=active]:bg-white">
+                Files
+              </TabsTrigger>
+              <TabsTrigger value="leads" className="flex-1 text-center data-[state=active]:bg-white">
+                Lead Generation
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex-1 text-center data-[state=active]:bg-white">
+                Settings
+              </TabsTrigger>
+            </TabsList>
 
           <TabsContent value="performance" className="mt-6">
             <Card>
@@ -396,43 +468,6 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
             </Card>
           </TabsContent>
 
-          {/* <TabsContent value="customization" className="mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-4">Bot Customization</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Conversation Flow</h4>
-                    <div className="space-y-2">
-                      <Link href="#" className="block text-blue-600 hover:underline">
-                        • Edit Welcome Message
-                      </Link>
-                      <Link href="#" className="block text-blue-600 hover:underline">
-                        • Customize Response Templates
-                      </Link>
-                      <Link href="#" className="block text-blue-600 hover:underline">
-                        • Configure Product Recommendations
-                      </Link>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Appearance</h4>
-                    <div className="space-y-2">
-                      <Link href="#" className="block text-blue-600 hover:underline">
-                        • Change Bot Avatar
-                      </Link>
-                      <Link href="#" className="block text-blue-600 hover:underline">
-                        • Modify Chat Window Style
-                      </Link>
-                      <Link href="#" className="block text-blue-600 hover:underline">
-                        • Update Color Scheme
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent> */}
 
         <TabsContent value="customization" className="mt-6">
             <div className="flex space-x-3">
@@ -455,6 +490,51 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
               </CardContent>
             </Card>
           </TabsContent>
+
+           {/* NEW FILES TAB */}
+           <TabsContent value="files" className="mt-6">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold mb-2">Bot Files and Training Data</h3>
+              <p className="text-gray-600 mb-4">
+                Upload files to train your bot with domain-specific knowledge. Supported file types include PDFs, 
+                Office documents, text files, and images.
+              </p>
+            </div>
+
+            <BotFileManager botId={currentBot.id} />
+
+            <Card className="mt-6">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-blue-50 text-blue-600 rounded-full">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-medium mb-1">Using Files with Your Bot</h4>
+                    <p className="text-gray-600 mb-3">
+                      Files uploaded to your bot will be processed and indexed for your bot to reference 
+                      during conversations. This helps your bot provide more accurate and domain-specific responses.
+                    </p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-start gap-2">
+                        <span className="font-medium">•</span>
+                        <p>PDF documents with product specifications will help your bot answer detailed product questions</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="font-medium">•</span>
+                        <p>Support documentation helps your bot troubleshoot customer issues</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="font-medium">•</span>
+                        <p>Training materials help keep your bot's knowledge up-to-date</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
 
           <TabsContent value="leads" className="mt-6">
             <Card>

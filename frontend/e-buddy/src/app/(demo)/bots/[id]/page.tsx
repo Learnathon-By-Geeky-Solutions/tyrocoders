@@ -3,7 +3,9 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 
 // Dynamically import the client component without SSR
-const BotDetailPageClient = dynamic(() => import('./BotDetailPageClient'));
+const BotDetailPageClient = dynamic(() => import('./BotDetailPageClient'), {
+  loading: () => <div>Loading bot details...</div>
+});
 
 interface ParamsProps {
   params: {
@@ -12,15 +14,14 @@ interface ParamsProps {
 }
 
 export default async function BotDetailPage(props: ParamsProps) {
-  // Await the dynamic parameters before accessing them
-  const params = await Promise.resolve(props.params); // Ensure params are resolved
+  const params = await Promise.resolve(props.params);
   const { id } = params;
 
   // Find the fallback bot data
   const fallbackBot = dummyBots.find((bot) => bot.id.toString() === id);
-
+  
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>Loading bot details...</div>}>
       <BotDetailPageClient id={id} fallbackBot={fallbackBot} />
     </Suspense>
   );
