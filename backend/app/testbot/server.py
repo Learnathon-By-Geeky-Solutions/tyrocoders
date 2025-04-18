@@ -33,13 +33,13 @@ async def handle_client(websocket):
                     continue
                 
                 # Update client on progress
-                await websocket.send(json.dumps({"status": "searching", "message": "Searching knowledge base..."}))
+                # await websocket.send(json.dumps({"status": "searching", "message": "Searching knowledge base..."}))
                 
                 # Retrieve context from knowledge base
                 context_docs = search_kb(chatbot_id, query, k=100)
                 
                 # Update client on progress
-                await websocket.send(json.dumps({"status": "thinking", "message": "Processing your query..."}))
+                # await websocket.send(json.dumps({"status": "thinking", "message": "Processing your query..."}))
                 
                 # Process query with LLM
                 response_text = process_query(chatbot_id, query, context_docs)
