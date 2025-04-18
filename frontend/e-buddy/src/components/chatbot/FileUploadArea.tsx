@@ -1,9 +1,9 @@
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Upload, X, File, FileText, Image, FileCheck, AlertCircle } from "lucide-react";
+import { Upload, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FilePreview from "./FilePreview";
+import axios from "axios";
 
 interface FileUploadAreaProps {
   onFilesUploaded?: (files: File[]) => void;
@@ -11,19 +11,22 @@ interface FileUploadAreaProps {
   maxSize?: number; // in MB
   allowedTypes?: string[];
   className?: string;
+  botId: string; // Added botId prop to identify which bot to upload files for
 }
 
 export default function FileUploadArea({
   onFilesUploaded,
   maxFiles = 5,
   maxSize = 10, // 10MB default
-  allowedTypes = ["image/*", "application/pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt"],
+  allowedTypes = ["image/*", "application/pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt", ".csv"],
   className,
+  botId,
 }: FileUploadAreaProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
   const [errors, setErrors] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,13 +36,14 @@ export default function FileUploadArea({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const validateAndAddFiles = (selectedFiles: File[]) => {
+  const validateAndAddFiles = async (selectedFiles: File[]) => {
     const newErrors: string[] = [];
     const validFiles: File[] = [];
 
     // Check if adding these files would exceed the max number of files
     if (files.length + selectedFiles.length > maxFiles) {
       newErrors.push(`You can only upload a maximum of ${maxFiles} files.`);
+      setErrors(newErrors);
       return;
     }
 
@@ -72,42 +76,84 @@ export default function FileUploadArea({
       validFiles.push(file);
     });
 
+    setErrors(newErrors);
+
     if (validFiles.length > 0) {
       const newFiles = [...files, ...validFiles];
       setFiles(newFiles);
 
-      // Simulate upload progress
-      simulateFileUpload(validFiles);
+      // Initialize progress for each file
+      validFiles.forEach(file => {
+        const fileId = file.name + file.size;
+        setUploadProgress(prev => ({ ...prev, [fileId]: 0 }));
+      });
+
+      // Upload files to API
+      await uploadFiles(validFiles);
 
       if (onFilesUploaded) {
         onFilesUploaded(newFiles);
       }
     }
-
-    setErrors(newErrors);
   };
 
-  const simulateFileUpload = (filesToUpload: File[]) => {
-    filesToUpload.forEach(file => {
+  const uploadFiles = async (filesToUpload: File[]) => {
+    setUploading(true);
+    
+    const formData = new FormData();
+    
+    for (const file of filesToUpload) {
       const fileId = file.name + file.size;
-      setUploadProgress(prev => ({ ...prev, [fileId]: 0 }));
-
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += Math.random() * 10;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-        }
-        setUploadProgress(prev => ({ ...prev, [fileId]: progress }));
-      }, 200);
-    });
+      formData.append('files', file);
+    }
+      try {
+        
+        // Make API call with progress tracking
+        await axios.post(
+          `http://127.0.0.1:8000/api/v1/chatbot/${botId}/files`, 
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${localStorage.getItem("auth_token")}`
+            },
+            onUploadProgress: (progressEvent) => {
+              if (progressEvent.total) {
+                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                // setUploadProgress(prev => ({ ...prev, [fileId]: percentCompleted }));
+              }
+            }
+          }
+        );
+        
+        // Ensure progress shows complete
+        // setUploadProgress(prev => ({ ...prev, [fileId]: 100 }));
+      } catch (error) {
+        // console.error(`Error uploading file ${file.name}:`, error);
+        // setErrors(prev => [...prev, `Failed to upload ${file.name}. Please try again.`]);
+        
+        // Keep progress where it failed
+        // We don't need to update upload status since your FilePreview only shows progress
+      }
+    
+    setUploading(false);
   };
 
   const removeFile = (index: number) => {
+    const fileToRemove = files[index];
+    const fileId = fileToRemove.name + fileToRemove.size;
+    
+    // Make a copy of the files array and remove the selected file
     const newFiles = [...files];
     newFiles.splice(index, 1);
     setFiles(newFiles);
+    
+    // Remove progress tracking for this file
+    setUploadProgress(prev => {
+      const newProgress = { ...prev };
+      delete newProgress[fileId];
+      return newProgress;
+    });
 
     if (onFilesUploaded) {
       onFilesUploaded(newFiles);
@@ -156,6 +202,7 @@ export default function FileUploadArea({
           isDragging 
             ? "border-primary bg-primary/5" 
             : "border-gray-300 hover:border-gray-400 bg-gray-50/50",
+          uploading ? "opacity-50 pointer-events-none" : ""
         )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -180,8 +227,9 @@ export default function FileUploadArea({
             type="button"
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
           >
-            Select Files
+            {uploading ? "Uploading..." : "Select Files"}
           </Button>
           <input
             ref={fileInputRef}
@@ -190,6 +238,7 @@ export default function FileUploadArea({
             onChange={handleFileChange}
             className="hidden"
             accept={allowedTypes.join(",")}
+            disabled={uploading}
           />
         </div>
       </div>
@@ -204,19 +253,25 @@ export default function FileUploadArea({
               size="sm" 
               onClick={() => setFiles([])}
               className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              disabled={uploading}
             >
               Remove All
             </Button>
           </div>
           <div className="space-y-2">
-            {files.map((file, index) => (
-              <FilePreview 
-                key={index} 
-                file={file} 
-                progress={uploadProgress[file.name + file.size] || 0}
-                onRemove={() => removeFile(index)} 
-              />
-            ))}
+            {files.map((file, index) => {
+              const fileId = file.name + file.size;
+              const progress = uploadProgress[fileId] || 0;
+              
+              return (
+                <FilePreview 
+                  key={index} 
+                  file={file} 
+                  progress={progress}
+                  onRemove={() => removeFile(index)}
+                />
+              );
+            })}
           </div>
         </div>
       )}

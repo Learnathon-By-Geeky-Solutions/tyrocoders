@@ -68,6 +68,9 @@ export const botAPI = {
     }
   ) => api.put(`/bots/${botId}`, data),
   
+  // File upload
+  fileUpload : (botId: string) => api.post(`/chatbot/${botId}/files`),
+
   // Delete a bot
   deleteBot: (botId: string) => api.delete(`/chatbot/${botId}`),
   

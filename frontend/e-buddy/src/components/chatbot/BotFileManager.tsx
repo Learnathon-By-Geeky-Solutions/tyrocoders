@@ -7,7 +7,7 @@ import FileUploadArea from "./FileUploadArea";
 import { useToast } from "@/hooks/use-toast";
 
 interface BotFileManagerProps {
-  botId: number;
+  botId: string;
 }
 
 export default function BotFileManager({ botId }: BotFileManagerProps) {
@@ -58,6 +58,8 @@ export default function BotFileManager({ botId }: BotFileManagerProps) {
               onFilesUploaded={handleFilesUploaded}
               maxFiles={10}
               maxSize={20}
+              botId={botId}
+
             />
           </TabsContent>
 

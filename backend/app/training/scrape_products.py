@@ -58,7 +58,16 @@ async def extract_sitemap_urls(sitemap_url, session, check_products=True, sample
             if response.status != 200:
                 print(f"Error fetching sitemap: Status {response.status}")
                 return []
-            content = await response.text()
+            # content = await response.text()
+            if sitemap_url.endswith('.gz'):
+                import gzip
+                from io import BytesIO
+                compressed_content = await response.read()
+                with gzip.GzipFile(fileobj=BytesIO(compressed_content)) as gz:
+                    content = gz.read().decode('utf-8')
+            else:
+                content = await response.text()
+                
             if '<sitemapindex' in content:
                 root = ET.fromstring(content)
                 namespace = re.match(r'({.*})', root.tag).group(1) if re.match(r'({.*})', root.tag) else ''

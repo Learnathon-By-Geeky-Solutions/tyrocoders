@@ -17,6 +17,7 @@ from datetime import datetime
 from pathlib import Path
 import shutil
 import os
+from processing.kb import build_knowledge_base, rebuild_kb_after_upload
 
 chatbot_crud = ChatbotCrud()
 user_crud = UserCrud()
@@ -33,88 +34,59 @@ class ChatbotService:
         return True
     
     async def create_chatbot(self, user_id: ObjectId, chatbot: ChatbotCreate):
-        try:
-            logger.debug(f"Validating user with ID: {user_id}")
-            if not await self.validate_user(user_id):
-                return JSONResponse(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
-                )
-            existing_chatbot = (
-                await chatbot_crud.get_chatbot_by_chatbot_name_and_user_id(
-                    chatbot.name, str(user_id)
-                )
-            )
-            if existing_chatbot:
-                logger.info(
-                   f"User ID: {user_id} | Chatbot with name '{chatbot.name}' already exists"
-                )
-                existing_chatbot = convert_object_id_to_string(existing_chatbot)
-                return JSONResponse(
-                    status_code=HTTPStatus.CONFLICT,
-                    content={
-                        "message": f"Chatbot with name {chatbot.name} already exists",
-                        # "data": existing_chatbot,
-                    },
-                )
-
-            logger.debug(f"Scraping website for products: {chatbot.website_url}")
-            products = await scrape_from_website(
-                str(chatbot.website_url),
-                scrape_limit=10000,
-                sample_size=3,
-                max_concurrent=20
-            )
-
-            if not products:
-                logger.info(f"No products found for website: {chatbot.website_url}")
-                return JSONResponse(
-                    status_code=HTTPStatus.BAD_REQUEST,
-                    content={"message": "No products could be scraped from the provided URL"},
-                )
-
-            new_uuid = str(uuid.uuid4())
-            products_file_name = f"products_user_{new_uuid}.json"
-
-            chatbot.products_file = products_file_name
-            chatbot.user_id = str(user_id)  
-
-            logger.debug("Saving chatbot to database")
-            new_inserted_chatbot = await chatbot_crud.create_chatbot(chatbot)
-            new_chatbot = await chatbot_crud.get_chatbot_by_id(new_inserted_chatbot.inserted_id, str(user_id))
-            new_chatbot = convert_object_id_to_string(new_chatbot)
-            logger.info("Chatbot created successfully")
-
-            folder_path = os.path.join("scrapped_files", new_chatbot["_id"])
-            os.makedirs(folder_path, exist_ok=True)
-            full_path = os.path.join(folder_path, products_file_name)\
-            
-            logger.debug("Saving scrapped json file to directory")
-
             try:
-                with open(full_path, "w", encoding="utf-8") as f:
-                    json.dump(products, f, indent=4)
-                logger.info(f"Products JSON saved locally to {products_file_name}")
-            except Exception as e:
-                logger.error(f"Failed to save product JSON locally: {e}")
-                return JSONResponse(
-                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                    content={"message": "Error saving products file."},
-                )
+                if not await self.validate_user(user_id):
+                    return JSONResponse(status_code=HTTPStatus.NOT_FOUND, content={"message": "User not found"})
 
-            return JSONResponse(
-                status_code=HTTPStatus.CREATED,
-                content={
-                    "message": "Chatbot created successfully",
-                    "data": new_chatbot,
-                },
-            )
-        except Exception as e:
-            logger.error(f"Internal server error. ERROR: {e}")
-            return JSONResponse(
-                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                content={"message": f"Internal server error. ERROR: {e}"},
-            )
+                # prevent duplicate names
+                existing = await chatbot_crud.get_chatbot_by_chatbot_name_and_user_id(chatbot.name, str(user_id))
+                if existing:
+                    return JSONResponse(status_code=HTTPStatus.CONFLICT,
+                                        content={"message": f"Chatbot with name {chatbot.name} already exists"})
+
+                # scrape products
+                logger.debug(f"Scraping {chatbot.website_url}")
+                products = await scrape_from_website(str(chatbot.website_url), scrape_limit=100, sample_size=3,
+                                                    max_concurrent=20)
+                if not products:
+                    return JSONResponse(status_code=HTTPStatus.BAD_REQUEST,
+                                        content={"message": "No products could be scraped from the provided URL"})
+
+                # prepare file storage
+                new_uuid = str(uuid.uuid4())
+                filename = f"products_{new_uuid}.json"
+                chatbot.products_file = filename
+                chatbot.user_id = str(user_id)
+
+                # save to DB
+                inserted = await chatbot_crud.create_chatbot(chatbot)
+                record = await chatbot_crud.get_chatbot_by_id(inserted.inserted_id, str(user_id))
+                record = convert_object_id_to_string(record)
+
+                # ensure directories
+                scrap_dir = Path("scrapped_files") / record["_id"]
+                scrap_dir.mkdir(parents=True, exist_ok=True)
+                json_path = scrap_dir / filename
+                with open(json_path, "w", encoding="utf-8") as f:
+                    json.dump(products, f, indent=2)
+                logger.info(f"Saved scraped products to {json_path}")
+
+                # build knowledge base directly from JSON file using generic loader
+                kb_dir = Path("kb_storage") / record["_id"]
+                kb_dir.mkdir(parents=True, exist_ok=True)
+                success = build_knowledge_base(record["_id"], [str(json_path)])
+                if success:
+                    logger.info(f"Knowledge base built for chatbot {record['_id']}")
+                else:
+                    logger.warning(f"Failed to build knowledge base for chatbot {record['_id']}")
+
+                return JSONResponse(status_code=HTTPStatus.CREATED,
+                                    content={"message": "Chatbot created successfully with knowledge base",
+                                            "data": record})
+            except Exception as e:
+                logger.error(f"Error in create_chatbot: {e}")
+                return JSONResponse(status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                                    content={"message": f"Internal server error: {e}"})
     
     async def read_chatbot(self, user_id: ObjectId, chatbot_id: str):
         try:
@@ -446,11 +418,16 @@ class ChatbotService:
             chatbot_data = ChatbotUpdate(knowledge_files=final_files)
             await chatbot_crud.update_chatbot(chatbot_id, chatbot_data)
             
+            # Rebuild the knowledge base after file upload
+            from processing.kb import rebuild_kb_after_upload
+            rebuild_result = rebuild_kb_after_upload(chatbot_id)
+
             return JSONResponse(
                 status_code=HTTPStatus.OK,
                 content={
                     "message": "Files processed successfully",
-                    "total_files": len(final_files)
+                    "total_files": len(final_files),
+                    "kb_rebuilt": rebuild_result
                 },
             )
         except Exception as e:

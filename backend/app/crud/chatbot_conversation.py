@@ -68,7 +68,7 @@ class ChatbotConversationCrud():
         conversation_list = []
         collection = self.collection
         async for conversation in collection.find(
-            {"user_id": user_id, "total_messages": {"$ne": 0}},
+            {"user_id": user_id, "total_messages": {"$ne": 1}},
             # {"conversation_history": 0},
         ):
             conversation_list.append(conversation)

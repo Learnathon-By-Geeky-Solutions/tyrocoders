@@ -18,7 +18,7 @@ from crud.chatbot import ChatbotCrud
 from utils.converter import convert_object_id_to_string
 from crud.user import UserCrud
 from core.logger import logger
-
+from processing.server import handle_client
 
 chatbot_crud = ChatbotCrud()
 chatbot_conversation_crud = ChatbotConversationCrud()
@@ -320,7 +320,7 @@ class ChatbotConversationService:
 
             """
 
-            is_success, bot_response_msg, error_msg = await handle_user_message(
+            is_success, bot_response_msg, error_msg = await handle_client(
                 chatbot_id=existing_conversation.get("chatbot_id"),
                 user_message=continue_conversation.user_message,
                 conversation_history=conversation_history,
