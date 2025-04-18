@@ -286,7 +286,7 @@ class ChatbotConversationService:
                 f"User ID: {user_id} | Getting the fallback response from the chatbot"
             )
 
-            fallback_response = chatbot.get("fallback_message")
+            fallback_response = chatbot.get("fallback_message", "Sorry, I couldn’t understand that.")
             logger.info(
                 f"User ID: {user_id} | Fallback response fetched successfully"
             )
@@ -382,12 +382,12 @@ class ChatbotConversationService:
                 ObjectId(conversation_id)
             )
 
-            updated_chatbot = (
+            updated_conversation = (
                 await chatbot_conversation_crud.get_conversation_by_id(
                     ObjectId(conversation_id)
                 )
             )
-            updated_chatbot = convert_object_id_to_string(updated_chatbot)
+            updated_conversation = convert_object_id_to_string(updated_conversation)
             logger.info(
                 f"User ID: {user_id} | Conversation history updated in the db successfully"
             )
@@ -396,7 +396,7 @@ class ChatbotConversationService:
                 status_code=HTTPStatus.OK,
                 content={
                     "message": f"Conversation Continued successfully",
-                    "data": updated_chatbot,
+                    "data": bot_response_msg or fallback_response
                 },
             )
         except Exception as e:
