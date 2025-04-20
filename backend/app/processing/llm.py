@@ -56,7 +56,7 @@ def create_prompt(query: str, context_docs: list, conversation_history=None) -> 
 
         ### Optional Fields (Add Only When Relevant):
         For detailed product views:
-        - `description_summary`: A concise summary of the product description
+        - `description`: A short and concise summary of the product description
         - `key_features`: Array of important product features
         - `ratings`: Customer rating if available
         - `availability`: Stock status

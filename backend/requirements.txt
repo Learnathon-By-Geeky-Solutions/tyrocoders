@@ -69,3 +69,8 @@ vanna
 chromadb
 google-cloud-aiplatform>=1.38.0
 google-generativeai
+faiss-cpu
+sentence-transformers
+pandas
+openpyxl
+
