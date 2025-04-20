@@ -65,7 +65,12 @@ watchfiles==1.0.4
 websockets==14.2
 yarl==1.19.0
 lxml
+vanna
+chromadb
+google-cloud-aiplatform>=1.38.0
+google-generativeai
 faiss-cpu
 sentence-transformers
 pandas
 openpyxl
+
