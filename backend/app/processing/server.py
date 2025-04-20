@@ -6,7 +6,8 @@ from core.logger import logger
 from processing.kb import search_kb
 from processing.llm import create_prompt, ask_llm_gemini
 from core.logger import logger
-
+# Import the singleton Vanna instance from chatbot_service
+from services.chatbot_service import vanna
 # Store conversation history 
 conversation_history = {}
 
@@ -72,16 +73,30 @@ async def process_query(user_id: str, chatbot_id: str, query: str, conversation_
         # Search the knowledge base
         logger.info(f"Searching KB for chatbot {chatbot_id}, query: {query}")
         context_docs = search_kb(chatbot_id, query, 1000)
-        logger.info(f"context docs: {len(context_docs)}")
+        # logger.info(f"context docs: {len(context_docs)}")
         
         # Use provided conversation history if available, otherwise use the global one
         client_history = conversation_history if conversation_history else conversation_history.get(user_id, [])
-        logger.debug(f"client history is defined {client_history}")
+        # logger.debug(f"client history is defined {client_history}")
         # Create prompt
         prompt = create_prompt(query, context_docs, client_history)
         
-        logger.debug("Prompt is defined {prompt}")
+        # logger.debug("Prompt is defined {prompt}")
+        from processing.db_storage import DatabaseStorageManager
 
+        # 1) Grab your Vanna instance
+        vn = vanna.get_instance(chatbot_id)
+        
+        # 2) Make sure it’s pointing at the right SQLite DB
+        storage_mgr = DatabaseStorageManager()
+        config = storage_mgr.load_config(chatbot_id)
+        vn.connect_to_sqlite(config["db_path"])
+        
+        
+        # 3) Now ask Vanna using your raw query (and pass the contexts in if supported)
+        # ——— simple “ask” by query alone ———
+        answer = vn.ask(question=query)
+        logger.info(answer)
         # Get raw response from primary LLM (Gemini as fallback is used inside ask_llm_gemini)
         raw_response = ask_llm_gemini(prompt)
         

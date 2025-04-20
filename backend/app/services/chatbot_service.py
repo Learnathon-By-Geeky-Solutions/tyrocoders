@@ -18,6 +18,13 @@ from pathlib import Path
 import shutil
 import os
 from processing.kb import build_knowledge_base, rebuild_kb_after_upload
+from processing.vanna_integrator import VannaIntegrator
+import os
+
+api_key = os.getenv("VANNA_API_KEY", "")
+vanna_config = {'api_key' : f"{api_key}", 'model': "gemini-2.0-flash"}
+vanna = VannaIntegrator(config=vanna_config)
+
 
 chatbot_crud = ChatbotCrud()
 user_crud = UserCrud()
@@ -371,6 +378,48 @@ class ChatbotService:
             current_files = chatbot.get("knowledge_files", [])
             knowledge_dir = Path("knowledge_bases") / str(chatbot_id)
             knowledge_dir.mkdir(parents=True, exist_ok=True)
+            db_dir = Path("db_storage") / chatbot_id
+            db_dir.mkdir(parents=True, exist_ok=True)
+
+            # 1) Detect database files by extension
+            db_exts = {".sqlite", ".db", ".sqlite3", ".sql", ".dump"}
+            db_candidates = [f for f in uploaded_files if Path(f.filename).suffix.lower() in db_exts]
+            if db_candidates:
+                # Process DB ingestion via Vanna AI
+                from processing.db_detector import DatabaseDetector
+                from processing.db_storage import DatabaseStorageManager
+
+                detector = DatabaseDetector()
+                storage_mgr = DatabaseStorageManager()
+
+                saved_db_info = []
+                for db_file in db_candidates:
+                    saved_path = storage_mgr.save_uploaded_file(chatbot_id, db_file.file, db_file.filename)
+                    detect = detector.detect_db_type(saved_path)
+                    saved_db_info.append({
+                        "original_name": db_file.filename,
+                        "saved_path": str(saved_path),
+                        "db_type": detect.get("db_type"),
+                        **({"error": detect["error"]} if detect.get("error") else {})
+                    })
+                # Configure Vanna with first valid DB
+                primary = next((d for d in saved_db_info if d["db_type"] != "unknown"), saved_db_info[0])
+                config = {
+                    "db_type": primary["db_type"],
+                    "db_path": primary["saved_path"],
+                }
+                storage_mgr.save_config(chatbot_id, config)
+                # rebuild_result = vanna.rebuild_kb(config)
+                vanna.get_instance(chatbot_id)
+                vanna.train_sqlite(config, chatbot_id)
+                return JSONResponse(
+                    status_code=HTTPStatus.OK,
+                    content={
+                        "message": "Database ingested successfully",
+                        "processed_db_files": saved_db_info,
+                    },
+                )
+
             
             # Map original filenames to their UUID versions
             existing_files_map = {}
