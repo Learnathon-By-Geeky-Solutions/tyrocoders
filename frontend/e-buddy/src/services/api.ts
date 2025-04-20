@@ -83,4 +83,19 @@ export const botAPI = {
     api.get(`/chatbot/${botId}/analytics`, { params: { period } }),
 };
 
+
+export const chatAPI = {
+  /**
+   * Start a new conversation with the bot.
+   * POST /api/v1/chatbot-conversation/chat/{chatbot_id}
+   */
+  startConversation: (chatbotId: string) =>
+    api.post(`/chatbot-conversation/chat/${chatbotId}`),
+
+  continueConversation: (conversationId: string, userMessage: string) =>
+    api.post(`/chatbot-conversation/continue-conversation/${conversationId}`, {
+      user_message: userMessage,
+    }),
+};
+
 export default api;

@@ -54,6 +54,11 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      scale: {
+        102: "1.02",
+        103: "1.03",
+        104: "1.04",
+      },
       keyframes: {
         "fade-in": {
           "0%": { opacity: "0" },
