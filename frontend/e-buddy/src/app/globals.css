@@ -68,8 +68,26 @@
 }
 
 @layer base {
-  body {
+  /* body {
     @apply bg-primary font-primary leading-loose;
+  } */
+
+  /* body {
+    @apply bg-background text-foreground;
+    font-family: 'Poppins', sans-serif;
+  } */
+
+  /* Section styling */
+  .section {
+    @apply py-16 md:py-24 px-4 md:px-8 max-w-7xl mx-auto;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold mb-8 text-center;
+  }
+
+  .section-subtitle {
+    @apply text-xl text-muted-foreground mb-12 text-center max-w-3xl mx-auto;
   }
 }
 
@@ -110,4 +128,19 @@
 body {
   background-image: url('http://www.transparenttextures.com/patterns/45-degree-fabric-dark.png');
   background-repeat: repeat; 
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
 }

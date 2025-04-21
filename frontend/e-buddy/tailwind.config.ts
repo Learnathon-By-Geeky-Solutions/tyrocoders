@@ -23,14 +23,52 @@ const config: Config = {
     },
     extend: {
       colors: {
-        primary: "#191E27",
-        accent: {
-          DEFAULT: "#97d343",
-          hover: "#86c232",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        // primary: "#191E27",
+        // accent: {
+        //   DEFAULT: "#97d343",
+        //   hover: "#86c232",
+        // },
         chatbot: {
           primary: "#9b87f5",
           secondary: "#7E69AB",
+          blue: "#1EAEDB",
+          purple: "#9b87f5",
+          orange: "#F97316",
+          pink: "#D946EF",
+          lightBlue: "#33C3F0",
           light: "#E5DEFF",
           dark: "#1A1F2C",
           bubble: {
@@ -38,6 +76,7 @@ const config: Config = {
             bot: "#D6BCFA",
           },
         },
+        vibrant: "#8B5CF6",
         bot: {
           primary: "#6366f1",
           secondary: "#4f46e5",
@@ -47,7 +86,7 @@ const config: Config = {
           success: "#10b981",
           highlight: "#dbeafe",
         },
-        secondary: "#474b4f",
+        // secondary: "#474b4f",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -55,26 +94,60 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       scale: {
-        102: "1.02",
-        103: "1.03",
-        104: "1.04",
+        "102": "1.02",
+        "103": "1.03",
+        "104": "1.04",
       },
       keyframes: {
         "fade-in": {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
+          "0%": {
+            opacity: "0",
+          },
+          "100%": {
+            opacity: "1",
+          },
         },
         "slide-in": {
-          "0%": { transform: "translateY(10px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+          "0%": {
+            transform: "translateY(10px)",
+            opacity: "0",
+          },
+          "100%": {
+            transform: "translateY(0)",
+            opacity: "1",
+          },
         },
         typing: {
-          "0%": { width: "0%" },
-          "100%": { width: "100%" },
+          "0%": {
+            width: "0%",
+          },
+          "100%": {
+            width: "100%",
+          },
         },
         "pulse-subtle": {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.85" },
+          "0%, 100%": {
+            opacity: "1",
+          },
+          "50%": {
+            opacity: "0.85",
+          },
+        },
+        "accordion-down": {
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
+        },
+        "accordion-up": {
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
         },
       },
       animation: {
