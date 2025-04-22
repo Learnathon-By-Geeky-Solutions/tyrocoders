@@ -257,7 +257,7 @@ def search_kb(chatbot_id: str, query: str, k: int = 5) -> List[str]:
     
     # Search the index
     try:
-        distances, indices = index.search(query_embedding, min(k, len(documents)))
+        _, indices = index.search(query_embedding, min(k, len(documents)))
         logger.info("Indexes are searched")
         results = [documents[idx] for idx in indices[0]]
         return results
