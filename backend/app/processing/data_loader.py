@@ -161,6 +161,26 @@ def load_excel(file_path: str) -> List[str]:
         return []
 
 
+def split_text_to_chunks(text: str, max_length: int = 1000) -> List[str]:
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    chunks = []
+    for sentence in sentences:
+        if not sentence:
+            continue
+        if chunks and len(chunks[-1]) + len(sentence) < max_length:
+            chunks[-1] += ' ' + sentence
+        else:
+            chunks.append(sentence)
+    return chunks
+
+def process_page_text(index: int, text: str) -> List[str]:
+    if not text.strip():
+        return []
+    page_text = f"Page {index + 1}: {text}"
+    if len(page_text) > 1000:
+        return split_text_to_chunks(page_text)
+    return [page_text]
+
 def load_pdf(file_path: str) -> List[str]:
     """
     Load and chunk PDF files
@@ -172,23 +192,13 @@ def load_pdf(file_path: str) -> List[str]:
             reader = PyPDF2.PdfReader(f)
             for i, page in enumerate(reader.pages):
                 text = page.extract_text() or ''
-                if not text.strip():
-                    continue
-                page_text = f"Page {i+1}: {text}"
-                if len(page_text) > 1000:
-                    for sentence in re.split(r'(?<=[.!?])\s+', page_text):
-                        if not sentence:
-                            continue
-                        if chunks and len(chunks[-1]) + len(sentence) < 1000:
-                            chunks[-1] += ' ' + sentence
-                        else:
-                            chunks.append(sentence)
-                else:
-                    chunks.append(page_text)
+                chunks.extend(process_page_text(i, text))
         return chunks
+
     except ImportError:
         logger.error("PyPDF2 not installed. Please install it.")
         return []
+
     except Exception as e:
         logger.error(f"Error loading PDF: {e}")
         return []
