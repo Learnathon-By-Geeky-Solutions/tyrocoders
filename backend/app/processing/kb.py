@@ -155,37 +155,42 @@ def load_knowledge_base(chatbot_id: str) -> Tuple[Optional[Any], Optional[List[s
         logger.error(f"Error loading knowledge base for {chatbot_id}: {e}")
         return None, None
 
+def format_content_chunk(item: Dict[str, Any]) -> str:
+    chunk_text = f"Section: {item.get('section', 'Content')} | "
+    chunk_text += f"Source: {item.get('source', '')} | "
+    if "page" in item:
+        chunk_text += f"Page: {item['page']} | "
+    chunk_text += item["content"]
+    return chunk_text
+
+def format_key_value_chunk(item: Dict[str, Any]) -> str:
+    chunk_parts = [
+        f"{key}: {value}"
+        for key, value in item.items()
+        if isinstance(value, (str, int, float, bool)) and key not in ["source", "index"]
+    ]
+    if not chunk_parts:
+        return ""
+    return " | ".join(chunk_parts) + f" | Source: {item.get('source', '')}"
+
 def get_text_chunks(documents: List[Dict[str, Any]]) -> List[str]:
     """Convert structured data to text chunks for embedding"""
     text_chunks = []
+
     for item in documents:
-        # Convert each structured document to a text representation
         if isinstance(item, dict):
-            if "content" in item and isinstance(item["content"], str):
-                # For markdown chunks and PDF paragraphs
-                chunk_text = f"Section: {item.get('section', 'Content')} | "
-                chunk_text += f"Source: {item.get('source', '')} | "
-                if "page" in item:
-                    chunk_text += f"Page: {item['page']} | "
-                chunk_text += item["content"]
-                text_chunks.append(chunk_text)
+            content = item.get("content")
+            if isinstance(content, str):
+                text_chunks.append(format_content_chunk(item))
             else:
-                # For other structured data, create a simple key-value representation
-                chunk_parts = []
-                for key, value in item.items():
-                    if isinstance(value, (str, int, float, bool)) and key not in ["source", "index"]:
-                        chunk_parts.append(f"{key}: {value}")
-                if chunk_parts:
-                    chunk_text = " | ".join(chunk_parts)
-                    chunk_text += f" | Source: {item.get('source', '')}"
+                chunk_text = format_key_value_chunk(item)
+                if chunk_text:
                     text_chunks.append(chunk_text)
         elif isinstance(item, str):
-            # If the item is already a string, use it directly
             text_chunks.append(item)
         else:
-            # For other types, convert to string
             text_chunks.append(str(item))
-    
+
     return text_chunks
 
 def get_knowledge_index_path(chatbot_id: str) -> str:
