@@ -79,7 +79,7 @@ settings = Settings()
 print("PROJECT_TITLE_AFTERWARDS:", settings.PROJECT_TITLE)
 
 
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(exc: RequestValidationError):
     errors = exc.errors()
     custom_errors = [
         {
