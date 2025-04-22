@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import jwt
 from core.config import settings
 from core.logger import logger
@@ -44,7 +44,8 @@ def verify_token(token):
 
 def create_pass_reset_token(user_email):
     to_encode = {"sub": user_email}
-    expire = datetime.utcnow() + timedelta(
+    
+    expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.PASS_RESET_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({"exp": expire})
