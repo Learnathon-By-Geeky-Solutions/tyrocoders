@@ -98,7 +98,7 @@ class ChatbotConversationService:
             return JSONResponse(
                 status_code=HTTPStatus.CREATED,
                 content={
-                    "message": f"New Chatbot Conversation created successfully",
+                    "message": "New Chatbot Conversation created successfully",
                     "data": new_chatbot_conversation,
                 },
             )
