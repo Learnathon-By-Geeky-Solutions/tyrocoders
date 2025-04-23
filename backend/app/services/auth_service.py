@@ -30,6 +30,7 @@ user_crud = UserCrud()
 auth_crud = AuthCrud()
 
 class AuthService:
+    USER_NOT_FOUND_MSG = "User not found"
     
     async def register(
         self,
@@ -110,7 +111,7 @@ class AuthService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             logger.info(
@@ -206,7 +207,7 @@ class AuthService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             logger.info(f"User with id {user_id} found")
@@ -270,7 +271,7 @@ class AuthService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
             logger.info(
                 f"User with email {generate_reset_password.email} found"
@@ -293,7 +294,7 @@ class AuthService:
             #     send_password_reset_email, user_name, user_email, one_time_link
             # )
             logger.info(
-                f"Password reset email sent successfully in background tasks"
+                "Password reset email sent successfully in background tasks"
             )
             return JSONResponse(
                 status_code=HTTPStatus.OK,
@@ -338,7 +339,7 @@ class AuthService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
             logger.info(f"User with email {user_email} found")
             user = convert_object_id_to_string(user)
