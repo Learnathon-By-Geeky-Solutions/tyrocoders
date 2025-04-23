@@ -72,7 +72,6 @@ class VannaIntegrator:
     def process_sqlite(self, config: Dict[str, Any]) -> Dict[str, Any]:
         result = {"status": "success"}
         db_path = config.get("db_path")
-        model = config.get("vanna_model")
         try:
             # Connect to SQLite database
             # self.vn.connect_to_sqlite(db_path)
