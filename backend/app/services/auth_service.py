@@ -31,6 +31,7 @@ auth_crud = AuthCrud()
 
 class AuthService:
     USER_NOT_FOUND_MSG = "User not found"
+    INVALID_TOKEN_MSG = "Invalid token subject"
     
     async def register(
         self,
@@ -187,10 +188,10 @@ class AuthService:
             user_id = verify_token(refresh_token)
 
             if not user_id:
-                logger.info("Invalid token subject")
+                logger.info(INVALID_TOKEN_MSG)
                 return JSONResponse(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    content={"message": "Invalid token subject"},
+                    content={"message": INVALID_TOKEN_MSG},
                 )
 
             logger.info("Refresh token verified successfully")
@@ -323,7 +324,7 @@ class AuthService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    content={"message": "Invalid token subject"},
+                    content={"message": INVALID_TOKEN_MSG},
                 )
 
             logger.info(
