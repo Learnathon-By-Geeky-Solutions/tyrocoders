@@ -30,6 +30,7 @@ storage_mgr = DatabaseStorageManager()
 
 USER_NOT_FOUND_MSG = "User not found"
 CHATBOT_NOT_FOUND_MSG = "Chatbot not found"
+CHATBOT_CONVERSATION_NOT_FOUND_MSG = "Conversation not found"
 
 class ChatbotConversationService:
 
@@ -126,7 +127,7 @@ class ChatbotConversationService:
             if not existing_conversation:
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "Conversation not found"},
+                    content={"message": CHATBOT_NOT_FOUND_MSG},
                 )
 
             existing_conversation = convert_object_id_to_string(existing_conversation)
@@ -203,7 +204,7 @@ class ChatbotConversationService:
             ):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "Conversation not found"},
+                    content={"message": CHATBOT_NOT_FOUND_MSG},
                 )
 
             logger.debug(
@@ -259,7 +260,7 @@ class ChatbotConversationService:
             if not existing_conversation:
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "Conversation not found"},
+                    content={"message": CHATBOT_NOT_FOUND_MSG},
                 )
 
             logger.debug(
@@ -310,17 +311,6 @@ class ChatbotConversationService:
                 f"User ID: {user_id} | Generating the llm response based on user query"
             )
 
-            #TODO
-            """
-            below is a dummy function that is supposed to generate the llm response and send it back 
-            based on which the conversation history is updated.
-
-            in this function the basic things are to be passed like user query, conversation history, 
-            starting prompt and other needed things.
-
-            also fetch other chabtbot related details as needed for the llm response to work in this function
-
-            """
 
             is_success, bot_response_msg, error_msg = await handle_client(
                 chatbot_id=existing_conversation.get("chatbot_id"),
@@ -429,7 +419,7 @@ class ChatbotConversationService:
             if not existing_conversation:
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "Conversation not found"},
+                    content={"message": CHATBOT_NOT_FOUND_MSG},
                 )
 
             logger.debug(
