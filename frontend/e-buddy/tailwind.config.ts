@@ -76,7 +76,8 @@ const config: Config = {
             bot: "#D6BCFA",
           },
         },
-        vibrant: "#8B5CF6",
+        // vibrant: "#8B5CF6",
+        vibrant: "#ED6140",
         bot: {
           primary: "#6366f1",
           secondary: "#4f46e5",

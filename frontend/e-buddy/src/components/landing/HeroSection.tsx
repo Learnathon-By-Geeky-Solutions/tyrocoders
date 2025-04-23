@@ -7,7 +7,7 @@ export function HeroSection() {
     <section className="bg-white py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-12">
         <ScrollReveal className="flex-1 text-center md:text-left">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
             Create <span className="text-vibrant">Smart Chatbots</span> That
             Grow Your Business
           </h1>
