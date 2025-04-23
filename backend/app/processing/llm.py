@@ -6,10 +6,12 @@ from core.config import FREE_LLM_API_URL, FREE_LLM_API_KEY
 from core.logger import logger
 
 
+CONTENT_TYPE_JSON = "application/json"
+
 def create_prompt(query: str, context_docs: list, conversation_history=None) -> str:
     """Create prompt for the LLM based on product or general queries"""
     context_text = "\n\n".join([f"Document {i+1}:\n{doc}" for i, doc in enumerate(context_docs)])
-    # context_text = ""
+
     history_text = conversation_history
     logger.info("starting point of create prompt")
     
@@ -210,7 +212,7 @@ def is_product_query(query: str, history_text: str = "") -> bool:
         
         headers = {
             "Authorization": f"Bearer {FREE_LLM_API_KEY}",
-            "Content-Type": "application/json"
+            "Content-Type": CONTENT_TYPE_JSON
         }
         
         payload = {
@@ -265,7 +267,7 @@ def ask_groq(prompt: str, model="llama3-70b-8192") -> str:
         
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
-            "Content-Type": "application/json"
+            "Content-Type": CONTENT_TYPE_JSON
         }
         
         payload = {
@@ -312,7 +314,7 @@ def ask_llm_gemini(prompt: str) -> str:
         
         response = requests.post(
             GEMINI_API_URL, 
-            headers={"Content-Type": "application/json"}, 
+            headers={"Content-Type": CONTENT_TYPE_JSON}, 
             data=json.dumps(payload)
         )
         
@@ -359,7 +361,7 @@ def process_query_llm(chatbot_id: str, query: str, context_docs: list, conversat
     prompt = create_prompt(query, context_docs, conversation_history)
     logger.info(f"Sending prompt to Groq LLM for chatbot {chatbot_id}")
     
-    estimated_tokens = estimate_token_count(prompt)
+    
     response = ask_llm_gemini(prompt)
     
     prompt_tokens = estimate_token_count(prompt)

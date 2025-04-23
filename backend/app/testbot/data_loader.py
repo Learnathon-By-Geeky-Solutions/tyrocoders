@@ -30,38 +30,37 @@ def load_file(file_path: str) -> List[str]:
 
 def load_markdown(file_path: str) -> List[str]:
     """
-    Load and chunk markdown files
+    Load and chunk markdown files by headers or large paragraph blocks.
     """
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        
-        # Split by headers or paragraphs
+
         chunks = []
         lines = content.split('\n')
         current_chunk = []
-        
+
         for line in lines:
-            # If we encounter a header, start a new chunk
-            if line.startswith('#'):
-                if current_chunk:
-                    chunks.append('\n'.join(current_chunk))
-                    current_chunk = []
-            
+            # Start a new chunk if a header is encountered
+            if line.startswith('#') and current_chunk:
+                chunks.append('\n'.join(current_chunk))
+                current_chunk = []
+
             current_chunk.append(line)
-            
-            # If the chunk gets too large, split it
+
+            # Split chunk if it exceeds the size limit
             if len('\n'.join(current_chunk)) > 1000:
                 chunks.append('\n'.join(current_chunk))
                 current_chunk = []
-        
-        # Add the last chunk if it exists
+
+        # Append the remaining chunk if any
         if current_chunk:
             chunks.append('\n'.join(current_chunk))
-        
+
         return chunks
+
     except Exception as e:
-        logger.error(f"Error loading markdown: {e}")
+        logger.error("Error loading markdown: %s", e)
         return []
 
 def load_csv(file_path: str) -> List[str]:

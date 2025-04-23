@@ -25,6 +25,8 @@ api_key = os.getenv("VANNA_API_KEY", "")
 vanna_config = {'api_key' : f"{api_key}", 'model': "gemini-2.0-flash"}
 vanna = VannaIntegrator(config=vanna_config)
 
+USER_NOT_FOUND_MSG = "User not found"
+CHATBOT_NOT_FOUND_MSG = "Chatbot not found"
 
 chatbot_crud = ChatbotCrud()
 user_crud = UserCrud()
@@ -43,7 +45,7 @@ class ChatbotService:
     async def create_chatbot(self, user_id: ObjectId, chatbot: ChatbotCreate):
             try:
                 if not await self.validate_user(user_id):
-                    return JSONResponse(status_code=HTTPStatus.NOT_FOUND, content={"message": "User not found"})
+                    return JSONResponse(status_code=HTTPStatus.NOT_FOUND, content={"message": USER_NOT_FOUND_MSG})
 
                 # prevent duplicate names
                 existing = await chatbot_crud.get_chatbot_by_chatbot_name_and_user_id(chatbot.name, str(user_id))
@@ -100,7 +102,7 @@ class ChatbotService:
             if not await self.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             existing_chatbot = await chatbot_crud.get_chatbot_by_id(
@@ -109,7 +111,7 @@ class ChatbotService:
             if not existing_chatbot:
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": f"Chatbot not found"},
+                    content={"message": fCHATBOT_NOT_FOUND_MSG},
                 )
 
             existing_chatbot = convert_object_id_to_string(existing_chatbot)
@@ -117,7 +119,7 @@ class ChatbotService:
             return JSONResponse(
                 status_code=HTTPStatus.OK,
                 content={
-                    "message": f"Chatbot Fetched successfully",
+                    "message": "Chatbot Fetched successfully",
                     "data": existing_chatbot,
                 },
             )
@@ -140,7 +142,7 @@ class ChatbotService:
             if not await self.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
             
             logger.debug(
@@ -155,7 +157,7 @@ class ChatbotService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "Chatbot not found"},
+                    content={"message": CHATBOT_NOT_FOUND_MSG},
                 )
             
             # Verify the chatbot belongs to the user
@@ -172,13 +174,13 @@ class ChatbotService:
                 f"Chatbot with ID {chatbot_id} found"
             )
             
-            logger.debug(f"Initializing contextual chatbot with products data")
+            logger.debug("Initializing contextual chatbot with products data")
             chatbot_instance = ContextualChatbot(chatbot_data.get('products', []), chatbot_id)
             
             logger.debug(f"Generating response for query: {query}")
             response = chatbot_instance.generate_response(query)
             
-            logger.info(f"Generated response successfully")
+            logger.info("Generated response successfully")
             
             return JSONResponse(
                 status_code=HTTPStatus.OK,
@@ -206,7 +208,7 @@ class ChatbotService:
             if not await self.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
             
             logger.debug(
@@ -221,16 +223,16 @@ class ChatbotService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "Chatbot not found"},
+                    content={"message": CHATBOT_NOT_FOUND_MSG},
                 )
             
-            logger.debug(f"Applying update to chatbot")
+            logger.debug("Applying update to chatbot")
             result = await chatbot_crud.update_chatbot(chatbot_id, chatbot_data)
             
             updated_chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id, str(user_id))
             updated_chatbot = convert_object_id_to_string(updated_chatbot)
             
-            logger.info(f"Chatbot updated successfully")
+            logger.info("Chatbot updated successfully")
             
             return JSONResponse(
                 status_code=HTTPStatus.OK,
@@ -255,7 +257,7 @@ class ChatbotService:
             if not await self.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
             
             logger.debug(
@@ -270,7 +272,7 @@ class ChatbotService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "Chatbot not found"},
+                    content={"message": CHATBOT_NOT_FOUND_MSG},
                 )
             
             # Verify the chatbot belongs to the user
@@ -287,10 +289,10 @@ class ChatbotService:
                 f"Chatbot with ID {chatbot_id} found"
             )
             
-            logger.debug(f"Removing chatbot from database")
+            logger.debug("Removing chatbot from database")
             result = await chatbot_crud.delete_chatbot(chatbot_id)
             
-            logger.info(f"Chatbot deleted successfully")
+            logger.info("Chatbot deleted successfully")
             
             return JSONResponse(
                 status_code=HTTPStatus.OK,
@@ -314,7 +316,7 @@ class ChatbotService:
             if not await self.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             logger.debug(
@@ -362,7 +364,7 @@ class ChatbotService:
             if not await self.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
                 
             logger.debug(f"Fetching chatbot with ID: {chatbot_id}")
@@ -371,7 +373,7 @@ class ChatbotService:
                 logger.info(f"Chatbot with ID {chatbot_id} not found")
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "Chatbot not found"},
+                    content={"message": CHATBOT_NOT_FOUND_MSG},
                 )
                 
             # Get current files and prepare directory

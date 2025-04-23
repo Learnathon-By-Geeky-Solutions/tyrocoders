@@ -2,12 +2,12 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import itertools
-
+SITE_MAP_LITERAL = "sitemap_index.xml"
 # List of common sitemap names
 common_sitemaps = [
-    "sitemap.xml", "sitemap_index.xml", "sitemap.xml.gz", "sitemap_index.xml.gz",
+    "sitemap.xml", SITE_MAP_LITERAL, "sitemap.xml.gz", "sitemap_index.xml.gz",
     "sitemap.html", "sitemap.php", "feeds/posts/default?orderby=updated",
-    "sitemap_index.html", "sitemap_index", "sitemap-index.xml", "sitemap_index.xml"
+    "sitemap_index.html", "sitemap_index", "sitemap-index.xml", SITE_MAP_LITERAL
 ]
 
 def find_sitemap_in_robots(website):
@@ -71,7 +71,7 @@ def find_all_sitemaps(website):
     all_sitemaps = []
     for sitemap in sitemaps:
         all_sitemaps.append(sitemap)
-        if sitemap.endswith("sitemap_index.xml") or sitemap.endswith("sitemap_index.xml.gz"):
+        if sitemap.endswith(SITE_MAP_LITERAL) or sitemap.endswith("sitemap_index.xml.gz"):
             additional_sitemaps = extract_sitemaps_from_xml(sitemap)
             if additional_sitemaps:
                 all_sitemaps.extend(additional_sitemaps)
