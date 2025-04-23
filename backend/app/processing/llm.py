@@ -9,7 +9,7 @@ from core.logger import logger
 def create_prompt(query: str, context_docs: list, conversation_history=None) -> str:
     """Create prompt for the LLM based on product or general queries"""
     context_text = "\n\n".join([f"Document {i+1}:\n{doc}" for i, doc in enumerate(context_docs)])
-    # context_text = ""
+
     history_text = conversation_history
     logger.info("starting point of create prompt")
     
