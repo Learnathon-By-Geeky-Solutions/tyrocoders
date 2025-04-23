@@ -361,7 +361,7 @@ def process_query_llm(chatbot_id: str, query: str, context_docs: list, conversat
     prompt = create_prompt(query, context_docs, conversation_history)
     logger.info(f"Sending prompt to Groq LLM for chatbot {chatbot_id}")
     
-    estimated_tokens = estimate_token_count(prompt)
+    
     response = ask_llm_gemini(prompt)
     
     prompt_tokens = estimate_token_count(prompt)
