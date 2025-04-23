@@ -28,6 +28,8 @@ user_crud = UserCrud()
 chatbot_service = ChatbotService()
 storage_mgr = DatabaseStorageManager()
 
+USER_NOT_FOUND_MSG = "User not found"
+CHATBOT_NOT_FOUND_MSG = "Chatbot not found"
 
 class ChatbotConversationService:
 
@@ -61,7 +63,7 @@ class ChatbotConversationService:
             if not await chatbot_service.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             if not await chatbot_crud.get_chatbot_by_id(
@@ -69,7 +71,7 @@ class ChatbotConversationService:
             ):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": f"Chatbot not found"},
+                    content={"message": CHATBOT_NOT_FOUND_MSG},
                 )
 
             logger.debug(
@@ -115,7 +117,7 @@ class ChatbotConversationService:
             if not await chatbot_service.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             existing_conversation = await self.validate_conversation(
@@ -132,7 +134,7 @@ class ChatbotConversationService:
             return JSONResponse(
                 status_code=HTTPStatus.OK,
                 content={
-                    "message": f"Conversation Fetched successfully",
+                    "message": "Conversation Fetched successfully",
                     "data": existing_conversation,
                 },
             )
@@ -150,7 +152,7 @@ class ChatbotConversationService:
             if not await chatbot_service.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             logger.debug(
@@ -193,7 +195,7 @@ class ChatbotConversationService:
             if not await chatbot_service.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             if not await self.validate_conversation(
@@ -223,7 +225,7 @@ class ChatbotConversationService:
             return JSONResponse(
                 status_code=HTTPStatus.OK,
                 content={
-                    "message": f"Conversation message Updated successfully",
+                    "message": "Conversation message Updated successfully",
                     "data": updated_conversation,
                 },
             )
@@ -248,7 +250,7 @@ class ChatbotConversationService:
             if not user:
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             existing_conversation = await self.validate_conversation(
@@ -291,18 +293,18 @@ class ChatbotConversationService:
                 f"User ID: {user_id} | Fallback response fetched successfully"
             )
 
-            logger.debug(f"Getting the chatbot prompt role")
+            logger.debug("Getting the chatbot prompt role")
             custom_prompt_role_of_chatbot = chatbot.get(
                 "role_of_chatbot"
             )
             
-            logger.debug(f"Getting the chatbot ai_model_name")
+            logger.debug("Getting the chatbot ai_model_name")
             ai_model_name = chatbot.get(
                 "ai_model_name"
             )
             
             starting_prompt = custom_prompt_role_of_chatbot
-            logger.info(f"Chatbot prompt role fetched successfully")
+            logger.info("Chatbot prompt role fetched successfully")
 
             logger.debug(
                 f"User ID: {user_id} | Generating the llm response based on user query"
@@ -395,7 +397,7 @@ class ChatbotConversationService:
             return JSONResponse(
                 status_code=HTTPStatus.OK,
                 content={
-                    "message": f"Conversation Continued successfully",
+                    "message": "Conversation Continued successfully",
                     "data": bot_response_msg or fallback_response
                 },
             )
@@ -418,7 +420,7 @@ class ChatbotConversationService:
             if not await chatbot_service.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             existing_conversation = await self.validate_conversation(
@@ -455,7 +457,7 @@ class ChatbotConversationService:
             return JSONResponse(
                 status_code=HTTPStatus.OK,
                 content={
-                    "message": f"Lead collected successfully",
+                    "message": "Lead collected successfully",
                     "data": updated_chatbot,
                 },
             )
@@ -476,7 +478,7 @@ class ChatbotConversationService:
             if not await chatbot_service.validate_user(user_id):
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             logger.debug(
@@ -492,7 +494,7 @@ class ChatbotConversationService:
             return JSONResponse(
                 status_code=HTTPStatus.OK,
                 content={
-                    "message": f"Conversations deleted successfully",
+                    "message": "Conversations deleted successfully",
                 },
             )
         except Exception as e:
