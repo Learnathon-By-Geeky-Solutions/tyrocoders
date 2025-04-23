@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 import re, secrets
 from typing import Optional
 
+PASSWORD_SUGGEST = "Strongpassword123@"
+
 class UserCreate(BaseModel):
     username: Optional[str] = Field(..., min_length=3)
     name: str = Field(..., min_length=3)
@@ -16,7 +18,7 @@ class UserCreate(BaseModel):
                 "username": "mohtasim",
                 "name": "M. Mohtasim Hossain",
                 "email": "mohtasim@gmail.com",
-                "password": "Strongpassword123@",
+                "password": PASSWORD_SUGGEST,
             }
         }
 
@@ -41,7 +43,7 @@ class UserLogin(BaseModel):
         json_schema_extra = {
             "example": {
                 "email": "mohtasim@gmail.com",
-                "password": "Strongpassword123@"
+                "password": PASSWORD_SUGGEST
             }
         }
 
@@ -67,7 +69,7 @@ class ResetPassword(BaseModel):
         json_schema_extra = {
             "example": {
                 "pass_reset_token": "zzzzzzzzzzzzzzzzzzzzz",
-                "new_password": "Strongpassword123@",
+                "new_password": PASSWORD_SUGGEST,
             }
         }
 
