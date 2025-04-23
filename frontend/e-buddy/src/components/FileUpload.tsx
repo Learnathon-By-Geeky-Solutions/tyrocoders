@@ -127,7 +127,7 @@ const FileUpload: React.FC = () => {
             <FileItem
               key={file.name}
               file={file}
-              progress={uploadProgress[file.name] || 0}
+              progress={uploadProgress[file.name] ?? 0}
               onRemove={handleRemoveFile}
             />
           ))}
