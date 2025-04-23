@@ -104,33 +104,39 @@ def load_file_index(chatbot_id: str, file_path: str) -> Tuple[Optional[Any], Opt
 
 def discover_and_index_files(chatbot_id: str, data_dir: str) -> Dict[str, Tuple[Any, List[str]]]:
     """
-    Discover all supported files in the data directory and build indexes for each
-    Returns a dictionary of {file_path: (index, documents)}
+    Discover all supported files in the data directory and build indexes for each.
+    Returns a dictionary of {file_path: (index, documents)}.
     """
     indexes = {}
-    
-    # Make sure the directory exists
+
     if not os.path.exists(data_dir):
         logger.warning(f"Data directory {data_dir} does not exist")
         return indexes
-    
-    # Walk through the directory and find all supported files
+
     for root, _, files in os.walk(data_dir):
         for file in files:
             file_path = os.path.join(root, file)
-            if any(file.endswith(ext) for ext in SUPPORTED_EXTENSIONS):
-                if should_update_index(chatbot_id, file_path):
-                    logger.info(f"Building/updating index for {file_path}")
-                    index, documents = build_file_index(chatbot_id, file_path)
-                else:
-                    logger.info(f"Loading existing index for {file_path}")
-                    index, documents = load_file_index(chatbot_id, file_path)
-                
-                if index is not None and documents is not None:
-                    indexes[file_path] = (index, documents)
-    
+
+            if not is_supported_file(file):
+                continue
+
+            index, documents = handle_file_indexing(chatbot_id, file_path)
+            if index is not None and documents is not None:
+                indexes[file_path] = (index, documents)
+
     logger.info(f"Discovered and indexed {len(indexes)} files for {chatbot_id}")
     return indexes
+
+def is_supported_file(file: str) -> bool:
+    return any(file.endswith(ext) for ext in SUPPORTED_EXTENSIONS)
+
+def handle_file_indexing(chatbot_id: str, file_path: str) -> Tuple[Any, List[str]]:
+    if should_update_index(chatbot_id, file_path):
+        logger.info(f"Building/updating index for {file_path}")
+        return build_file_index(chatbot_id, file_path)
+    else:
+        logger.info(f"Loading existing index for {file_path}")
+        return load_file_index(chatbot_id, file_path)
 
 def search_kb(chatbot_id: str, query: str, k: int = 5) -> List[str]:
     """
