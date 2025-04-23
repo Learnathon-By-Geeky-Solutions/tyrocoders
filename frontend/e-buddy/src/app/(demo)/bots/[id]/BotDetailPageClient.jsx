@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useState,useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import BotFileManager from '@/components/chatbot/BotFileManager';
@@ -35,7 +33,6 @@ import {
   UserCircle,
   MessageSquare,
   Users,
-  ShoppingCart,
   Settings,
   TrendingUp,
   Clock,
@@ -59,8 +56,6 @@ import { CustomizationForm } from '@/components/chatbot/CustomizationForm';
 import { ChatPreview } from '@/components/chatbot/ChatPreview';
 import { ChatTrigger } from '@/components/chatbot/ChatTrigger';
 import { useToast } from '@/hooks/use-toast';
-import { BotCustomization } from '@/types/chatbot';
-import { dummyBots } from '@/data/botData';
 import { botAPI } from '@/services/api';
 
 // Utility functions for mapping API values to expected enums
@@ -106,43 +101,32 @@ function transformApiBot(apiBot) {
     },
     performance: apiBot.performance || [], // Use performance data if available, else empty array
     customization: {
-      name: (apiBot.customization && apiBot.customization.name) || apiBot.name,
-      avatarUrl: (apiBot.customization && apiBot.customization.avatarUrl) || apiBot.avatar_url,
-      primaryColor: (apiBot.customization && apiBot.customization.primaryColor) ||
-                    apiBot.primary_color ||
-                    "#6366f1",
-      secondaryColor: (apiBot.customization && apiBot.customization.secondaryColor) ||
-                      apiBot.secondary_color ||
-                      "#f9fafb",
+      name: apiBot.customization?.name ?? apiBot.name,
+      avatarUrl: apiBot.customization?.avatarUrl ?? apiBot.avatar_url,
+      primaryColor: apiBot.customization?.primaryColor ?? apiBot.primary_color ?? "#6366f1",
+      secondaryColor: apiBot.customization?.secondaryColor ?? apiBot.secondary_color ?? "#f9fafb",
       chatBubbleStyle: mapChatBubbleStyle(
-        (apiBot.customization && apiBot.customization.chatBubbleStyle) || apiBot.chat_bubble_style
+        apiBot.customization?.chatBubbleStyle ?? apiBot.chat_bubble_style
       ),
-      welcomeMessage: (apiBot.customization && apiBot.customization.welcomeMessage) ||
-                      apiBot.welcome_message ||
-                      apiBot.initial_message,
-      font: mapFontStyle(
-        (apiBot.customization && apiBot.customization.font) || apiBot.font_style
-      ),
-      position: mapPosition(
-        (apiBot.customization && apiBot.customization.position) || apiBot.position
-      ),
-      predefinedQuestions: (apiBot.customization && apiBot.customization.predefinedQuestions) ||
-                           apiBot.predefined_questions ||
-                           [],
-      responseTemplates: (apiBot.customization && apiBot.customization.responseTemplates) ||
-                         apiBot.response_templates ||
-                         []
+      welcomeMessage:
+        apiBot.customization?.welcomeMessage ?? apiBot.welcome_message ?? apiBot.initial_message,
+      font: mapFontStyle(apiBot.customization?.font ?? apiBot.font_style),
+      position: mapPosition(apiBot.customization?.position ?? apiBot.position),
+      predefinedQuestions: apiBot.customization?.predefinedQuestions ?? apiBot.predefined_questions ?? [],
+      responseTemplates: apiBot.customization?.responseTemplates ?? apiBot.response_templates ?? []
     }
   };
 }
 
 
+import PropTypes from 'prop-types';
 
+BotDetailPageClient.propTypes = {
+  id: PropTypes.any.isRequired,
+  fallbackBot: PropTypes.any.isRequired,
+};
 
 export default function BotDetailPageClient({ id, fallbackBot }) {
-  // const { id } = useParams();
-  // const [bot, setBot] = useState(dummyBots.find(b => b.id.toString() === id));
-  // const [customization, setCustomization] = useState<BotCustomization | null>(null);
   const [currentBot, setCurrentBot] = useState(fallbackBot)
   const [customization, setCustomization] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -717,7 +701,7 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
                                   <div className="mt-2 space-y-2">
                                     {customFields.map((field, index) => (
                                       <div
-                                        key={index}
+                                        key={field.id || `${field.name}-${field.type}`} // Use a unique identifier instead
                                         className="flex items-center justify-between p-2 bg-gray-50 rounded"
                                       >
                                         <span>{field.name} ({field.type})</span>
