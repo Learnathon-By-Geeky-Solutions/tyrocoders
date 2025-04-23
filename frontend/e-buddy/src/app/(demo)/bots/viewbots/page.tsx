@@ -43,7 +43,6 @@ function mapPosition(position?: string): "right" | "left" {
 }
 
 export default function MyBotsPage() {
-  const router = useRouter();
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +53,7 @@ export default function MyBotsPage() {
         setLoading(true);
         const response = await botAPI.getAllBots();
         
-        if (response.data && response.data.data) {
+        if (response.data?.data) {
           // Transform API data to match the expected Bot structure
           const transformedBots = response.data.data.map((apiBot: any) => {
             // Transform to match Bot structure using actual API data
@@ -62,30 +61,31 @@ export default function MyBotsPage() {
               id: apiBot._id, // Create a numeric ID from MongoDB ID
               name: apiBot.name,
               model: apiBot.ai_model_name,
-              createdAt: apiBot.created_at || new Date().toISOString().split('T')[0],
+              createdAt: apiBot.created_at ?? new Date().toISOString().split('T')[0],
               description: apiBot.description,
               stats: {
-                conversations: apiBot.stats?.conversations || 0,
-                leadGeneration: apiBot.stats?.leads || 0,
-                conversionRate: apiBot.stats?.conversion_rate || 0,
-                avgResponseTime: apiBot.stats?.avg_response_time || 'N/A',
-                customerSatisfaction: apiBot.stats?.satisfaction || 0,
-                activeUsers: apiBot.stats?.active_users || 0,
+                conversations: apiBot.stats?.conversations ?? 0,
+                leadGeneration: apiBot.stats?.leads ?? 0,
+                conversionRate: apiBot.stats?.conversion_rate ?? 0,
+                avgResponseTime: apiBot.stats?.avg_response_time ?? 'N/A',
+                customerSatisfaction: apiBot.stats?.satisfaction ?? 0,
+                activeUsers: apiBot.stats?.active_users ?? 0,
               },
               performance: [], // We don't need this for the list view
               customization: {
                 name: apiBot.name,
                 avatarUrl: apiBot.avatar_url,
-                primaryColor: apiBot.primary_color || "#6366f1",
-                secondaryColor: apiBot.secondary_color || "#f9fafb",
+                primaryColor: apiBot.primary_color ?? "#6366f1",
+                secondaryColor: apiBot.secondary_color ?? "#f9fafb",
                 chatBubbleStyle: mapChatBubbleStyle(apiBot.chat_bubble_style),
                 welcomeMessage: apiBot.welcome_message,
                 font: mapFontStyle(apiBot.font_style),
                 position: mapPosition(apiBot.position),
-                predefinedQuestions: apiBot.predefined_questions || [],
-                responseTemplates: apiBot.response_templates || []
+                predefinedQuestions: apiBot.predefined_questions ?? [],
+                responseTemplates: apiBot.response_templates ?? []
               }
             };
+
           });
           
           setBots(transformedBots);
@@ -148,11 +148,14 @@ export default function MyBotsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {bots.length > 0 ? (
             bots.map((bot) => (
-              <Card key={bot.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card
+                key={bot.id}
+                className="overflow-hidden hover:shadow-lg transition-shadow"
+              >
                 <div
                   className="h-3"
                   style={{
-                    backgroundColor: bot.customization?.primaryColor || "#6366f1"
+                    backgroundColor: bot.customization?.primaryColor ?? "#6366f1"
                   }}
                 />
                 <CardContent className="p-6">
@@ -162,58 +165,59 @@ export default function MyBotsPage() {
                         className="w-10 h-10 rounded-full flex items-center justify-center"
                         style={{
                           backgroundColor:
-                            (bot.customization?.primaryColor || "#6366f1") + "20"
+                            (bot.customization?.primaryColor ?? "#6366f1") + "20"
                         }}
                       >
                         <MessageSquare
                           className="h-5 w-5"
-                          style={{ color: bot.customization?.primaryColor || "#6366f1" }}
+                          style={{
+                            color: bot.customization?.primaryColor ?? "#6366f1"
+                          }}
                         />
                       </div>
                       <div>
                         <h3 className="font-bold">{bot.name}</h3>
-                        <p className="text-sm text-gray-500">Created {bot.createdAt}</p>
+                        <p className="text-sm text-gray-500">
+                          Created {bot.createdAt}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
                       <span className="text-sm font-medium">
-                        {bot.stats?.customerSatisfaction || 0}%
+                        {bot.stats?.customerSatisfaction ?? 0}%
                       </span>
                     </div>
                   </div>
-
                   <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                    {bot.description || "No description available."}
+                    {bot.description ?? "No description available."}
                   </p>
-
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     <div className="bg-gray-50 p-2 rounded">
                       <p className="text-xs text-gray-500">Conversations</p>
                       <p className="font-medium">
-                        {bot.stats?.conversations?.toLocaleString() || 0}
+                        {bot.stats?.conversations?.toLocaleString() ?? 0}
                       </p>
                     </div>
                     <div className="bg-gray-50 p-2 rounded">
                       <p className="text-xs text-gray-500">Leads</p>
                       <p className="font-medium">
-                        {bot.stats?.leadGeneration?.toLocaleString() || 0}
+                        {bot.stats?.leadGeneration?.toLocaleString() ?? 0}
                       </p>
                     </div>
                     <div className="bg-gray-50 p-2 rounded">
                       <p className="text-xs text-gray-500">Conversion</p>
                       <p className="font-medium">
-                        {bot.stats?.conversionRate || 0}%
+                        {bot.stats?.conversionRate ?? 0}%
                       </p>
                     </div>
                     <div className="bg-gray-50 p-2 rounded">
                       <p className="text-xs text-gray-500">Response Time</p>
                       <p className="font-medium">
-                        {bot.stats?.avgResponseTime || "N/A"}
+                        {bot.stats?.avgResponseTime ?? "N/A"}
                       </p>
                     </div>
                   </div>
-
                   <Button asChild variant="outline" className="w-full">
                     <Link href={`/bots/${bot.id}`}>
                       Manage Bot <ArrowRight className="ml-2 h-4 w-4" />
@@ -230,7 +234,6 @@ export default function MyBotsPage() {
               </Button>
             </div>
           )}
-
           {/* Create New Bot Card */}
           {bots.length > 0 && (
             <Card className="border-dashed border-2 border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors">
@@ -252,6 +255,7 @@ export default function MyBotsPage() {
           )}
         </div>
       )}
+      
     </ContentLayout>
   );
 }
