@@ -8,7 +8,7 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-12">
         <ScrollReveal className="flex-1 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
-            Create <span className="text-vibrant">Smart Chatbots</span> That
+            Create <span className="text-accent">Smart Chatbots</span> That
             Grow Your Business
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl">
@@ -16,7 +16,7 @@ export function HeroSection() {
             and engage customers 24/7 - all without writing a single line of
             code.
           </p>
-          <Button className="bg-vibrant hover:bg-vibrant/90 text-white px-8 py-6 text-lg rounded-md transform transition-transform duration-200 hover:scale-105">
+          <Button className="bg-accent hover:bg-accent/90 text-white px-8 py-6 text-lg rounded-md transform transition-transform duration-200 hover:scale-105">
             Get Started <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </ScrollReveal>

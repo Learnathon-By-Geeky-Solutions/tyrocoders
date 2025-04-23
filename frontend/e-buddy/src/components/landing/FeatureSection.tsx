@@ -89,7 +89,7 @@ export function FeaturesSection() {
     <section className="section bg-gray-50 py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="section-title">
-          Powerful Features <span className="text-vibrant">You'll Love</span>
+          Powerful Features <span className="text-accent">You'll Love</span>
         </h2>
         <p className="section-subtitle">
           Everything you need to create intelligent, engaging, and

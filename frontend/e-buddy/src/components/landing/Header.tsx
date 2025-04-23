@@ -5,7 +5,7 @@ export function Header() {
     <header className="border-b py-3 px-4 md:px-8 sticky top-0 bg-background z-50">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="flex items-center">
-          <h1 className="text-xl font-bold text-vibrant">ChatbotCreator</h1>
+          <h1 className="text-xl font-bold text-accent">ChatbotCreator</h1>
         </div>
 
         <div className="hidden md:flex items-center space-x-6">
@@ -39,7 +39,7 @@ export function Header() {
           <Button variant="ghost" className="font-medium">
             Login
           </Button>
-          <Button className="ml-2 bg-vibrant hover:bg-vibrant/90 text-white">
+          <Button className="ml-2 bg-accent hover:bg-accent/90 text-white">
             Sign Up
           </Button>
         </nav>

@@ -19,7 +19,7 @@ const config: Config = {
       xl: "1200px",
     },
     fontFamily: {
-      primary: "var(--font-jetbrainsMono)",
+      primary: ["var(--font-poppins)", "Poppins", "sans-serif"],
     },
     extend: {
       colors: {
@@ -44,10 +44,10 @@ const config: Config = {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
+        // accent: {
+        //   DEFAULT: "hsl(var(--accent))",
+        //   foreground: "hsl(var(--accent-foreground))",
+        // },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -76,8 +76,10 @@ const config: Config = {
             bot: "#D6BCFA",
           },
         },
-        // vibrant: "#8B5CF6",
-        vibrant: "#ED6140",
+        // accent: "#8B5CF6",
+        accent: "#ED6140",
+        // accent: "#18879E",
+        dark: "#292F36",
         bot: {
           primary: "#6366f1",
           secondary: "#4f46e5",

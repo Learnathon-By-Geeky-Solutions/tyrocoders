@@ -42,7 +42,7 @@ export function HowItWorksSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal>
           <h2 className="section-title">
-            How It <span className="text-vibrant">Works</span>
+            How It <span className="text-accent">Works</span>
           </h2>
           <p className="section-subtitle">
             Create your custom AI chatbot in four simple steps
@@ -80,7 +80,7 @@ export function HowItWorksSection() {
 
                   <div className="flex items-center justify-center my-4 md:my-0 md:absolute md:left-1/2 md:transform md:-translate-x-1/2 z-10">
                     <div className="h-16 w-16 rounded-full bg-white border-4 border-gray-100 flex items-center justify-center">
-                      <span className="text-xl font-bold text-vibrant">
+                      <span className="text-xl font-bold text-accent">
                         {index + 1}
                       </span>
                     </div>

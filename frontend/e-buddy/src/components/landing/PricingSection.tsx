@@ -82,7 +82,7 @@ export function PricingSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal>
           <h2 className="section-title">
-            Simple <span className="text-vibrant">Pricing</span>
+            Simple <span className="text-accent">Pricing</span>
           </h2>
           <p className="section-subtitle">
             Choose the perfect plan for your business needs
@@ -95,12 +95,12 @@ export function PricingSection() {
               <div
                 className={`bg-white rounded-xl border ${
                   plan.popular
-                    ? "border-vibrant ring-2 ring-vibrant/20"
+                    ? "border-accent ring-2 ring-accent/20"
                     : "border-border"
                 } overflow-hidden transition-all shadow-sm hover:shadow-md h-full`}
               >
                 {plan.popular && (
-                  <div className="bg-vibrant text-white text-center py-1 text-sm font-medium">
+                  <div className="bg-accent text-white text-center py-1 text-sm font-medium">
                     Most Popular
                   </div>
                 )}
@@ -117,7 +117,7 @@ export function PricingSection() {
 
                   <Button
                     className={`w-full mb-6 ${
-                      plan.popular ? "bg-vibrant hover:bg-vibrant/90" : ""
+                      plan.popular ? "bg-accent hover:bg-accent/90" : ""
                     }`}
                     variant={plan.popular ? "default" : "outline"}
                   >

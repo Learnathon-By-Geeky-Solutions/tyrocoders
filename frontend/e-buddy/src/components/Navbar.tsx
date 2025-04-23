@@ -17,21 +17,25 @@ const Navbar = () => {
       path: "/",
     },
     {
-      name: "Feature",
-      path: "/feature",
+      name: "Features",
+      path: "#features",
+    },
+    {
+      name: "How It Works",
+      path: "#how-it-works",
     },
     {
       name: "Pricing",
-      path: "/pricing",
+      path: "#pricing",
     },
     {
       name: "FAQ",
-      path: "/faq",
+      path: "#faq",
     },
   ];
 
   return (
-    <header className="py-8 text-white">
+    <header className="py-4 fixed top-0 left-0 right-0 z-50 bg-white shadow">
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/">
           <h1 className="text-4xl font-semibold">
@@ -47,10 +51,7 @@ const Navbar = () => {
                 <Link
                   href={link.path}
                   key={index}
-                  className={`${
-                    link.path === pathname &&
-                    "text-accent border-b-2 border-accent"
-                  } flex items-center capitalize font-medium hover:text-accent transition-all`}
+                  className={`flex items-center capitalize font-medium hover:text-accent transition-all`}
                 >
                   {link.name}
                 </Link>
@@ -83,10 +84,7 @@ const Navbar = () => {
                     <Link
                       href={link.path}
                       key={index}
-                      className={`${
-                        link.path === pathname &&
-                        "text-accent border-b-2 border-accent"
-                      } flex items-center capitalize font-medium hover:text-accent transition-all`}
+                      className={`flex items-center capitalize font-medium hover:text-accent transition-all`}
                     >
                       {link.name}
                     </Link>

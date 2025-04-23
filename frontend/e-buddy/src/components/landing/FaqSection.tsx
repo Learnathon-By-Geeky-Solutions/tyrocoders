@@ -55,7 +55,7 @@ export function FaqSection() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal>
           <h2 className="section-title">
-            Frequently Asked <span className="text-vibrant">Questions</span>
+            Frequently Asked <span className="text-accent">Questions</span>
           </h2>
           <p className="section-subtitle">
             Everything you need to know about our chatbot platform
