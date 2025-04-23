@@ -72,9 +72,9 @@ class AuthService:
             logger.info(
                 f"User with username {user.username} does not exist"
             )
-            logger.debug(f"Hashing password")
+            logger.debug("Hashing password")
             user.password = hash_password(user.password)
-            logger.info(f"Password hashed successfully")
+            logger.info("Password hashed successfully")
 
             new_inserted_user = await auth_crud.register(user)
             new_user = await user_crud.get_user_by_id(
@@ -82,7 +82,7 @@ class AuthService:
             )
 
             new_user = convert_object_id_to_string(new_user)
-            logger.info(f"User registered successfully")
+            logger.info("User registered successfully")
 
             return JSONResponse(
                 status_code=HTTPStatus.CREATED,
@@ -116,7 +116,7 @@ class AuthService:
             logger.info(
                 f"User with email {login_data.email} found"
             )
-            logger.debug(f"Verifying password")
+            logger.debug("Verifying password")
             if not verify_password(login_data.password, user.get("password")):
                 return JSONResponse(
                     status_code=HTTPStatus.UNAUTHORIZED,
@@ -130,11 +130,11 @@ class AuthService:
                 )
 
             logger.info(
-                f"Password and OTP verified successfully"
+                "Password and OTP verified successfully"
             )
 
             logger.debug(
-                f"Creating access token and refresh token"
+                "Creating access token and refresh token"
             )
             user = convert_object_id_to_string(user)
             user_id = user.get("_id")
@@ -157,7 +157,7 @@ class AuthService:
                     },
                 )
             logger.info(
-                f"Access token and refresh token created successfully"
+                "Access token and refresh token created successfully"
             )
 
             return JSONResponse(
@@ -182,17 +182,17 @@ class AuthService:
         
     async def renew_access_token(self, refresh_token: str):
         try:
-            logger.debug(f"Verifying refresh token")
+            logger.debug("Verifying refresh token")
             user_id = verify_token(refresh_token)
 
             if not user_id:
-                logger.info(f"Invalid token subject")
+                logger.info("Invalid token subject")
                 return JSONResponse(
                     status_code=HTTPStatus.BAD_REQUEST,
                     content={"message": "Invalid token subject"},
                 )
 
-            logger.info(f"Refresh token verified successfully")
+            logger.info("Refresh token verified successfully")
 
             logger.debug(
                 f"Checking if user with id {user_id} exists or not"
@@ -211,12 +211,12 @@ class AuthService:
 
             logger.info(f"User with id {user_id} found")
             logger.debug(
-                f"Creating access token and refresh token"
+                "Creating access token and refresh token"
             )
             access_token, access_token_expire_in = create_access_token(user_id)
             new_refresh_token, refresh_token_expire_in = create_refresh_token(user_id)
             logger.info(
-                f"Access token and refresh token created successfully"
+                "Access token and refresh token created successfully"
             )
 
             return JSONResponse(
@@ -234,13 +234,13 @@ class AuthService:
             )
 
         except jwt.ExpiredSignatureError:
-            logger.error(f"Refresh token expired")
+            logger.error("Refresh token expired")
             return JSONResponse(
                 status_code=HTTPStatus.UNAUTHORIZED,
                 content={"message": "Refresh token expired"},
             )
         except jwt.InvalidTokenError:
-            logger.error(f"Invalid refresh token")
+            logger.error("Invalid refresh token")
             return JSONResponse(
                 status_code=HTTPStatus.UNAUTHORIZED,
                 content={"message": "Invalid refresh token"},
@@ -255,7 +255,6 @@ class AuthService:
     async def generate_pass_reset_token(
         self,
         generate_reset_password: GenerateResetPassword,
-        background_tasks: BackgroundTasks
     ):
         try:
             logger.debug(
@@ -279,13 +278,13 @@ class AuthService:
             user = convert_object_id_to_string(user)
             user_email = user.get("email")
             user_name = user.get("username")
-            logger.debug(f"Generating password reset token")
+            logger.debug("Generating password reset token")
             pass_reset_token = create_pass_reset_token(user_email)
             logger.info(
-                f"Password reset token generated successfully"
+                "Password reset token generated successfully"
             )
             logger.debug(
-                f"Sending password reset email in background tasks"
+                "Sending password reset email in background tasks"
             )
             one_time_link = (
                 f"{generate_reset_password.reset_form_url}?token={pass_reset_token}"
@@ -314,12 +313,12 @@ class AuthService:
         self, reset_password: ResetPassword
     ):
         try:
-            logger.debug(f"Verifying password reset token")
+            logger.debug("Verifying password reset token")
             user_email = verify_token(reset_password.pass_reset_token)
 
             if not user_email:
                 logger.info(
-                    f"Invalid password reset token subject"
+                    "Invalid password reset token subject"
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.BAD_REQUEST,
@@ -327,7 +326,7 @@ class AuthService:
                 )
 
             logger.info(
-                f"Password reset token verified successfully"
+                "Password reset token verified successfully"
             )
             logger.debug(
                 f"Checking if user with email {user_email} exists or not"
@@ -344,34 +343,34 @@ class AuthService:
             logger.info(f"User with email {user_email} found")
             user = convert_object_id_to_string(user)
             user_email = user.get("email")
-            logger.debug(f"Hashing new password")
+            logger.debug("Hashing new password")
             new_password = hash_password(reset_password.new_password)
-            logger.info(f"Password hashed successfully")
-            logger.debug(f"Resetting password")
+            logger.info("Password hashed successfully")
+            logger.debug("Resetting password")
             isReset = await auth_crud.password_reset(
                 user_email, new_password
             )
 
             if not isReset:
-                logger.info(f"Could not reset password")
+                logger.info("Could not reset password")
                 return JSONResponse(
                     status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                     content={"message": "Could not reset password. Please try again"},
                 )
-            logger.info(f"Password reset successfully")
+            logger.info("Password reset successfully")
 
             return JSONResponse(
                 status_code=HTTPStatus.OK,
                 content={"message": "Password reset successfully"},
             )
         except jwt.ExpiredSignatureError:
-            logger.error(f"Password reset token expired")
+            logger.error("Password reset token expired")
             return JSONResponse(
                 status_code=HTTPStatus.UNAUTHORIZED,
                 content={"message": "Password reset Token expired"},
             )
         except jwt.InvalidTokenError:
-            logger.error(f"Invalid password reset token")
+            logger.error("Invalid password reset token")
             return JSONResponse(
                 status_code=HTTPStatus.UNAUTHORIZED,
                 content={"message": "Invalid password reset token"},
