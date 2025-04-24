@@ -265,37 +265,54 @@ def search_kb(chatbot_id: str, query: str, k: int = 5) -> List[str]:
         logger.error(f"Error searching knowledge base for {chatbot_id}: {e}")
         return []
 
+from core.config import SUPPORTED_EXTENSIONS
+from processing.kb import build_knowledge_base
+import os
+import logging
+
+logger = logging.getLogger(__name__)
+
 def rebuild_kb_after_upload(chatbot_id: str) -> bool:
     """
     Rebuild knowledge base after files have been uploaded.
     Scans both knowledge_bases and scrapped_files for any supported files
     and re-indexes them using build_knowledge_base.
     """
-    from core.config import SUPPORTED_EXTENSIONS
-    from processing.kb import build_knowledge_base
-    import os
-    
-    # Collect all supported files under both directories
     base_dir = os.path.dirname(os.path.abspath(__file__))
     kb_dir = os.path.join(base_dir, "../knowledge_bases", chatbot_id)
     scrapped_dir = os.path.join(base_dir, "../scrapped_files", chatbot_id)
-    file_paths = []
-    
-    for root_dir in (kb_dir, scrapped_dir):
-        if not os.path.exists(root_dir):
-            continue
-        for root, _, files in os.walk(root_dir):
-            for fname in files:
-                if fname.startswith('.') or fname.startswith('~$'):
-                    continue
-                full_path = os.path.join(root, fname)
-                # Only include supported extensions
-                if any(full_path.lower().endswith(ext) for ext in SUPPORTED_EXTENSIONS):
-                    file_paths.append(full_path)
-    
+
+    file_paths = collect_supported_files([kb_dir, scrapped_dir])
+
     if not file_paths:
         logger.warning(f"No supported files found for chatbot {chatbot_id}")
         return False
-    
+
     logger.info(f"Rebuilding KB for {chatbot_id} from {len(file_paths)} files")
     return build_knowledge_base(chatbot_id, file_paths)
+
+
+def collect_supported_files(directories: list) -> list:
+    """
+    Traverse given directories and collect supported file paths.
+    """
+    collected_files = []
+    for directory in directories:
+        if not os.path.exists(directory):
+            continue
+        for root, _, files in os.walk(directory):
+            for fname in files:
+                if is_ignored_file(fname):
+                    continue
+                full_path = os.path.join(root, fname)
+                if is_supported_file(full_path):
+                    collected_files.append(full_path)
+    return collected_files
+
+
+def is_ignored_file(fname: str) -> bool:
+    return fname.startswith('.') or fname.startswith('~$')
+
+
+def is_supported_file(path: str) -> bool:
+    return any(path.lower().endswith(ext) for ext in SUPPORTED_EXTENSIONS)

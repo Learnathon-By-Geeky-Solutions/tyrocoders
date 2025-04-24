@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Check, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
-import axios from "axios";
 import { botAPI } from "@/services/api";
 
 const MyBotsPage = () => {
@@ -48,13 +47,14 @@ const MyBotsPage = () => {
       const apiData = {
         name: formData.botName,
         ai_model_name: formData.model === "gpt" ? "GPT-4o" : formData.model,
-        description: formData.description || "A chatbot for my online store",
+        description: formData.description ?? "A chatbot for my online store",
         is_active: true,
         website_url: formData.url,
         initial_message: formData.initialMessage,
         faq_info: formData.faqInfo,
         contact_info: formData.contactNumber
       };
+
       
       // Log the data that will be sent to the API
       console.log("Data to be sent to API:", apiData);
@@ -80,7 +80,8 @@ const MyBotsPage = () => {
       setIsLoading(false);
       // Type assertion
       const error = err as any; // or as Error or as AxiosError
-      setError(error.response?.data?.message || "Failed to create bot. Please try again.");
+      setError(error.response?.data?.message ?? "Failed to create bot. Please try again.");
+
       console.error('Error creating bot:', err);
     }
   };
@@ -99,45 +100,41 @@ const MyBotsPage = () => {
 
         {/* Modern Step Indicator */}
         <div className="relative flex justify-between mb-16 px-6">
-          {[1, 2, 3].map((s, idx) => (
-            <div key={s} className="flex flex-col items-center relative z-10">
-              <div
-                className={`step-bubble ${
-                  step === s
-                    ? "step-bubble-active animate-pulse-subtle"
-                    : step > s
-                    ? "step-bubble-completed"
-                    : "step-bubble-inactive"
-                }`}
-              >
-                {step > s ? <Check className="w-5 h-5" /> : s}
-              </div>
-              <span
-                className={`mt-3 text-sm font-medium ${
-                  step === s
-                    ? "text-bot-primary"
-                    : step > s
-                    ? "text-bot-success"
-                    : "text-gray-500"
-                }`}
-              >
-                {s === 1
-                  ? "Basic Info"
-                  : s === 2
-                  ? "Data Source"
-                  : "Configuration"}
-              </span>
+          {[1, 2, 3].map((s, idx) => {
+            const isActive = step === s;
+            const isCompleted = step > s;
 
-              {/* Connector lines between steps */}
-              {idx < 2 && (
-                <div
-                  className={`step-connector ${
-                    step > s ? "step-connector-active" : ""
-                  }`}
-                ></div>
-              )}
-            </div>
-          ))}
+            const bubbleClass = isActive
+              ? "step-bubble-active animate-pulse-subtle"
+              : isCompleted
+              ? "step-bubble-completed"
+              : "step-bubble-inactive";
+
+            const labelClass = isActive
+              ? "text-bot-primary"
+              : isCompleted
+              ? "text-bot-success"
+              : "text-gray-500";
+
+            const labelText =
+              s === 1 ? "Basic Info" : s === 2 ? "Data Source" : "Configuration";
+
+            const connectorClass = isCompleted ? "step-connector-active" : "";
+
+            return (
+              <div key={s} className="flex flex-col items-center relative z-10">
+                <div className={`step-bubble ${bubbleClass}`}>
+                  {isCompleted ? <Check className="w-5 h-5" /> : s}
+                </div>
+                <span className={`mt-3 text-sm font-medium ${labelClass}`}>
+                  {labelText}
+                </span>
+                {idx < 2 && (
+                  <div className={`step-connector ${connectorClass}`}></div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Form Container */}
@@ -150,10 +147,11 @@ const MyBotsPage = () => {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label htmlFor="botName" className="block text-gray-700 font-medium mb-2">
                     Bot Name
                   </label>
                   <input
+                    id="botName"
                     type="text"
                     name="botName"
                     value={formData.botName}
@@ -163,10 +161,11 @@ const MyBotsPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label htmlFor="description" className="block text-gray-700 font-medium mb-2">
                     Description
                   </label>
                   <input
+                    id="description"
                     type="text"
                     name="description"
                     value={formData.description}
@@ -176,10 +175,11 @@ const MyBotsPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label htmlFor="model" className="block text-gray-700 font-medium mb-2">
                     AI Model
                   </label>
                   <select
+                    id="model"
                     name="model"
                     value={formData.model}
                     onChange={handleChange}
@@ -195,6 +195,7 @@ const MyBotsPage = () => {
               </div>
               <div className="mt-10 flex justify-end">
                 <button
+                  type="button"
                   onClick={nextStep}
                   className="btn-primary flex items-center gap-2"
                 >
@@ -211,11 +212,12 @@ const MyBotsPage = () => {
                 Data Source
               </h2>
               <div>
-                <label className="block text-gray-700 font-medium mb-2">
+                <label htmlFor="url" className="block text-gray-700 font-medium mb-2">
                   Website URL to Scrape
                 </label>
                 <div className="relative">
                   <input
+                    id="url"
                     type="url"
                     name="url"
                     value={formData.url}
@@ -233,12 +235,14 @@ const MyBotsPage = () => {
               </div>
               <div className="mt-10 flex justify-between">
                 <button
+                  type="button"
                   onClick={prevStep}
                   className="btn-secondary flex items-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" /> Back
                 </button>
                 <button
+                  type="button"
                   onClick={nextStep}
                   className="btn-primary flex items-center gap-2"
                 >
@@ -255,39 +259,42 @@ const MyBotsPage = () => {
                 Bot Configuration
               </h2>
               <div>
-                <label className="block text-gray-700 font-medium mb-2">
+                <label htmlFor="initialMessage" className="block text-gray-700 font-medium mb-2">
                   Initial Message
                 </label>
                 <textarea
+                  id="initialMessage"
                   name="initialMessage"
                   value={formData.initialMessage}
                   onChange={handleChange}
                   placeholder="Hi there! How can I help you today?"
                   className="w-full border border-gray-200 rounded-lg px-4 py-3 shadow-sm form-input-focus resize-none"
                   rows={2}
-                ></textarea>
+                />
                 <p className="text-xs text-gray-500 mt-1">
                   First message users will see when they interact with your bot
                 </p>
               </div>
               <div>
-                <label className="block text-gray-700 font-medium mb-2">
+                <label htmlFor="faqInfo" className="block text-gray-700 font-medium mb-2">
                   Company Information / FAQ
                 </label>
                 <textarea
+                  id="faqInfo"
                   name="faqInfo"
                   value={formData.faqInfo}
                   onChange={handleChange}
                   placeholder="Add company details, FAQs, or any information your bot should know"
                   className="w-full border border-gray-200 rounded-lg px-4 py-3 shadow-sm form-input-focus resize-none"
                   rows={3}
-                ></textarea>
+                />
               </div>
               <div>
-                <label className="block text-gray-700 font-medium mb-2">
+                <label htmlFor="contactNumber" className="block text-gray-700 font-medium mb-2">
                   Customer Support Contact
                 </label>
                 <input
+                  id="contactNumber"
                   type="text"
                   name="contactNumber"
                   value={formData.contactNumber}
@@ -312,9 +319,7 @@ const MyBotsPage = () => {
                   disabled={isLoading}
                   className={`${isLoading 
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : success
-                      ? 'bg-gradient-to-r from-bot-success to-emerald-500'
-                      : 'bg-gradient-to-r from-bot-success to-emerald-500'
+                    : 'bg-gradient-to-r from-bot-success to-emerald-500'
                   } text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2`}
                 >
                   {isLoading ? (

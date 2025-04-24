@@ -30,6 +30,8 @@ user_crud = UserCrud()
 auth_crud = AuthCrud()
 
 class AuthService:
+    USER_NOT_FOUND_MSG = "User not found"
+    INVALID_TOKEN_MSG = "Invalid token subject"
     
     async def register(
         self,
@@ -110,7 +112,7 @@ class AuthService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             logger.info(
@@ -186,10 +188,10 @@ class AuthService:
             user_id = verify_token(refresh_token)
 
             if not user_id:
-                logger.info("Invalid token subject")
+                logger.info(INVALID_TOKEN_MSG)
                 return JSONResponse(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    content={"message": "Invalid token subject"},
+                    content={"message": INVALID_TOKEN_MSG},
                 )
 
             logger.info("Refresh token verified successfully")
@@ -206,7 +208,7 @@ class AuthService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
 
             logger.info(f"User with id {user_id} found")
@@ -270,7 +272,7 @@ class AuthService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
             logger.info(
                 f"User with email {generate_reset_password.email} found"
@@ -293,7 +295,7 @@ class AuthService:
             #     send_password_reset_email, user_name, user_email, one_time_link
             # )
             logger.info(
-                f"Password reset email sent successfully in background tasks"
+                "Password reset email sent successfully in background tasks"
             )
             return JSONResponse(
                 status_code=HTTPStatus.OK,
@@ -322,7 +324,7 @@ class AuthService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    content={"message": "Invalid token subject"},
+                    content={"message": INVALID_TOKEN_MSG},
                 )
 
             logger.info(
@@ -338,7 +340,7 @@ class AuthService:
                 )
                 return JSONResponse(
                     status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
+                    content={"message": USER_NOT_FOUND_MSG},
                 )
             logger.info(f"User with email {user_email} found")
             user = convert_object_id_to_string(user)

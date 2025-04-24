@@ -1,11 +1,9 @@
 "use client";
 
-import React from "react";
 import AuthForm from "@/components/AuthForm";
 import { useAuth } from "@/context/AuthContext";
-import { Navigate } from "react-router-dom";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import React,{ useEffect } from "react";
 
 const AuthPage = () => {
   const { isAuthenticated } = useAuth();

@@ -13,7 +13,7 @@ interface ParamsProps {
   };
 }
 
-export default async function BotDetailPage(props: ParamsProps) {
+export default async function BotDetailPage(props: Readonly<ParamsProps>) {
   const params = await Promise.resolve(props.params);
   const { id } = params;
 
