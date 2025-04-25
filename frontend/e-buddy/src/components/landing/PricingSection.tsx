@@ -5,7 +5,7 @@ import { ScrollReveal } from "@/components/landing/ScrollReveal";
 const pricingPlans = [
   {
     name: "Starter",
-    price: "$29",
+    price: "$19",
     period: "/month",
     description:
       "Perfect for small businesses just getting started with chatbots",
@@ -21,7 +21,7 @@ const pricingPlans = [
   },
   {
     name: "Professional",
-    price: "$79",
+    price: "$49",
     period: "/month",
     description:
       "Ideal for growing businesses that need more advanced features",

@@ -8,8 +8,8 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-12">
         <ScrollReveal className="flex-1 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
-            Create <span className="text-accent">Smart Chatbots</span> That
-            Grow Your Business
+            Create <span className="text-accent">Smart Chatbots</span> That Grow
+            Your Business
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl">
             Build AI-powered chatbots that boost sales, reduce support costs,
@@ -23,7 +23,8 @@ export function HeroSection() {
         <ScrollReveal className="flex-1">
           <div className="rounded-lg overflow-hidden shadow-xl border transition-transform duration-200 hover:shadow-2xl">
             <img
-              src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&h=450"
+              src="https://www.livechat.com/images/homepage/product-view--desktop_hu4cbfe34f2a228990920ce661de5d9cce_538742_2240x0_resize_q75_h2_catmullrom_3.67a10e85bd853d692610504d1118097fea06ce0825b2597940e8632347c898d9.webp"
+              // src="https://blog.getmanifest.ai/content/images/size/w1000/2023/07/Live-chat.jpg"
               alt="Chatbot in action"
               className="w-full h-auto"
             />

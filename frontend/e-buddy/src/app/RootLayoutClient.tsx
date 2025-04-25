@@ -12,15 +12,11 @@ export default function RootLayoutClient({
   const pathname = usePathname();
   console.log("Current Path:", pathname);
 
-  const isDemoPage =
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/users") ||
-    pathname.startsWith("/bots") ||
-    pathname.startsWith("/settings");
+  const isLandingPage = pathname === "/";
 
   return (
     <AuthProvider>
-      {!isDemoPage && <Navbar />}
+      {isLandingPage && <Navbar />}
       {children}
     </AuthProvider>
   );

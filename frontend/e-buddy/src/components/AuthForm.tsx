@@ -179,81 +179,70 @@ const AuthForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-sm mx-auto shadow-lg border-[#3a3e42] bg-[#2a2e33] overflow-hidden">
-      <CardHeader className="space-y-1 bg-[#222629] pb-12">
-        <CardTitle className="text-2xl font-bold text-center text-white">
+    <Card className="w-full max-w-sm mx-auto shadow-lg border border-gray-200 bg-white overflow-hidden">
+      <CardHeader className="space-y-1 bg-gray-50 pb-12">
+        <CardTitle className="text-2xl text-center text-dark">
           {activeTab === "signin" ? "Welcome back" : "Create an account"}
         </CardTitle>
-        {/* <CardDescription className="text-center text-gray-400">
-          {activeTab === "signin"
-            ? "Enter your credentials to access your account"
-            : "Fill out the form to create your account"}
-        </CardDescription> */}
       </CardHeader>
+
       <Tabs
         defaultValue="signin"
         value={activeTab}
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <TabsList className="grid grid-cols-2 w-[80%] mx-auto -mt-6 relative z-10 bg-[#343a40] shadow-md rounded-full">
+        <TabsList className="grid grid-cols-2 w-[80%] mx-auto -mt-6 relative z-10 bg-gray-100 shadow-md rounded-full">
           <TabsTrigger
             value="signin"
-            className="rounded-full data-[state=active]:bg-[#97d343] data-[state=active]:text-[#1a1a1a] text-gray-300"
+            className="rounded-full data-[state=active]:bg-accent data-[state=active]:text-white text-gray-600"
           >
-            <LogIn className="w-4 h-4 mr-2" />
-            Sign In
+            <LogIn className="w-4 h-4 mr-2 text-accent" /> Sign In
           </TabsTrigger>
           <TabsTrigger
             value="signup"
-            className="rounded-full data-[state=active]:bg-[#97d343] data-[state=active]:text-[#1a1a1a] text-gray-300"
+            className="rounded-full data-[state=active]:bg-accent data-[state=active]:text-white text-gray-600"
           >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Sign Up
+            <UserPlus className="w-4 h-4 mr-2 text-accent" /> Sign Up
           </TabsTrigger>
         </TabsList>
 
-        {/* Sign In Form */}
         <TabsContent value="signin" className="space-y-4 pt-4">
           <form onSubmit={handleSignIn}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#97d343]">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-accent">
                     <Mail className="h-5 w-5" />
                   </div>
                   <Input
                     type="email"
                     name="email"
                     placeholder="Email"
-                    className={`pl-10 bg-[#343a40] border-[#4a5056] text-white ${
-                      errors.email
-                        ? "border-red-500"
-                        : "focus:border-[#97d343] focus:ring-[#97d343]"
-                    } transition-all duration-200`}
+                    className={`pl-10 bg-gray-100 border ${
+                      errors.email ? "border-red-500" : "border-gray-300"
+                    } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signInData.email}
                     onChange={handleSignInChange}
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-red-400 text-xs">{errors.email}</p>
+                  <p className="text-red-600 text-xs">{errors.email}</p>
                 )}
               </div>
 
               <div className="space-y-2">
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#97d343]">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-accent">
                     <Lock className="h-5 w-5" />
                   </div>
                   <Input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Password"
-                    className={`pl-10 pr-10 bg-[#343a40] border-[#4a5056] text-white ${
-                      errors.password
-                        ? "border-red-500"
-                        : "focus:border-[#97d343] focus:ring-[#97d343]"
-                    } transition-all duration-200`}
+                    className={`pl-10 pr-10 bg-gray-100 border ${
+                      errors.password ? "border-red-500" : "border-gray-300"
+                    } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signInData.password}
                     onChange={handleSignInChange}
                   />
@@ -262,14 +251,14 @@ const AuthForm = () => {
                     onClick={togglePasswordVisibility}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-[#97d343] transition-colors" />
+                      <EyeOff className="h-5 w-5 text-gray-500 hover:text-accent transition-colors" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-[#97d343] transition-colors" />
+                      <Eye className="h-5 w-5 text-gray-500 hover:text-accent transition-colors" />
                     )}
                   </div>
                 </div>
                 {errors.password && (
-                  <p className="text-red-400 text-xs">{errors.password}</p>
+                  <p className="text-red-600 text-xs">{errors.password}</p>
                 )}
               </div>
 
@@ -281,18 +270,18 @@ const AuthForm = () => {
                     onCheckedChange={(checked) =>
                       setRememberMe(checked as boolean)
                     }
-                    className="data-[state=checked]:bg-[#97d343] data-[state=checked]:border-[#97d343] border-gray-500"
+                    className="data-[state=checked]:bg-accent data-[state=checked]:border-accent border-gray-300"
                   />
                   <label
                     htmlFor="remember"
-                    className="text-sm font-medium leading-none text-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-sm font-medium text-gray-700"
                   >
                     Remember me
                   </label>
                 </div>
                 <Button
                   variant="link"
-                  className="px-0 font-normal text-sm text-[#97d343] hover:text-[#86c232]"
+                  className="px-0 font-normal text-sm text-accent hover:opacity-90"
                   type="button"
                   onClick={handleForgotPassword}
                 >
@@ -300,11 +289,10 @@ const AuthForm = () => {
                 </Button>
               </div>
             </CardContent>
-
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full bg-[#97d343] hover:bg-[#86c232] text-[#1a1a1a] font-medium transition-colors"
+                className="w-full bg-accent hover:opacity-90 hover:bg-accent text-white font-medium transition-colors"
                 disabled={loading}
               >
                 {loading ? "Signing in..." : "Sign In"}
@@ -313,70 +301,63 @@ const AuthForm = () => {
           </form>
         </TabsContent>
 
-        {/* Sign Up Form */}
         <TabsContent value="signup" className="space-y-4 pt-4">
           <form onSubmit={handleSignUp}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#97d343]">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-accent">
                     <User className="h-5 w-5" />
                   </div>
                   <Input
                     type="text"
                     name="name"
                     placeholder="Full Name"
-                    className={`pl-10 bg-[#343a40] border-[#4a5056] text-white ${
-                      errors.name
-                        ? "border-red-500"
-                        : "focus:border-[#97d343] focus:ring-[#97d343]"
-                    } transition-all duration-200`}
+                    className={`pl-10 bg-gray-100 border ${
+                      errors.name ? "border-red-500" : "border-gray-300"
+                    } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signUpData.name}
                     onChange={handleSignUpChange}
                   />
                 </div>
                 {errors.name && (
-                  <p className="text-red-400 text-xs">{errors.name}</p>
+                  <p className="text-red-600 text-xs">{errors.name}</p>
                 )}
               </div>
 
               <div className="space-y-2">
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#97d343]">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-accent">
                     <Mail className="h-5 w-5" />
                   </div>
                   <Input
                     type="email"
                     name="email"
                     placeholder="Email"
-                    className={`pl-10 bg-[#343a40] border-[#4a5056] text-white ${
-                      errors.email
-                        ? "border-red-500"
-                        : "focus:border-[#97d343] focus:ring-[#97d343]"
-                    } transition-all duration-200`}
+                    className={`pl-10 bg-gray-100 border ${
+                      errors.email ? "border-red-500" : "border-gray-300"
+                    } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signUpData.email}
                     onChange={handleSignUpChange}
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-red-400 text-xs">{errors.email}</p>
+                  <p className="text-red-600 text-xs">{errors.email}</p>
                 )}
               </div>
 
               <div className="space-y-2">
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#97d343]">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-accent">
                     <Lock className="h-5 w-5" />
                   </div>
                   <Input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Password"
-                    className={`pl-10 pr-10 bg-[#343a40] border-[#4a5056] text-white ${
-                      errors.password
-                        ? "border-red-500"
-                        : "focus:border-[#97d343] focus:ring-[#97d343]"
-                    } transition-all duration-200`}
+                    className={`pl-10 pr-10 bg-gray-100 border ${
+                      errors.password ? "border-red-500" : "border-gray-300"
+                    } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signUpData.password}
                     onChange={handleSignUpChange}
                   />
@@ -385,31 +366,31 @@ const AuthForm = () => {
                     onClick={togglePasswordVisibility}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-[#97d343] transition-colors" />
+                      <EyeOff className="h-5 w-5 text-gray-500 hover:text-accent transition-colors" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-[#97d343] transition-colors" />
+                      <Eye className="h-5 w-5 text-gray-500 hover:text-accent transition-colors" />
                     )}
                   </div>
                 </div>
                 {errors.password && (
-                  <p className="text-red-400 text-xs">{errors.password}</p>
+                  <p className="text-red-600 text-xs">{errors.password}</p>
                 )}
               </div>
 
               <div className="space-y-2">
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#97d343]">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-accent">
                     <Lock className="h-5 w-5" />
                   </div>
                   <Input
                     type={showConfirmPassword ? "text" : "password"}
                     name="confirmPassword"
                     placeholder="Confirm Password"
-                    className={`pl-10 pr-10 bg-[#343a40] border-[#4a5056] text-white ${
+                    className={`pl-10 pr-10 bg-gray-100 border ${
                       errors.confirmPassword
                         ? "border-red-500"
-                        : "focus:border-[#97d343] focus:ring-[#97d343]"
-                    } transition-all duration-200`}
+                        : "border-gray-300"
+                    } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signUpData.confirmPassword}
                     onChange={handleSignUpChange}
                   />
@@ -418,14 +399,14 @@ const AuthForm = () => {
                     onClick={toggleConfirmPasswordVisibility}
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-[#97d343] transition-colors" />
+                      <EyeOff className="h-5 w-5 text-gray-500 hover:text-accent transition-colors" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-[#97d343] transition-colors" />
+                      <Eye className="h-5 w-5 text-gray-500 hover:text-accent transition-colors" />
                     )}
                   </div>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-red-400 text-xs">
+                  <p className="text-red-600 text-xs">
                     {errors.confirmPassword}
                   </p>
                 )}
@@ -434,14 +415,14 @@ const AuthForm = () => {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="terms"
-                  className="data-[state=checked]:bg-[#97d343] data-[state=checked]:border-[#97d343] border-gray-500"
+                  className="data-[state=checked]:bg-accent data-[state=checked]:border-accent border-gray-300"
                 />
                 <label
                   htmlFor="terms"
-                  className="text-sm font-medium leading-none text-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium text-gray-700"
                 >
                   I agree to the{" "}
-                  <span className="text-[#97d343] hover:text-[#86c232] cursor-pointer">
+                  <span className="text-accent hover:opacity-90 cursor-pointer">
                     Terms of Service
                   </span>
                 </label>
@@ -451,7 +432,7 @@ const AuthForm = () => {
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full bg-[#97d343] hover:bg-[#86c232] text-[#1a1a1a] font-medium transition-colors"
+                className="w-full bg-accent hover:opacity-90 hover:bg-accent text-white font-medium transition-colors"
                 disabled={loading}
               >
                 {loading ? "Creating account..." : "Create Account"}
