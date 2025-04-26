@@ -145,10 +145,6 @@ backend/
 
 ---
 
-Certainly! Here’s a clear and professional way to present your **Frontend Setup** section, communicating both the technology used (Next.js) and the current status of the repository:
-
----
-
 ## Frontend Setup
 
 **Currently, the main branch of this repository does not contain the frontend codebase.**  
