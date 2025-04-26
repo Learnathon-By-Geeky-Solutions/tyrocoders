@@ -17,8 +17,8 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 h-screen z-40 transition-[width] ease-in-out duration-300 hidden lg:block",
-        !getOpenState() ? "w-[90px]" : "w-72",
+        "fixed top-0 left-0 h-screen z-40 transition-[width] ease-in-out duration-300 hidden lg:block bg-accent2",
+        !getOpenState() ? "w-[57px]" : "w-56",
         settings.disabled && "hidden"
       )}
     >
@@ -26,31 +26,43 @@ export function Sidebar() {
       <div
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
-        className="relative h-full flex flex-col px-3 py-4 overflow-y-auto shadow-md dark:shadow-zinc-800 text-white"
+        className="relative h-full flex flex-col py-4 overflow-y-auto shadow-md dark:shadow-zinc-800 text-gray-200"
       >
-        <Button
-          className={cn(
-            "text-white transition-transform ease-in-out duration-300 mb-1",
-            !getOpenState() ? "translate-x-1" : "translate-x-0"
-          )}
-          variant="link"
-          asChild
-        >
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <h1
-              className={cn(
-                "text-3xl font-semibold whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
-                !getOpenState()
-                  ? "-translate-x-96 opacity-0 hidden"
-                  : "translate-x-0 opacity-100"
-              )}
-            >
-              <span className="text-accent">e</span>buddy
-            </h1>
-          </Link>
-        </Button>
+        <div className="flex-1">
+          <Button
+            className={cn(
+              "text-gray-200 transition-transform ease-in-out duration-300 mb-1 flex",
+              !getOpenState() ? "translate-x-1" : "translate-x-0"
+            )}
+            variant="link"
+            asChild
+          >
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <h1
+                className={cn(
+                  "text-gray-200 text-3xl font-semibold whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
+                  !getOpenState()
+                    ? "-translate-x-96 opacity-0 hidden"
+                    : "translate-x-0 opacity-100"
+                )}
+              >
+                <span className="text-accent">e</span>buddy
+              </h1>
+            </Link>
+          </Button>
 
-        <Menu isOpen={getOpenState()} />
+          <Menu isOpen={getOpenState()} />
+        </div>
+
+        {/* Footer */}
+        <div
+          className={cn(
+            "text-xs text-gray-400 text-center py-3 transition-opacity duration-300",
+            !getOpenState() && "opacity-0"
+          )}
+        >
+          © {new Date().getFullYear()} ebuddy
+        </div>
       </div>
     </aside>
   );

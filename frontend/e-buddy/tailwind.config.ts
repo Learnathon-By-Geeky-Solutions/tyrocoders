@@ -79,6 +79,11 @@ const config: Config = {
         // accent: "#8B5CF6",
         accent: "#ED6140",
         // accent: "#18879E",
+        accent2: {
+          DEFAULT: "#282826",
+          light: "#3a3a38",
+          lightest: "#E5E5E3",
+        },
         dark: "#292F36",
         bot: {
           primary: "#6366f1",

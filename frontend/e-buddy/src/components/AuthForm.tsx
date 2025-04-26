@@ -192,7 +192,7 @@ const AuthForm = () => {
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <TabsList className="grid grid-cols-2 w-[80%] mx-auto -mt-6 relative z-10 bg-gray-100 shadow-md rounded-full">
+        <TabsList className="grid grid-cols-2 w-[80%] mx-auto -mt-6 relative z-10 bg-gray-50 shadow-md rounded-full">
           <TabsTrigger
             value="signin"
             className="rounded-full data-[state=active]:bg-accent data-[state=active]:text-white text-gray-600"
@@ -219,7 +219,7 @@ const AuthForm = () => {
                     type="email"
                     name="email"
                     placeholder="Email"
-                    className={`pl-10 bg-gray-100 border ${
+                    className={`pl-10 bg-gray-50 border ${
                       errors.email ? "border-red-500" : "border-gray-300"
                     } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signInData.email}
@@ -240,7 +240,7 @@ const AuthForm = () => {
                     type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Password"
-                    className={`pl-10 pr-10 bg-gray-100 border ${
+                    className={`pl-10 pr-10 bg-gray-50 border ${
                       errors.password ? "border-red-500" : "border-gray-300"
                     } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signInData.password}
@@ -313,7 +313,7 @@ const AuthForm = () => {
                     type="text"
                     name="name"
                     placeholder="Full Name"
-                    className={`pl-10 bg-gray-100 border ${
+                    className={`pl-10 bg-gray-50 border ${
                       errors.name ? "border-red-500" : "border-gray-300"
                     } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signUpData.name}
@@ -334,7 +334,7 @@ const AuthForm = () => {
                     type="email"
                     name="email"
                     placeholder="Email"
-                    className={`pl-10 bg-gray-100 border ${
+                    className={`pl-10 bg-gray-50 border ${
                       errors.email ? "border-red-500" : "border-gray-300"
                     } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signUpData.email}
@@ -355,7 +355,7 @@ const AuthForm = () => {
                     type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Password"
-                    className={`pl-10 pr-10 bg-gray-100 border ${
+                    className={`pl-10 pr-10 bg-gray-50 border ${
                       errors.password ? "border-red-500" : "border-gray-300"
                     } text-gray-900 focus:border-accent focus:ring-accent transition-all duration-200`}
                     value={signUpData.password}
@@ -386,7 +386,7 @@ const AuthForm = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     name="confirmPassword"
                     placeholder="Confirm Password"
-                    className={`pl-10 pr-10 bg-gray-100 border ${
+                    className={`pl-10 pr-10 bg-gray-50 border ${
                       errors.confirmPassword
                         ? "border-red-500"
                         : "border-gray-300"

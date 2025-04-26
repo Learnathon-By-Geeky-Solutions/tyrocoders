@@ -18,7 +18,7 @@ export function SidebarToggle({ isOpen, setIsOpen }: SidebarToggleProps) {
           sidebar.toggleOpen(); // Toggle sidebar state
           // setIsOpen?.();
         }}
-        className="rounded-md w-8 h-8 bg-accent"
+        className="bg-white h-7 w-7 text-dark rounded-full shadow-md shadow-black/30 hover:bg-gray-50 hover:text-dark"
         variant="custom"
         size="icon"
       >
