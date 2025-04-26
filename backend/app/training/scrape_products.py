@@ -2,7 +2,7 @@ import asyncio
 import aiohttp
 import json
 import re
-import random
+import secrets
 import xml.etree.ElementTree as ET
 import gzip
 from io import BytesIO
@@ -156,7 +156,7 @@ class SitemapUrlExtractor:
                 urls, session, sample_size
             )
             if not contains_products:
-                print(f"Skipping sitemap as it doesn't appear to contain product pages")
+                print("Skipping sitemap as it doesn't appear to contain product pages")
                 return []
         
         return urls
@@ -182,7 +182,12 @@ class SitemapUrlExtractor:
             return False
         
         sample_size = min(sample_size, len(urls))
-        sample_urls = random.sample(urls, sample_size)
+        population = urls.copy()
+        sample_urls = []
+        
+        for _ in range(sample_size):
+            idx = secrets.randbelow(len(population))
+            sample_urls.append(population.pop(idx))
         
         product_count = sum(
             await asyncio.gather(

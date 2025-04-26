@@ -23,11 +23,4 @@ async def embed_middleware(
         )
 
     user_id = user.get("_id")
-    # subscription_status = await user_crud.get_subscription_status_by_user_id(
-    #     user_id
-    # )
-    # if subscription_status != "paid":
-    #     raise HTTPException(
-    #         status_code=HTTPStatus.PAYMENT_REQUIRED, detail="Subscription required"
-    #     )
     return user_id

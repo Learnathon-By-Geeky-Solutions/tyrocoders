@@ -1,3 +1,5 @@
+GEMINI_MODEL = "gemini-2.0-flash"
+
 SUBSCRIPTION_PACKAGES = [
     {
         "name": "Free",
@@ -7,7 +9,7 @@ SUBSCRIPTION_PACKAGES = [
             "chatbot_limit": 1,
             "monthly_message_limit": 100,
             "character_training_limit": 10000,
-            "models_available": ["gemini-2.0-flash"],
+            "models_available": [GEMINI_MODEL],
             "support": "Community Support",
         },
     },
@@ -19,7 +21,7 @@ SUBSCRIPTION_PACKAGES = [
             "chatbot_limit": 3,
             "monthly_message_limit": 3000,
             "character_training_limit": 100000,
-            "models_available": ["gemini-2.0-flash", "gpt-3.5-turbo"],
+            "models_available": [GEMINI_MODEL, "gpt-3.5-turbo"],
             "support": "Email Support",
         },
     },
@@ -31,7 +33,7 @@ SUBSCRIPTION_PACKAGES = [
             "chatbot_limit": 10,
             "monthly_message_limit": 10000,
             "character_training_limit": 500000,
-            "models_available": ["gemini-2.0-flash", "gemini-2.0-pro", "gpt-4", "claude-3-sonnet"],
+            "models_available": [GEMINI_MODEL, "gemini-2.0-pro", "gpt-4", "claude-3-sonnet"],
             "support": "Priority Email & Chat Support",
         },
     },
@@ -43,7 +45,7 @@ SUBSCRIPTION_PACKAGES = [
             "chatbot_limit": "Unlimited",
             "monthly_message_limit": "Unlimited",
             "character_training_limit": "Unlimited",
-            "models_available": ["gemini-2.0-flash", "gemini-2.0-pro", "gpt-4", "claude-3-opus", "deepseek-coder"],
+            "models_available": [GEMINI_MODEL, "gemini-2.0-pro", "gpt-4", "claude-3-opus", "deepseek-coder"],
             "support": "Dedicated Account Manager + SLA",
         },
     },

@@ -131,7 +131,7 @@ async def process_query(user_id: str, chatbot_id: str, query: str, conversation_
         }
 
 async def handle_client(chatbot_id=None, user_message=None, conversation_history=None, 
-                       conversation_id=None, user_id=None, ai_model_name = None):
+                       conversation_id=None, user_id=None):
     """Handle client connection and messages"""
     logger.info(f"User {user_id} connected with conversation_id {conversation_id}")
     

@@ -83,7 +83,7 @@ FREE_LLM_API_KEY = FREE_LLM_CONFIG.get("api_key_env", None)
 print("PROJECT_TITLE:", settings.PROJECT_TITLE)
 
 # FastAPI Custom Validation Error Handler
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(exc: RequestValidationError):
     errors = exc.errors()
     custom_errors = [
         {

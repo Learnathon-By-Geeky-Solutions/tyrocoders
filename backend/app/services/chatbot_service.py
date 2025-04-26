@@ -49,7 +49,7 @@ class ChatbotService:
     async def create_chatbot(self, user_id: ObjectId, chatbot: ChatbotCreate):
             try:
                 if not await user_service.validate_user(user_id):
-                    return JSONResponse(status_code=HTTPStatus.NOT_FOUND, content={"message": "User not found"})
+                    return JSONResponse(status_code=HTTPStatus.NOT_FOUND, content={"message": USER_NOT_FOUND_MSG})
 
                 # prevent duplicate names
                 existing = await chatbot_crud.get_chatbot_by_chatbot_name_and_user_id(chatbot.name, str(user_id))
@@ -294,7 +294,7 @@ class ChatbotService:
             )
             
             logger.debug("Removing chatbot from database")
-            result = await chatbot_crud.delete_chatbot(chatbot_id)
+            await chatbot_crud.delete_chatbot(chatbot_id)
             
             logger.info("Chatbot deleted successfully")
             
@@ -624,8 +624,9 @@ class ChatbotService:
                 if len(parts) == 2:
                     uuid_part, original_name = parts
                     existing_files_map[original_name] = f
-            except:
+            except (AttributeError, ValueError) as e:
                 print(uuid_part)
+                print(f"Error processing file {f}: {str(e)}")
                 continue
         
         return existing_files_map
@@ -661,51 +662,51 @@ class ChatbotService:
         
         return final_files
 
-async def _update_chatbot_and_rebuild_kb(self, chatbot_id, final_files):
-    """Update database with complete file list and rebuild KB"""
-    chatbot_data = ChatbotUpdate(knowledge_files=final_files)
-    await chatbot_crud.update_chatbot(chatbot_id, chatbot_data)
-    
-    # Rebuild the knowledge base after file upload
-    from processing.kb import rebuild_kb_after_upload
-    rebuild_result = rebuild_kb_after_upload(chatbot_id)
-    
-    return JSONResponse(
-        status_code=HTTPStatus.OK,
-        content={
-            "message": "Files processed successfully",
-            "total_files": len(final_files),
-            "kb_rebuilt": rebuild_result
-        },
-    )
-        
+    async def _update_chatbot_and_rebuild_kb(self, chatbot_id, final_files):
+        """Update database with complete file list and rebuild KB"""
+        chatbot_data = ChatbotUpdate(knowledge_files=final_files)
+        await chatbot_crud.update_chatbot(chatbot_id, chatbot_data)
+
+        # Rebuild the knowledge base after file upload
+        from processing.kb import rebuild_kb_after_upload
+        rebuild_result = rebuild_kb_after_upload(chatbot_id)
+
+        return JSONResponse(
+            status_code=HTTPStatus.OK,
+            content={
+                "message": "Files processed successfully",
+                "total_files": len(final_files),
+                "kb_rebuilt": rebuild_result
+            },
+        )
+            
     async def get_leads_by_chatbot_id(
         self, user_id: ObjectId, chatbot_id: str
         ):
-            logger.debug(f"Validating user with ID: {user_id}")
-            if not await user_service.validate_user(user_id):
-                return JSONResponse(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "User not found"},
-                )
-                
-            logger.debug(f"Fetching chatbot with ID: {chatbot_id}")
-            chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id, str(user_id))
-            if not chatbot:
-                logger.info(f"Chatbot with ID {chatbot_id} not found")
-                return JSONResponse(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    content={"message": "Chatbot not found"},
-                )
-            
-            leads = await chatbot_conversation_crud.get_leads_by_chatbot_id(
-            chatbot_id
-            )
-                
+        logger.debug(f"Validating user with ID: {user_id}")
+        if not await user_service.validate_user(user_id):
             return JSONResponse(
-                status_code=HTTPStatus.OK,
-                content={
-                    "message": f"Leads retrieved successfully for chatbot ID {chatbot_id}",
-                    "data": leads,
-                },
+                status_code=HTTPStatus.NOT_FOUND,
+                content={"message": USER_NOT_FOUND_MSG},
             )
+            
+        logger.debug(f"Fetching chatbot with ID: {chatbot_id}")
+        chatbot = await chatbot_crud.get_chatbot_by_id(chatbot_id, str(user_id))
+        if not chatbot:
+            logger.info(f"Chatbot with ID {chatbot_id} not found")
+            return JSONResponse(
+                status_code=HTTPStatus.NOT_FOUND,
+                content={"message": "Chatbot not found"},
+            )
+        
+        leads = await chatbot_conversation_crud.get_leads_by_chatbot_id(
+        chatbot_id
+        )
+            
+        return JSONResponse(
+            status_code=HTTPStatus.OK,
+            content={
+                "message": f"Leads retrieved successfully for chatbot ID {chatbot_id}",
+                "data": leads,
+            },
+        )

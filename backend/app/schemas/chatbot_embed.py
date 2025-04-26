@@ -3,13 +3,13 @@ from typing import Optional
 
 
 class ChatbotEmbedUpdateModel(BaseModel):
-    # widget_size: Optional[WidgetSize] = None
-    # button_size: Optional[ButtonSize] = None
+    widget_size: Optional[str] = None
+    button_size: Optional[str] = None
     offset_bottom_desktop: Optional[float] = None
     offset_bottom_mobile: Optional[float] = None
     offset_right_desktop: Optional[float] = None
     offset_right_mobile: Optional[float] = None
-    # widget_display: Optional[WidgetDisplay] = None
+    widget_display: Optional[str] = None
     specific_url_for_hide_or_show: Optional[str] = None
     allow_widget_movable: Optional[bool] = None
 

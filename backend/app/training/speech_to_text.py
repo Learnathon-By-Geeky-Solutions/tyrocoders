@@ -11,6 +11,8 @@ from core.config import settings
 from core.logger import logger
 from typing import Optional, List, Union
 
+base_url = "https://api.assemblyai.com/v2"
+
 class AudioRecorder:
     def __init__(self, 
                  sample_rate: int = 16000, 
@@ -132,7 +134,6 @@ class AudioRecorder:
 
     def _upload_audio_file(self, file_path: str) -> str:
         """Upload audio file to AssemblyAI"""
-        base_url = "https://api.assemblyai.com/v2"
         headers = {"authorization": self.ASSEMBLYAI_API_KEY}
         
         logger.info("Uploading audio file")
@@ -153,7 +154,6 @@ class AudioRecorder:
 
     def _start_transcription(self, audio_url: str) -> str:
         """Start transcription process"""
-        base_url = "https://api.assemblyai.com/v2"
         headers = {
             "authorization": self.ASSEMBLYAI_API_KEY,
             "content-type": "application/json"
@@ -182,7 +182,6 @@ class AudioRecorder:
 
     def _poll_transcription(self, transcript_id: str, max_attempts: int = 30) -> str:
         """Poll for transcription completion"""
-        base_url = "https://api.assemblyai.com/v2"
         headers = {"authorization": self.ASSEMBLYAI_API_KEY}
         polling_endpoint = f"{base_url}/transcript/{transcript_id}"
         

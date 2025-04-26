@@ -26,7 +26,7 @@ class HandoverMessageConversation(BaseModel):
         json_schema_extra = {
             "example": {
                 "email": "mohtasim@gmail.com",
-                "password": "I would like to know in details about this packages"
+                "message": "I would like to know in details about this packages"
             }
         }
 

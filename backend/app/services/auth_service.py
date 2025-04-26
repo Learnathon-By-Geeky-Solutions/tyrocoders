@@ -279,7 +279,6 @@ class AuthService:
             )
             user = convert_object_id_to_string(user)
             user_email = user.get("email")
-            # user_name = user.get("username")
             logger.debug("Generating password reset token")
             pass_reset_token = create_pass_reset_token(user_email)
             logger.info(
@@ -291,9 +290,7 @@ class AuthService:
             one_time_link = (
                 f"{generate_reset_password.reset_form_url}?token={pass_reset_token}"
             )
-            # background_tasks.add_task(
-            #     send_password_reset_email, user_name, user_email, one_time_link
-            # )
+            
             logger.info(
                 "Password reset email sent successfully in background tasks"
             )

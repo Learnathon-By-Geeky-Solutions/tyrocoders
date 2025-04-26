@@ -313,6 +313,8 @@ class ChatbotConversationService:
                 f"User ID: {user_id} | Generating the llm response based on user query"
             )
 
+            print(ai_model_name)
+            print(starting_prompt)
 
             is_success, bot_response_msg, error_msg = await handle_client(
                 chatbot_id=existing_conversation.get("chatbot_id"),
@@ -320,8 +322,6 @@ class ChatbotConversationService:
                 conversation_history=conversation_history,
                 conversation_id=conversation_id,
                 user_id=str(user_id),
-                starting_prompt=starting_prompt,
-                ai_model_name = ai_model_name
             )
 
 
@@ -450,7 +450,7 @@ class ChatbotConversationService:
             return JSONResponse(
                 status_code=HTTPStatus.OK,
                 content={
-                    "message": f"Lead collected successfully",
+                    "message": "Lead collected successfully",
                     "data": updated_conversation,
                 },
             )
