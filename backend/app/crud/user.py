@@ -135,8 +135,7 @@ class UserCrud():
         elif addon_type == "extra_messages":
             update_operation["$inc"]["subscription.monthly_message_limit"] = quantity
 
-        # Apply update
-        result = await self.collection.update_one(
+        await self.collection.update_one(
             {"_id": user_id},
             update_operation
         )

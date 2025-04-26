@@ -9,4 +9,4 @@ class SubscriptionCrud():
         
     async def save_transaction(self, transaction_data: dict):
         collection = self.collection
-        new_transaction = await collection.insert_one(transaction_data)
+        await collection.insert_one(transaction_data)
