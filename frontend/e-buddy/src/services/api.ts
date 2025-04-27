@@ -22,11 +22,19 @@ api.interceptors.request.use(
 
 // Auth APIs
 export const authAPI = {
+  // Register a new user
   signUp: (data: { name: string; email: string; password: string }) =>
     api.post("/user/signup", data),
+
+  // Login and receive both tokens
   signIn: (data: { email: string; password: string }) =>
     api.post("/user/login", data),
-  renewToken: () => api.post("/user/renew-access-token"),
+
+  // Renew access using refresh token
+  renewToken: (data: { refresh_token: string }) =>
+    api.post("/user/renew-access-token", data),
+
+  // Password reset endpoints
   generateResetToken: (data: { email: string }) =>
     api.post("/user/generate-pass-reset", data),
   resetPassword: (data: { token: string; password: string }) =>

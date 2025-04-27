@@ -29,7 +29,7 @@ from schemas.auth import (
 user_crud = UserCrud()
 auth_crud = AuthCrud()
 
-class AuthService:
+class  AuthService:
     
     async def register(
         self,
