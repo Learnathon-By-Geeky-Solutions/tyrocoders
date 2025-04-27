@@ -87,10 +87,10 @@ export const botAPI = {
 export const chatAPI = {
   /**
    * Start a new conversation with the bot.
-   * POST /api/v1/chatbot-conversation/chat/{chatbot_id}
+   * POST /api/v1/chatbot-embed/chatbot-conversation/start/{chatbot_id}
    */
   startConversation: (chatbotId: string) =>
-    api.post(`/chatbot-conversation/chat/${chatbotId}`),
+    api.post(`/chatbot-embed/chatbot-conversation/start/${chatbotId}`),
 
   continueConversation: (conversationId: string, userMessage: string) =>
     api.post(`/chatbot-conversation/continue-conversation/${conversationId}`, {

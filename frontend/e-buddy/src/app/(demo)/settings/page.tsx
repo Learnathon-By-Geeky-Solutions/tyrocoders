@@ -1,15 +1,17 @@
-import Link from "next/link";
-
-import PlaceholderContent from "@/components/demo/placeholder-content";
-import { ContentLayout } from "@/components/admin-panel/content-layout";
+import Link from 'next/link';
+import PlaceholderContent from '@/components/demo/placeholder-content';
+import { ContentLayout } from '@/components/admin-panel/content-layout';
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator
-} from "@/components/ui/breadcrumb";
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+
+// Import the client-only ChatWidgetEmbedSection
+import ChatWidgetEmbedSection from '@/components/chatbot/ChatWidgetEmbedSection';
 
 export default function Settings() {
   return (
@@ -33,7 +35,12 @@ export default function Settings() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+
+      {/* Settings page content */}
       <PlaceholderContent />
+
+      {/* Client component for embed generator */}
+      <ChatWidgetEmbedSection />
     </ContentLayout>
   );
 }
