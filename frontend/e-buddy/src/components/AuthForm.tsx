@@ -43,7 +43,8 @@ const AuthForm = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // ReDoS-safe regex (no nested quantifiers)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   };
 
@@ -87,53 +88,62 @@ const AuthForm = () => {
     }
   };
 
-  // ... keep existing code (validation functions)
+  // Error messages constants (put these in a separate file like src/constants/errorMessages.ts)
+const ERROR_MESSAGES = {
+  EMAIL_REQUIRED: "Email is required",
+  EMAIL_INVALID: "Please enter a valid email",
+  PASSWORD_REQUIRED: "Password is required",
+  PASSWORD_TOO_SHORT: "Password must be at least 8 characters",
+  NAME_REQUIRED: "Name is required",
+  CONFIRM_PASSWORD_REQUIRED: "Please confirm your password",
+  CONFIRM_PASSWORD_MISMATCH: "Passwords do not match"
+};
 
-  const validateSignInForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+const validateSignInForm = (): boolean => {
+  const newErrors: Record<string, string> = {};
 
-    if (!signInData.email) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(signInData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
+  if (!signInData.email) {
+    newErrors.email = ERROR_MESSAGES.EMAIL_REQUIRED;
+  } else if (!validateEmail(signInData.email)) {
+    newErrors.email = ERROR_MESSAGES.EMAIL_INVALID;
+  }
 
-    if (!signInData.password) {
-      newErrors.password = "Password is required";
-    }
+  if (!signInData.password) {
+    newErrors.password = ERROR_MESSAGES.PASSWORD_REQUIRED;
+  }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
-  const validateSignUpForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+const validateSignUpForm = (): boolean => {
+  const newErrors: Record<string, string> = {};
 
-    if (!signUpData.name.trim()) {
-      newErrors.name = "Name is required";
-    }
+  if (!signUpData.name.trim()) {
+    newErrors.name = ERROR_MESSAGES.NAME_REQUIRED;
+  }
 
-    if (!signUpData.email) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(signUpData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
+  if (!signUpData.email) {
+    newErrors.email = ERROR_MESSAGES.EMAIL_REQUIRED;
+  } else if (!validateEmail(signUpData.email)) {
+    newErrors.email = ERROR_MESSAGES.EMAIL_INVALID;
+  }
 
-    if (!signUpData.password) {
-      newErrors.password = "Password is required";
-    } else if (signUpData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    }
+  if (!signUpData.password) {
+    newErrors.password = ERROR_MESSAGES.PASSWORD_REQUIRED;
+  } else if (signUpData.password.length < 8) {
+    newErrors.password = ERROR_MESSAGES.PASSWORD_TOO_SHORT;
+  }
 
-    if (!signUpData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (signUpData.password !== signUpData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
+  if (!signUpData.confirmPassword) {
+    newErrors.confirmPassword = ERROR_MESSAGES.CONFIRM_PASSWORD_REQUIRED;
+  } else if (signUpData.password !== signUpData.confirmPassword) {
+    newErrors.confirmPassword = ERROR_MESSAGES.CONFIRM_PASSWORD_MISMATCH;
+  }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
