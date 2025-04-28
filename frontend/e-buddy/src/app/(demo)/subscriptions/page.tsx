@@ -1,10 +1,46 @@
+import Link from "next/link";
+
+import PlaceholderContent from "@/components/demo/placeholder-content";
+import { ContentLayout } from "@/components/admin-panel/content-layout";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
+
+
 import { PlanCard } from "@/components/PlanCard";
 import { AddonCard } from "@/components/AddonCard";
+
 
 const Subscription = () => {
   return (
     
+    <ContentLayout title="Subscriptions">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard">Dashboard</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Subscriptions</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
     
+
     <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-orange-50/80 to-white">
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
@@ -123,6 +159,7 @@ const Subscription = () => {
         </div>
       </div>
     </div>
+    </ContentLayout>
   );
 };
 
