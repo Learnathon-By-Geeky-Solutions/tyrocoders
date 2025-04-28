@@ -312,11 +312,10 @@ const MyBotsPage = () => {
                   disabled={isLoading}
                   className={`${isLoading 
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : success
-                      ? 'bg-gradient-to-r from-bot-success to-emerald-500'
-                      : 'bg-gradient-to-r from-bot-success to-emerald-500'
-                  } text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2`}
+                    : 'bg-gradient-to-r from-bot-success to-emerald-500'
+                    } text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg flex items-center gap-2`}
                 >
+
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" /> Creating...

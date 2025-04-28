@@ -133,30 +133,58 @@ export const ChatPreview = ({ customization, onClose }: ChatPreviewProps) => {
       }}
     >
       {/* Header */}
-      <div 
-        className="p-3 flex justify-between items-center cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
-        style={{ 
-          backgroundColor: customization.primaryColor || '#9b87f5',
-          color: 'white'
-        }}
-      >
-        <div className="flex items-center space-x-2">
-          {customization.avatarUrl ? (
-            <img src={customization.avatarUrl} alt={customization.name} className="w-8 h-8 rounded-full" />
-          ) : (
-            <MessageSquare className="w-6 h-6" />
-          )}
-          <span className="font-medium">{customization.name || 'Chat Bot'}</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
-          <X className="w-5 h-5 cursor-pointer" onClick={(e) => {
-            e.stopPropagation();
-            onClose();
-          }} />
-        </div>
-      </div>
+      <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="p-3 flex justify-between items-center cursor-pointer w-full"
+          style={{
+            backgroundColor: customization.primaryColor || '#9b87f5',
+            color: 'white',
+          }}
+        >
+          <div className="flex items-center space-x-2">
+            {customization.avatarUrl ? (
+              <img
+                src={customization.avatarUrl}
+                alt={customization.name}
+                className="w-8 h-8 rounded-full"
+              />
+            ) : (
+              <MessageSquare className="w-6 h-6" />
+            )}
+            <span className="font-medium">{customization.name || 'Chat Bot'}</span>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            {isExpanded ? (
+              <ChevronDown className="w-5 h-5" />
+            ) : (
+              <ChevronUp className="w-5 h-5" />
+            )}
+
+            {/* Close icon as a focusable span */}
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onClose();
+                }
+              }}
+              className="w-5 h-5 cursor-pointer"
+              aria-label="Close chat"
+            >
+              <X className="w-5 h-5" />
+            </span>
+          </div>
+        </button>
+
       
       {/* Chat Area - Only shown when expanded */}
       {isExpanded && (
