@@ -46,7 +46,7 @@ export default function DashboardPage() {
         <DashboardCards />
       </div>
 
-      <TooltipProvider>
+      {/* <TooltipProvider>
         <div className="flex gap-6 mt-6">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -79,7 +79,7 @@ export default function DashboardPage() {
             </TooltipContent>
           </Tooltip>
         </div>
-      </TooltipProvider>
+      </TooltipProvider> */}
 
 
     </ContentLayout>

@@ -24,14 +24,9 @@ export function Menu({ isOpen }: MenuProps) {
     <aside className="w-64 text-[#A0A0A0]">
       <ScrollArea className="h-full">
         <nav className="mt-6">
-          <ul className="space-y-1">
+          <ul className="space-y-0">
             {menuList.map(({ groupLabel, menus }, groupIdx) => (
               <li key={groupIdx}>
-                {isOpen && groupLabel && (
-                  <p className="px-4 pb-2 text-xs font-semibold uppercase text-gray-500">
-                    {groupLabel}
-                  </p>
-                )}
 
                 {menus.map(
                   ({ href, label, icon: Icon, active, submenus }, idx) => {
@@ -50,7 +45,7 @@ export function Menu({ isOpen }: MenuProps) {
                               : "hover:bg-accent2-light hover:text-white"
                           )}
                         >
-                          <Icon className="h-5 w-5 flex-shrink-0" />
+                          <Icon className="h-6 w-6 flex-shrink-0" />
                           {isOpen !== false && (
                             <>
                               <span className="ml-3 flex-1 truncate">
@@ -86,7 +81,7 @@ export function Menu({ isOpen }: MenuProps) {
                 onClick={logout}
                 className="flex items-center w-full px-3 py-2 hover:bg-accent2-light hover:text-white transition-colors duration-200"
               >
-                <LogOut className="h-5 w-5" />
+                <LogOut className="h-6 w-6" />
                 {isOpen !== false && <span className="ml-3">Sign out</span>}
                 {isOpen === false && <span className="sr-only">Sign out</span>}
               </button>
