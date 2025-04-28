@@ -148,3 +148,15 @@ body {
 .animate-fade-in {
   animation: fade-in 0.8s ease-out forwards;
 }
+
+.feature-check {
+  @apply text-orange-500;
+}
+
+.pricing-card {
+  @apply transition-all duration-300 hover:shadow-lg hover:shadow-orange-200/50 hover:-translate-y-1;
+}
+
+.badge-pill {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700 border border-orange-200;
+}
