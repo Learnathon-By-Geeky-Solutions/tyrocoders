@@ -51,7 +51,7 @@ interface ExtendedChatMessage extends Omit<ChatMessage, "content"> {
 export const ChatPreview = ({
   customization,
   onClose,
-  chatbotId = "680489104c7e6b13c52e5810",
+  chatbotId,
 }: ChatPreviewProps) => {
   const [messages, setMessages] = useState<ExtendedChatMessage[]>([]);
   const [userInput, setUserInput] = useState("");

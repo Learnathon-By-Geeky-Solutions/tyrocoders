@@ -1066,12 +1066,13 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
             </Card>
           </TabsContent>
         </Tabs>
- 
+
         {/* Chat Preview */}
         {showPreview ? (
           <ChatPreview
             customization={customization}
             onClose={() => setShowPreview(false)}
+            chatbotId={currentBot.id}
           />
         ) : (
           <ChatTrigger
