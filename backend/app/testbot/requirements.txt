@@ -1,8 +1,0 @@
-faiss-cpu
-sentence-transformers
-pandas
-openpyxl
-websockets
-requests
-python-dotenv
-tqdm
