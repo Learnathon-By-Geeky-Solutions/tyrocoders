@@ -379,103 +379,97 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
 
           <TabsContent value="overview" className="mt-6">
             <div className="max-w-4xl mx-auto bg-gradient-to-br from-white to-gray-50 shadow-xl rounded-2xl p-8 border border-gray-100">
-              {/* Header Section with chatbot icon */}
+              {/* Header Section with chatbot icon and name inline */}
               <div className="mb-8 text-center">
-                <div className="inline-block mb-3 p-2 bg-orange-100 rounded-full">
-                  <div className="h-12 w-12 rounded-full bg-orange-500 flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 text-white"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="11" width="18" height="10" rx="2" />
-                      <circle cx="12" cy="5" r="2" />
-                      <path d="M12 7v4" />
-                      <line x1="8" y1="16" x2="8" y2="16" />
-                      <line x1="16" y1="16" x2="16" y2="16" />
-                      <path d="M9 20l3 2 3-2" />
-                    </svg>
+                <div className="flex flex-col items-center">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-orange-100 rounded-full">
+                      <div className="h-12 w-12 rounded-full bg-accent flex items-center justify-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6 text-white"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect x="3" y="11" width="18" height="10" rx="2" />
+                          <circle cx="12" cy="5" r="2" />
+                          <path d="M12 7v4" />
+                          <line x1="8" y1="16" x2="8" y2="16" />
+                          <line x1="16" y1="16" x2="16" y2="16" />
+                          <path d="M9 20l3 2 3-2" />
+                        </svg>
+                      </div>
+                    </div>
+                    <h1 className="text-4xl font-bold text-gray-800">
+                      {currentBot.name}
+                    </h1>
                   </div>
+
+                  {/* Model and Created On in smaller text */}
+                  <div className="mt-2 flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-4 text-sm text-gray-500">
+                    <div className="flex items-center space-x-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-blue-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M14 13.5H9.5L4.5 18.5H19.5L14.5 13.5" />
+                        <path d="M5 5.5h14l1.5 3-8.5 9-8.5-9z" />
+                        <path d="M12 7.5v5" />
+                      </svg>
+                      <span>{currentBot.model}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-green-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect
+                          x="3"
+                          y="4"
+                          width="18"
+                          height="18"
+                          rx="2"
+                          ry="2"
+                        />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                      </svg>
+                      <span>Created on {currentBot.createdAt}</span>
+                    </div>
+                  </div>
+
+                  <p className="mt-4 text-lg text-gray-600 max-w-lg mx-auto">
+                    {currentBot.description}
+                  </p>
+                  <div className="mt-4 h-1 w-24 mx-auto bg-accent rounded-full"></div>
                 </div>
-                <h1 className="text-4xl font-bold text-gray-800">
-                  {currentBot.name}
-                </h1>
-                <p className="mt-2 text-lg text-gray-600 max-w-lg mx-auto">
-                  {currentBot.description}
-                </p>
-                <div className="mt-4 h-1 w-24 mx-auto bg-orange-500 rounded-full"></div>
               </div>
 
+              {/* KEEP everything else exactly the same below */}
               {/* Additional Info Cards - Model and Creation Date */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center space-x-4">
-                  <div className="rounded-full p-3 bg-blue-100">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-blue-600"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M14 13.5H9.5L4.5 18.5H19.5L14.5 13.5" />
-                      <path d="M5 5.5h14l1.5 3-8.5 9-8.5-9z" />
-                      <path d="M12 7.5v5" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Model</p>
-                    <p className="mt-1 text-lg font-semibold text-gray-800">
-                      {currentBot.model}
-                    </p>
-                  </div>
-                </div>
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center space-x-4">
-                  <div className="rounded-full p-3 bg-green-100">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-green-600"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect
-                        x="3"
-                        y="4"
-                        width="18"
-                        height="18"
-                        rx="2"
-                        ry="2"
-                      ></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">
-                      Created On
-                    </p>
-                    <p className="mt-1 text-lg font-semibold text-gray-800">
-                      {currentBot.createdAt}
-                    </p>
-                  </div>
-                </div>
+                {/* removed the previous "model" and "created on" cards */}
               </div>
 
-              {/* Enhanced Stats Grid with unique icons for each stat */}
+              {/* Enhanced Stats Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Conversations */}
                 <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 flex flex-col items-center">
                   <div className="rounded-full p-3 bg-purple-100 mb-3">
                     <svg
@@ -589,7 +583,7 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
                 </div>
               </div>
 
-              {/* Footer with subtle accent */}
+              {/* Footer */}
               <div className="mt-8 pt-4 border-t border-gray-100 text-center">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
                   <svg
@@ -610,108 +604,6 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
                 </span>
               </div>
             </div>
-
-            {/* <Card className="shadow-lg border border-gray-200 rounded-lg overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600">
-              <CardHeader className="relative h-64">
-                <div className="absolute inset-0 bg-black bg-opacity-40 z-10" />
-                <Image
-                  src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
-                  alt={`${currentBot.name} Hero`}
-                  fill
-                  className="object-cover"
-                />
-                <div className="relative z-20 flex items-center space-x-4">
-                  <div className="bg-white rounded-full p-3 shadow-lg">
-                    <UserCircle className="w-12 h-12 text-blue-600" />
-                  </div>
-                  <div>
-                    <h1 className="text-4xl font-bold text-white">
-                      {currentBot.name}
-                    </h1>
-                    <p className="text-gray-200 mt-2">
-                      Powered by {currentBot.model}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card> */}
-
-            {/* Quick Stats
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-green-600 font-medium">
-                        Conversion Rate
-                      </p>
-                      <h3 className="text-2xl font-bold text-green-700">
-                        {currentBot.stats.conversionRate}%
-                      </h3>
-                    </div>
-                    <TrendingUp className="w-8 h-8 text-green-500" />
-                  </div>
-                  <Progress
-                    value={currentBot.stats.conversionRate}
-                    className="mt-4"
-                  />
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-blue-600 font-medium">
-                        Active Users
-                      </p>
-                      <h3 className="text-2xl font-bold text-blue-700">
-                        {currentBot.stats.activeUsers}
-                      </h3>
-                    </div>
-                    <Users className="w-8 h-8 text-blue-500" />
-                  </div>
-                  <Progress value={75} className="mt-4" />
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-purple-600 font-medium">
-                        Response Time
-                      </p>
-                      <h3 className="text-2xl font-bold text-purple-700">
-                        {currentBot.stats.avgResponseTime}
-                      </h3>
-                    </div>
-                    <Clock className="w-8 h-8 text-purple-500" />
-                  </div>
-                  <Progress value={90} className="mt-4" />
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-orange-600 font-medium">
-                        Satisfaction
-                      </p>
-                      <h3 className="text-2xl font-bold text-orange-700">
-                        {currentBot.stats.customerSatisfaction}%
-                      </h3>
-                    </div>
-                    <CheckCircle2 className="w-8 h-8 text-orange-500" />
-                  </div>
-                  <Progress
-                    value={currentBot.stats.customerSatisfaction}
-                    className="mt-4"
-                  />
-                </CardContent>
-              </Card>
-            </div> */}
           </TabsContent>
 
           <TabsContent value="performance" className="mt-6">
@@ -768,62 +660,7 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
 
           {/* NEW FILES TAB */}
           <TabsContent value="files" className="mt-6">
-            <div className="mb-4">
-              <h3 className="text-xl font-semibold mb-2">
-                Bot Files and Training Data
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Upload files to train your bot with domain-specific knowledge.
-                Supported file types include PDFs, Office documents, text files,
-                and images.
-              </p>
-            </div>
-
             <BotFileManager botId={currentBot.id} />
-
-            <Card className="mt-6">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-blue-50 text-blue-600 rounded-full">
-                    <FileText className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-medium mb-1">
-                      Using Files with Your Bot
-                    </h4>
-                    <p className="text-gray-600 mb-3">
-                      Files uploaded to your bot will be processed and indexed
-                      for your bot to reference during conversations. This helps
-                      your bot provide more accurate and domain-specific
-                      responses.
-                    </p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-start gap-2">
-                        <span className="font-medium">•</span>
-                        <p>
-                          PDF documents with product specifications will help
-                          your bot answer detailed product questions
-                        </p>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="font-medium">•</span>
-                        <p>
-                          Support documentation helps your bot troubleshoot
-                          customer issues
-                        </p>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="font-medium">•</span>
-                        <p>
-                          Training materials help keep your bot's knowledge
-                          up-to-date
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           <TabsContent value="leads" className="mt-6">
@@ -1229,7 +1066,7 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
             </Card>
           </TabsContent>
         </Tabs>
-
+ 
         {/* Chat Preview */}
         {showPreview ? (
           <ChatPreview

@@ -2,7 +2,17 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { FilePlus, FolderOpen, Trash2, Download, Share2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  FilePlus,
+  FolderOpen,
+  Trash2,
+  Download,
+  Share2,
+  File,
+  Globe,
+  Plus,
+} from "lucide-react";
 import FileUploadArea from "./FileUploadArea";
 import { useToast } from "@/hooks/use-toast";
 
@@ -10,9 +20,34 @@ interface BotFileManagerProps {
   botId: string;
 }
 
+interface Source {
+  title: string;
+  url: string;
+}
+
 export default function BotFileManager({ botId }: BotFileManagerProps) {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [availableSpace, setAvailableSpace] = useState(100); // 100MB total space
+
+  const [sources, setSources] = useState<Source[]>([{ title: "", url: "" }]);
+
+  const addSource = (): void =>
+    setSources([...sources, { title: "", url: "" }]);
+
+  const updateSource = (
+    index: number,
+    field: keyof Source,
+    value: string
+  ): void => {
+    const updated = [...sources];
+    updated[index] = { ...updated[index], [field]: value };
+    setSources(updated);
+  };
+
+  const removeSource = (index: number): void => {
+    setSources(sources.filter((_, i) => i !== index));
+  };
+
   const { toast } = useToast();
 
   const handleFilesUploaded = (files: File[]) => {
@@ -33,89 +68,84 @@ export default function BotFileManager({ botId }: BotFileManagerProps) {
   return (
     <Card className="shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between py-4">
-        <h3 className="text-lg font-semibold">Bot Files & Resources</h3>
+        <h3 className="text-lg font-semibold">Add knowledge source</h3>
         <div className="flex items-center gap-2 text-sm">
           <span className="text-gray-500">
             {usedSpace.toFixed(1)} MB of {availableSpace} MB used
           </span>
           <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-blue-500" 
+            <div
+              className="h-full bg-blue-500"
               style={{ width: `${usedPercentage}%` }}
             />
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="upload" className="w-full">
+        <Tabs defaultValue="file" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="upload">Upload Files</TabsTrigger>
-            <TabsTrigger value="manage">Manage Resources</TabsTrigger>
+            <TabsTrigger
+              value="file"
+              className="flex items-center justify-center space-x-2"
+            >
+              <File className="h-4 w-4" />
+              <span>File</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="webpage"
+              className="flex items-center justify-center space-x-2"
+            >
+              <Globe className="h-4 w-4" />
+              <span>Webpage</span>
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="upload">
-            <FileUploadArea 
+          <TabsContent value="file">
+            <FileUploadArea
               onFilesUploaded={handleFilesUploaded}
               maxFiles={10}
               maxSize={20}
               botId={botId}
-
             />
           </TabsContent>
 
-          <TabsContent value="manage">
-            {uploadedFiles.length > 0 ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Your Bot Resources</h4>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      <FolderOpen className="w-4 h-4 mr-2" />
-                      New Folder
+          <TabsContent value="webpage">
+            <div className="space-y-4">
+              {sources.map((source, idx) => (
+                <div key={idx} className="flex items-center space-x-2">
+                  <Input
+                    placeholder="Source Title"
+                    value={source.title}
+                    onChange={(e) => updateSource(idx, "title", e.target.value)}
+                    className="flex-1"
+                  />
+                  <Input
+                    placeholder="Source URL"
+                    value={source.url}
+                    onChange={(e) => updateSource(idx, "url", e.target.value)}
+                    className="flex-1"
+                  />
+                  {sources.length > 1 && (
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      onClick={() => removeSource(idx)}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <FilePlus className="w-4 h-4 mr-2" />
-                      Add Files
-                    </Button>
-                  </div>
+                  )}
                 </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="grid grid-cols-3 text-sm font-medium text-gray-500 pb-2 border-b">
-                    <div>Name</div>
-                    <div>Size</div>
-                    <div>Actions</div>
-                  </div>
-
-                  <div className="space-y-2 mt-2">
-                    {uploadedFiles.map((file, index) => (
-                      <div key={index} className="grid grid-cols-3 py-2 text-sm items-center">
-                        <div className="truncate">{file.name}</div>
-                        <div>{(file.size / 1024).toFixed(1)} KB</div>
-                        <div className="flex gap-2">
-                          <button className="p-1 hover:bg-gray-200 rounded">
-                            <Download className="w-4 h-4" />
-                          </button>
-                          <button className="p-1 hover:bg-gray-200 rounded">
-                            <Share2 className="w-4 h-4" />
-                          </button>
-                          <button className="p-1 hover:bg-red-100 text-red-500 rounded">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-lg font-medium">No files yet</h4>
-                <p className="text-gray-500 mb-4">Upload files to manage them here</p>
-                <Button>Upload Files Now</Button>
-              </div>
-            )}
+              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-1"
+                onClick={addSource}
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add another source</span>
+              </Button>
+            </div>
           </TabsContent>
         </Tabs>
       </CardContent>

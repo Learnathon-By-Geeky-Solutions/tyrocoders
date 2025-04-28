@@ -41,22 +41,19 @@ const Subscription = () => {
       </Breadcrumb>
     
 
-    <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-orange-50/80 to-white">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen py-8 bg-gradient-to-b to-white">
+      
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">
-            Choose Your <span className="text-orange-500">Perfect Plan</span>
+          <h1 className="text-4xl font-bold text-gray-900 sm:text-3xl">
+            Choose Your <span className="text-accent">Perfect Plan</span>
           </h1>
-          <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
+          <div className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto -mb-8">
             Find the ideal package that fits your needs and unlock the full potential of our platform
-          </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
           <PlanCard
             name="Free"
             monthlyPrice="0"
@@ -118,7 +115,7 @@ const Subscription = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900">
-              Enhance Your <span className="text-orange-500">Plan</span>
+              Enhance Your <span className="text-accent">Plan</span>
             </h2>
             <p className="mt-3 text-gray-600">
               Customize your subscription with these additional options

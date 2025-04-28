@@ -24,6 +24,8 @@ import {
   ChevronsUpDown,
   ChevronUp,
   ChevronDown,
+  Cpu,
+  Calendar,
 } from "lucide-react";
 import { botAPI } from "@/services/api";
 import { Bot } from "@/data/botData";
@@ -48,7 +50,8 @@ export default function MyBotsPage() {
           id: api._id,
           name: api.name,
           model: api.ai_model_name,
-          createdAt: api.created_at?.split("T")[0] || "—",
+          createdAt:
+            api.created_at || new Date().toISOString().split("T")[0],
         }));
         setBots(transformed);
       } catch (e) {
@@ -60,15 +63,6 @@ export default function MyBotsPage() {
     }
     fetchBots();
   }, []);
-
-  const handleSort = (key: "name" | "createdAt") => {
-    setSortConfig((current) => {
-      if (current?.key === key) {
-        return { key, direction: current.direction === "asc" ? "desc" : "asc" };
-      }
-      return { key, direction: "asc" };
-    });
-  };
 
   const sortedBots = useMemo(() => {
     if (!sortConfig) return bots;
@@ -114,7 +108,7 @@ export default function MyBotsPage() {
           variant="outline"
           className="flex items-center text-dark hover:text-white"
         >
-          <Link href="/create-bot">
+          <Link href="/bots/setup">
             <Plus className="h-4 w-4" /> New Bot
           </Link>
         </Button>
@@ -129,92 +123,77 @@ export default function MyBotsPage() {
           {error}
         </div>
       ) : (
-        <div className="overflow-hidden bg-white shadow-md rounded-lg">
-          {/* Header */}
-          <div className="hidden sm:grid grid-cols-12 gap-4 p-4 bg-gray-100 text-gray-600 font-medium border-b">
-            <div
-              className="col-span-4 flex items-center cursor-pointer"
-              onClick={() => handleSort("name")}
-            >
-              <span>Name</span>
-              <span className="ml-2">
-                {!sortConfig || sortConfig.key !== "name" ? (
-                  <ChevronsUpDown className="h-4 w-4 text-gray-500" />
-                ) : sortConfig.direction === "asc" ? (
-                  <ChevronUp className="h-4 w-4 text-gray-500" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-500" />
-                )}
-              </span>
-            </div>
-            <div className="col-span-3">Model</div>
-            <div
-              className="col-span-2 flex items-center cursor-pointer"
-              onClick={() => handleSort("createdAt")}
-            >
-              <span>Created</span>
-              <span className="ml-2">
-                {!sortConfig || sortConfig.key !== "createdAt" ? (
-                  <ChevronsUpDown className="h-4 w-4 text-gray-500" />
-                ) : sortConfig.direction === "asc" ? (
-                  <ChevronUp className="h-4 w-4 text-gray-500" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-500" />
-                )}
-              </span>
-            </div>
-            <div className="col-span-3 text-right">Actions</div>
-          </div>
-
-          {/* Rows */}
-          {sortedBots.length ? (
-            sortedBots.map((bot) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {bots.length ? (
+            bots.map((bot) => (
               <div
                 key={bot.id}
-                className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                className="bg-white border border-gray-100 rounded-lg shadow transition hover:shadow-lg cursor-pointer flex flex-col justify-between p-6 border-t-8 border-indigo-500"
                 onClick={() => router.push(`/bots/${bot.id}`)}
               >
-                <div className="col-span-1 sm:col-span-4 flex items-center space-x-3">
-                  <div className="p-2 bg-indigo-100 rounded">
-                    <MessageSquare className="h-5 w-5 text-indigo-500" />
+                {/* Bot Header with Accent Border */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-indigo-100 rounded-full">
+                      <MessageSquare className="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      {bot.name}
+                    </h3>
                   </div>
-                  <span className="font-semibold text-gray-800">
-                    {bot.name}
+                  <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                    {"Active"}
                   </span>
                 </div>
-                <div className="col-span-1 sm:col-span-3 text-gray-700">
-                  {bot.model}
+
+                {/* Bot Details with Colorful Icons */}
+                <div className="mt-4 text-gray-600 text-sm space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Cpu className="h-4 w-4 text-purple-500" />
+                    <span>
+                      <span className="font-medium">Model:</span> {bot.model}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="h-4 w-4 text-yellow-500" />
+                    <span>
+                      <span className="font-medium">Created:</span>{" "}
+                      {bot.createdAt}
+                    </span>
+                  </div>
                 </div>
-                <div className="col-span-1 sm:col-span-2 text-gray-500">
-                  {bot.createdAt}
-                </div>
-                <div className="col-span-1 sm:col-span-3 flex justify-end space-x-2">
+
+                {/* Action Buttons */}
+                <div className="mt-6 flex justify-end space-x-3">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       router.push(`/bots/${bot.id}`);
                     }}
                     title="Embed Widget"
-                    className="p-2 rounded hover:bg-gray-100"
+                    className="p-2 rounded hover:bg-gray-100 transition"
                   >
                     <Code className="h-5 w-5 text-gray-600 hover:text-indigo-600" />
                   </button>
+
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       router.push(`/bots/${bot.id}/edit`);
                     }}
                     title="Edit Bot"
-                    className="p-2 rounded hover:bg-gray-100"
+                    className="p-2 rounded hover:bg-gray-100 transition"
                   >
                     <Edit2 className="h-5 w-5 text-gray-600 hover:text-indigo-600" />
                   </button>
+
                   <button
                     onClick={(e) => {
-                      e.stopPropagation(); /* TODO: delete handler */
+                      e.stopPropagation();
+                      // TODO: implement delete handler
                     }}
                     title="Delete Bot"
-                    className="p-2 rounded hover:bg-red-100"
+                    className="p-2 rounded hover:bg-red-100 transition"
                   >
                     <Trash2 className="h-5 w-5 text-gray-600 hover:text-red-600" />
                   </button>
@@ -222,7 +201,7 @@ export default function MyBotsPage() {
               </div>
             ))
           ) : (
-            <div className="p-6 text-center text-gray-500">
+            <div className="col-span-full text-center text-gray-500 p-6">
               You haven’t created any bots yet.
             </div>
           )}

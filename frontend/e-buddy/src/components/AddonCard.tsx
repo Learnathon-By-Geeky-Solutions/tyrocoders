@@ -23,17 +23,17 @@ export function AddonCard({ name, price, description, tiers }: AddonProps) {
             <p className="text-sm text-gray-600 mt-1">{description}</p>
           </div>
           <div className="text-right">
-            <span className="text-xl font-bold text-orange-600">${price}</span>
+            <span className="text-xl font-bold text-accent">${price}</span>
             <span className="text-gray-500 text-sm ml-1">each</span>
           </div>
         </div>
       </CardHeader>
       <CardContent className="pt-2">
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="flex flex-wrap gap-2 mt-2 justify-center">
           {tiers.map((tier, index) => (
-            <div key={index} className="flex flex-col items-center bg-orange-50 border border-orange-100 px-3 py-2 rounded-lg">
+            <div key={index} className="flex flex-col items-center bg-orange-50 border border-orange-100 px-2 py-2 rounded-lg">
               <span className="text-sm font-medium text-gray-700">{tier.plan}</span>
-              <Badge variant="secondary" className="mt-1 bg-orange-100 text-orange-700 hover:bg-orange-200">
+              <Badge variant="secondary" className="mt-1 bg-orange-100 text-accent hover:bg-orange-200">
                 {tier.quantity}
               </Badge>
             </div>
