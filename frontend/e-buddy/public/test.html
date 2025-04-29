@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Widget Test</title>
+  
+</head>
+<body>
+
+  <h1>Chat Widget Test</h1>
+  
+  <!-- Chat Widget Embed Code -->
+<div id="chat-widget-root"></div>
+<script>
+  (function() {
+    var script = document.createElement('script');
+    script.src = "http://localhost:3000/chat-widget-loader.js";
+    script.async = true;
+    script.setAttribute('data-chatbot-id', "67fbee2232e64e1a62ddb6c5");
+    script.setAttribute('data-api-endpoint', "http://127.0.0.1:8000/api/v1");
+    document.head.appendChild(script);
+  })();
+</script>
+</body>
+</html>
