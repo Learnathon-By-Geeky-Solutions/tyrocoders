@@ -53,14 +53,15 @@ export const botAPI = {
     initial_message?: string;
     faq_info?: string;
     contact_info?: string;
+    sitemap_url?: string;
   }) => api.post("/chatbot/create", data),
-  
+
   // Get all bots for the current user
   getAllBots: () => api.get("/chatbot/get-all-chatbots"),
-  
+
   // Get a specific bot by ID
   getBot: (botId: string) => api.get(`/chatbot/${botId}`),
-  
+
   // Update an existing bot
   updateBot: (
     botId: string,
@@ -75,19 +76,19 @@ export const botAPI = {
       contact_info?: string;
     }
   ) => api.put(`/bots/${botId}`, data),
-  
+
   // File upload
-  fileUpload : (botId: string) => api.post(`/chatbot/${botId}/files`),
+  fileUpload: (botId: string) => api.post(`/chatbot/${botId}/files`),
 
   // Delete a bot
   deleteBot: (botId: string) => api.delete(`/chatbot/${botId}`),
-  
+
   // Toggle bot active status
-  toggleBotStatus: (botId: string, isActive: boolean) => 
+  toggleBotStatus: (botId: string, isActive: boolean) =>
     api.patch(`/chatbot/${botId}/status`, { is_active: isActive }),
-  
+
   // Get bot analytics
-  getBotAnalytics: (botId: string, period?: string) => 
+  getBotAnalytics: (botId: string, period?: string) =>
     api.get(`/chatbot/${botId}/analytics`, { params: { period } }),
 };
 

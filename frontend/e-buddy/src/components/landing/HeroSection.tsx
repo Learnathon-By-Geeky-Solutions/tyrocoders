@@ -23,8 +23,9 @@ export function HeroSection() {
         <ScrollReveal className="flex-1">
           <div className="rounded-lg overflow-hidden shadow-xl border transition-transform duration-200 hover:shadow-2xl">
             <img
-              src="https://www.livechat.com/images/homepage/product-view--desktop_hu4cbfe34f2a228990920ce661de5d9cce_538742_2240x0_resize_q75_h2_catmullrom_3.67a10e85bd853d692610504d1118097fea06ce0825b2597940e8632347c898d9.webp"
+              // src="https://www.livechat.com/images/homepage/product-view--desktop_hu4cbfe34f2a228990920ce661de5d9cce_538742_2240x0_resize_q75_h2_catmullrom_3.67a10e85bd853d692610504d1118097fea06ce0825b2597940e8632347c898d9.webp"
               // src="https://blog.getmanifest.ai/content/images/size/w1000/2023/07/Live-chat.jpg"
+              src="https://www.bloomreach.com/wp-content/uploads/2024/05/e-commerce-chatbots-request-1-1470x800px.jpg"
               alt="Chatbot in action"
               className="w-full h-auto"
             />

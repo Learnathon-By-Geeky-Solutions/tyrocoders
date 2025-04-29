@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { BotCustomization, ChatMessage } from "@/types/chatbot";
 import { cn } from "@/lib/utils";
 import { chatAPI } from "@/services/api";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize";
 
 interface ChatPreviewProps {
   customization: BotCustomization;
@@ -322,11 +325,26 @@ export const ChatPreview = ({
     switch (content.type) {
       case "product_card":
         const product = content.products?.[0];
-        if (!product) return <div>{content.text}</div>;
+        if (!product)
+          return (
+            <div className="chat-message">
+              <ReactMarkdown
+                children={content.text}
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeSanitize]}
+              />
+            </div>
+          );
 
         return (
           <div className="flex flex-col">
-            <div className="mb-2">{content.text}</div>
+            <div className="mb-2 chat-message">
+              <ReactMarkdown
+                children={content.text}
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeSanitize]}
+              />
+            </div>
             <div className="bg-white rounded-md overflow-hidden shadow-md">
               {product.image && (
                 <div className="w-full h-40 bg-gray-100 flex items-center justify-center overflow-hidden">
@@ -376,11 +394,25 @@ export const ChatPreview = ({
 
       case "product_grid":
         if (!content.products || content.products.length === 0)
-          return <div>{content.text}</div>;
+          return (
+            <div className="chat-message">
+              <ReactMarkdown
+                children={content.text}
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeSanitize]}
+              />
+            </div>
+          );
 
         return (
           <div className="flex flex-col">
-            <div className="mb-2">{content.text}</div>
+            <div className="mb-2 chat-message">
+              <ReactMarkdown
+                children={content.text}
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeSanitize]}
+              />
+            </div>
             <div className="grid grid-cols-1 gap-2">
               {content.products.map((product, index) => (
                 <a
@@ -428,11 +460,25 @@ export const ChatPreview = ({
 
       case "comparison_table":
         if (!content.products || content.products.length === 0)
-          return <div>{content.text}</div>;
+          return (
+            <div className="chat-message">
+              <ReactMarkdown
+                children={content.text}
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeSanitize]}
+              />
+            </div>
+          );
 
         return (
           <div className="flex flex-col">
-            <div className="mb-2">{content.text}</div>
+            <div className="mb-2 chat-message">
+              <ReactMarkdown
+                children={content.text}
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeSanitize]}
+              />
+            </div>
             <div className="space-y-4">
               {content.products.map((product) => (
                 <div
@@ -509,7 +555,15 @@ export const ChatPreview = ({
         );
 
       default:
-        return <div>{content.text}</div>;
+        return (
+          <div className="chat-message">
+            <ReactMarkdown
+              children={content.text}
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeSanitize]}
+            />
+          </div>
+        );
     }
   };
 
