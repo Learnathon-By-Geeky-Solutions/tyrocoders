@@ -4,7 +4,7 @@ from typing import Dict, Any
 from core.logger import logger
 # Import the necessary modules directly
 from processing.kb import search_kb
-from processing.llm import create_prompt, ask_llm_gemini
+from processing.llm import ask_groq, create_prompt, ask_llm_gemini
 from core.logger import logger
 # Import the singleton Vanna instance from chatbot_service
 from services.chatbot_service import vanna

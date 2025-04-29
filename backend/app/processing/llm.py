@@ -260,8 +260,8 @@ def estimate_token_count(text: str) -> int:
 def ask_groq(prompt: str, model="llama3-70b-8192") -> str:
     """Send a prompt to the Groq API and get a response"""
     try:
-        estimated_tokens = estimate_token_count(prompt)
-        logger.info(f"Estimated prompt tokens: {estimated_tokens}")
+        # estimated_tokens = estimate_token_count(prompt)
+        # logger.info(f"Estimated prompt tokens: {estimated_tokens}")
         
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",

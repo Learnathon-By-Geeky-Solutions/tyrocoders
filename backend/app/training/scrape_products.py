@@ -7,6 +7,7 @@ import random
 import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
 from training.find_sitemap import find_sitemaps
+from typing import Optional
 
 current_loop = asyncio.get_event_loop()
 if type(current_loop).__name__ != "Loop" or "uvloop" not in current_loop.__class__.__module__:
@@ -251,18 +252,54 @@ async def scrape_products(sitemap_url, scrape_limit=float('inf'), sample_size=5,
         print(f"Successfully processed {len(products)} product pages.")
         return products
 
-async def scrape_from_website(website_url: str, scrape_limit: int = 5, sample_size: int = 3, max_concurrent: int = 20):
-    sitemap_urls = find_sitemaps(website_url)
-    if sitemap_urls:
-        first_sitemap = sitemap_urls[0]
-        # Since we are now in an async context, use asyncio.run only if running standalone.
-        products = await scrape_products(
-            first_sitemap,
-            scrape_limit=scrape_limit,
-            sample_size=sample_size,
-            max_concurrent=max_concurrent
-        )
-        return products
-    else:
-        print(f"No sitemap URLs found for {website_url}.")
-        return []
+async def scrape_from_website(
+    website_url: str,
+    sitemap_url: Optional[str] = None,
+    scrape_limit: int = 5,
+    sample_size: int = 3,
+    max_concurrent: int = 20,
+) :
+    """
+    Scrape products by first trying an auto-discovered sitemap.
+    If no products are found there and a user-provided sitemap_url exists, retry using that.
+    Returns the first non-empty product list or [] if none yield results.
+    """
+    # Helper to attempt scraping a given sitemap
+    async def _attempt(sitemap: str):
+        try:
+            print(f"Attempting scrape on sitemap: {sitemap}")
+            prods = await scrape_products(
+                sitemap,
+                scrape_limit=scrape_limit,
+                sample_size=sample_size,
+                max_concurrent=max_concurrent,
+            )
+            return prods or []
+        except Exception as e:
+            print(f"Error scraping {sitemap}: {e}")
+            return []
+
+    # 1) Try auto-discovery
+    discovered = find_sitemaps(website_url)
+    if discovered:
+        first = discovered[0]
+        products = await _attempt(first)
+        if products:
+            print(f"Success with discovered sitemap: {first}")
+            return products
+        else:
+            print(f"No products found in discovered sitemap: {first}")
+
+    # 2) Fallback to user-provided sitemap
+    if sitemap_url:
+        products = await _attempt(sitemap_url)
+        if products:
+            print(f"Success with provided sitemap: {sitemap_url}")
+            return products
+        else:
+            print(f"No products found in provided sitemap: {sitemap_url}")
+
+    # 3) Nothing worked
+    print(f"No products found for {website_url} using any sitemap.")
+    return []
+

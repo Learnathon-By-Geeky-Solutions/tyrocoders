@@ -10,8 +10,8 @@ const ChatPanel: React.FC = () => {
   const [selectedThreadId, setSelectedThreadId] = useState(threads.length > 0 ? threads[0].id : '');
 
   return (
-    <div className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="flex h-[600px]">
+    <div className="w-full mx-auto bg-white -lg shadow-md overflow-hidden">
+      <div className="flex h-full">
         <div className="w-1/3 border-r border-gray-200">
           <ThreadList 
             selectedThreadId={selectedThreadId} 

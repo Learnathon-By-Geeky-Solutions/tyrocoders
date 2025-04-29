@@ -44,6 +44,7 @@ class ChatbotCreate(BaseModel):
     is_active: bool = True
     user_id: Optional[str] = None
     products_file: Optional[str] = None  
+    sitemap_url: Optional[HttpUrl] = None
 
     class Config:
         extra = "allow"
