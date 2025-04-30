@@ -81,22 +81,6 @@ async def process_query(user_id: str, chatbot_id: str, query: str, conversation_
         # Create prompt
         prompt = create_prompt(query, context_docs, client_history)
         
-        # logger.debug("Prompt is defined {prompt}")
-        from processing.db_storage import DatabaseStorageManager
-
-        # 1) Grab your Vanna instance
-        vn = vanna.get_instance(chatbot_id)
-        
-        # 2) Make sure it’s pointing at the right SQLite DB
-        storage_mgr = DatabaseStorageManager()
-        config = storage_mgr.load_config(chatbot_id)
-        vn.connect_to_sqlite(config["db_path"])
-        
-        
-        # 3) Now ask Vanna using your raw query (and pass the contexts in if supported)
-        # ——— simple “ask” by query alone ———
-        answer = vn.ask(question=query)
-        logger.info(answer)
         # Get raw response from primary LLM (Gemini as fallback is used inside ask_llm_gemini)
         raw_response = ask_llm_gemini(prompt)
         

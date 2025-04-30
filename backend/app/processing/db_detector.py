@@ -8,11 +8,22 @@ class DatabaseDetector:
     @staticmethod
     def detect_db_type(path: Path) -> Dict[str, Any]:
         """
-        Detects database type from a file path
+        Detects the type of a database from the file at the given path based on its extension, 
+        magic bytes, and text patterns within the file. It aims to identify common database formats 
+        such as SQLite, MySQL binlogs, and SQL dumps.
+
         Args:
-            path: Path to database file
+            path (Path): The file path to the database or dump file.
+
         Returns:
-            Dict with detected type and relevant metadata
+            Dict[str, Any]: A dictionary containing the detected database type, 
+                             metadata about the file, and any errors encountered.
+                             Possible keys include:
+                             - 'original_path': The original file path (str)
+                             - 'filename': The name of the file (str)
+                             - 'likely_type': An initial guess based on the file extension (str)
+                             - 'db_type': The detected database type (str, e.g., 'sqlite', 'mysql_binlog', etc.)
+                             - 'error': A description of any error encountered (str, optional).
         """
         result: Dict[str, Any] = {"original_path": str(path), "filename": path.name}
 

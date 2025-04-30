@@ -10,7 +10,7 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 ```
 3. Install the required package:
 ```bash
-pip install websockets
+pip install -r requirements.txt
 ```
 4. Run the test backend:
 ```bash

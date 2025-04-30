@@ -14,9 +14,33 @@ from typing import Optional, List, Union
 base_url = "https://api.assemblyai.com/v2"
 
 class AudioRecorder:
+    """A class for recording audio and transcribing it using AssemblyAI's API.
+    
+    This class provides functionality to:
+    - Record audio from microphone in real-time
+    - Save recordings as WAV files
+    - Transcribe audio using AssemblyAI's speech-to-text API
+    - Handle recording via keyboard controls
+    
+    Attributes:
+        ASSEMBLYAI_API_KEY (str): API key for AssemblyAI service
+        SAMPLE_RATE (int): Audio sample rate in Hz (default: 16000)
+        AUDIO_FILENAME (str): Name of file to save recordings (default: "recorded.wav")
+        is_recording (bool): Flag indicating if recording is in progress
+        recording_thread (Optional[threading.Thread]): Thread handling audio recording
+        audio_data (List[np.ndarray]): Buffer for storing recorded audio frames
+        key_pressed (bool): Flag to prevent key press repetition
+    """
+    
     def __init__(self, 
                  sample_rate: int = 16000, 
                  audio_filename: str = "recorded.wav"):
+        """Initialize the AudioRecorder with configuration settings.
+        
+        Args:
+            sample_rate: Sampling rate for audio recording in Hz (default: 16000)
+            audio_filename: Name of the file to save recordings (default: "recorded.wav")
+        """
         self.ASSEMBLYAI_API_KEY = settings.ASSEMBLYAI_API_KEY
         self.SAMPLE_RATE = sample_rate
         self.AUDIO_FILENAME = audio_filename
@@ -27,7 +51,11 @@ class AudioRecorder:
         self.key_pressed = False
 
     def record_audio(self) -> None:
-        """Record audio from microphone"""
+        """Record audio from microphone in a continuous loop.
+        
+        Uses sounddevice's InputStream to capture audio frames while is_recording is True.
+        Stores captured frames in audio_data buffer for later processing.
+        """
         self.audio_data = []
         logger.info("Recording started. Press 'm' again to stop.")
         
@@ -37,7 +65,11 @@ class AudioRecorder:
                 self.audio_data.append(frame.copy())
 
     def toggle_recording(self) -> None:
-        """Toggle audio recording on and off"""
+        """Toggle audio recording state between on and off.
+        
+        Starts or stops recording thread based on current state.
+        Prevents multiple rapid toggles with key_pressed flag.
+        """
         if self.key_pressed:
             return
         
@@ -51,7 +83,11 @@ class AudioRecorder:
             self._stop_recording()
 
     def _stop_recording(self) -> None:
-        """Stop recording and process audio"""
+        """Handle recording stop procedure.
+        
+        Joins the recording thread, saves audio to file, and initiates transcription.
+        Logs the results or errors encountered during the process.
+        """
         if self.recording_thread and self.recording_thread.is_alive():
             self.recording_thread.join()
             
@@ -62,7 +98,14 @@ class AudioRecorder:
                 logger.error("Failed to save audio file")
 
     def save_audio_to_wav_file(self) -> bool:
-        """Save audio data to WAV file"""
+        """Save recorded audio data to WAV file.
+        
+        Processes the audio buffer into a single numpy array and writes to file.
+        Performs basic audio quality checks before saving.
+        
+        Returns:
+            bool: True if save was successful, False otherwise
+        """
         if not self.audio_data:
             logger.error("No audio data to save")
             return False
@@ -90,7 +133,21 @@ class AudioRecorder:
             return False
 
     def transcribe_with_assemblyai(self, file_path: str) -> Union[str, None]:
-        """Transcribe audio using AssemblyAI"""
+        """Transcribe audio file using AssemblyAI API.
+        
+        Handles the complete transcription workflow:
+        1. Validates the audio file
+        2. Uploads to AssemblyAI
+        3. Starts transcription job
+        4. Polls for completion
+        5. Returns transcript or error message
+        
+        Args:
+            file_path: Path to audio file to transcribe
+            
+        Returns:
+            str: Transcription text if successful, error message otherwise
+        """
         try:
             # Validate file
             self._validate_audio_file(file_path)
@@ -114,7 +171,21 @@ class AudioRecorder:
             return str(e)
 
     def _validate_audio_file(self, file_path: str) -> None:
-        """Validate audio file properties"""
+        """Validate audio file meets requirements for transcription.
+        
+        Checks:
+        - File existence
+        - Minimum size
+        - WAV format validity
+        - Channel count and sample width
+        - Minimum frame count
+        
+        Args:
+            file_path: Path to audio file to validate
+            
+        Raises:
+            ValueError: If any validation check fails
+        """
         if not os.path.exists(file_path):
             raise ValueError("Audio file not found")
         
@@ -133,7 +204,17 @@ class AudioRecorder:
             raise ValueError(f"Error validating WAV file: {e}")
 
     def _upload_audio_file(self, file_path: str) -> str:
-        """Upload audio file to AssemblyAI"""
+        """Upload audio file to AssemblyAI's temporary storage.
+        
+        Args:
+            file_path: Path to audio file to upload
+            
+        Returns:
+            str: URL of uploaded audio file
+            
+        Raises:
+            ValueError: If upload fails
+        """
         headers = {"authorization": self.ASSEMBLYAI_API_KEY}
         
         logger.info("Uploading audio file")
@@ -153,7 +234,17 @@ class AudioRecorder:
         return upload_response.json()["upload_url"]
 
     def _start_transcription(self, audio_url: str) -> str:
-        """Start transcription process"""
+        """Start AssemblyAI transcription job.
+        
+        Args:
+            audio_url: URL of audio file to transcribe
+            
+        Returns:
+            str: Transcription job ID
+            
+        Raises:
+            ValueError: If transcription request fails
+        """
         headers = {
             "authorization": self.ASSEMBLYAI_API_KEY,
             "content-type": "application/json"
@@ -181,7 +272,18 @@ class AudioRecorder:
         return transcript_id
 
     def _poll_transcription(self, transcript_id: str, max_attempts: int = 30) -> str:
-        """Poll for transcription completion"""
+        """Poll AssemblyAI for transcription completion.
+        
+        Args:
+            transcript_id: ID of transcription job to poll
+            max_attempts: Maximum number of polling attempts (default: 30)
+            
+        Returns:
+            str: Completed transcription text
+            
+        Raises:
+            ValueError: If transcription fails or times out
+        """
         headers = {"authorization": self.ASSEMBLYAI_API_KEY}
         polling_endpoint = f"{base_url}/transcript/{transcript_id}"
         
@@ -213,7 +315,11 @@ class AudioRecorder:
         raise ValueError("Transcription timed out")
 
     def delete_audio_file(self, file_path: str) -> None:
-        """Delete audio file"""
+        """Delete audio file from disk.
+        
+        Args:
+            file_path: Path to file to delete
+        """
         try:
             os.remove(file_path)
             logger.info("Audio file deleted")
@@ -221,6 +327,12 @@ class AudioRecorder:
             logger.error(f"Error deleting audio file: {e}")
 
 def main():
+    """Main function to demonstrate AudioRecorder functionality.
+    
+    Sets up keyboard controls:
+    - 'm' key to start/stop recording
+    - 'esc' key to exit program
+    """
     recorder = AudioRecorder()
     
     def on_press(key):
