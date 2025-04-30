@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { botAPI } from "@/services/api";
 import { Bot } from "@/data/botData";
+import ChatEmbedGenerator from "@/components/chatbot/ChatEmbedGenerator";
 
 export default function MyBotsPage() {
   const router = useRouter();
@@ -128,7 +129,7 @@ export default function MyBotsPage() {
             bots.map((bot) => (
               <div
                 key={bot.id}
-                className="bg-white border border-gray-100 rounded-lg shadow transition hover:shadow-lg cursor-pointer flex flex-col justify-between p-6 border-t-8 border-indigo-500"
+                className="bg-white border rounded-lg shadow transition hover:shadow-lg cursor-pointer flex flex-col justify-between p-6 border-t-8 border-accent"
                 onClick={() => router.push(`/bots/${bot.id}`)}
               >
                 {/* Bot Header with Accent Border */}
@@ -165,16 +166,26 @@ export default function MyBotsPage() {
 
                 {/* Action Buttons */}
                 <div className="mt-6 flex justify-end space-x-3">
-                  <button
+                  {/* <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.push(`/bots/${bot.id}`);
+                      // router.push(`/bots/${bot.id}`);
                     }}
                     title="Embed Widget"
                     className="p-2 rounded hover:bg-gray-100 transition"
                   >
                     <Code className="h-5 w-5 text-gray-600 hover:text-indigo-600" />
-                  </button>
+                  </button> */}
+
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      /* now do whatever ChatEmbedGenerator wants to do,
+         or if it has its own click handler, let it run normally */
+                    }}
+                  >
+                    <ChatEmbedGenerator chatbotId={bot.id.toString()} />
+                  </div>
 
                   <button
                     onClick={(e) => {

@@ -84,6 +84,16 @@ function mapFontStyle(style) {
   }
 }
 
+const dummyPerformance = [
+  { date: "2025-04-24", conversations: 120, leads: 20, sales: 5 },
+  { date: "2025-04-25", conversations: 150, leads: 25, sales: 7 },
+  { date: "2025-04-26", conversations: 170, leads: 30, sales: 6 },
+  { date: "2025-04-27", conversations: 160, leads: 28, sales: 8 },
+  { date: "2025-04-28", conversations: 180, leads: 35, sales: 10 },
+  { date: "2025-04-29", conversations: 200, leads: 40, sales: 12 },
+  { date: "2025-04-30", conversations: 190, leads: 38, sales: 11 },
+];
+
 
 function mapPosition(position) {
   if (!position) return "right";
@@ -95,64 +105,65 @@ function transformApiBot(apiBot) {
     id: apiBot._id, // Ensure type consistency if necessary (e.g., parseInt(apiBot._id))
     name: apiBot.name,
     model: apiBot.ai_model_name,
-    createdAt: apiBot.created_at || new Date().toISOString().split('T')[0],
+    createdAt: apiBot.created_at || new Date().toISOString().split("T")[0],
     description: apiBot.description,
     stats: {
       conversations: apiBot.stats?.conversations || 0,
       leadGeneration: apiBot.stats?.leadGeneration || apiBot.stats?.leads || 0,
-      conversionRate: apiBot.stats?.conversionRate || apiBot.stats?.conversion_rate || 0,
-      avgResponseTime: apiBot.stats?.avgResponseTime || apiBot.stats?.avg_response_time || 'N/A',
-      customerSatisfaction: apiBot.stats?.customerSatisfaction || apiBot.stats?.satisfaction || 0,
+      conversionRate:
+        apiBot.stats?.conversionRate || apiBot.stats?.conversion_rate || 0,
+      avgResponseTime:
+        apiBot.stats?.avgResponseTime ||
+        apiBot.stats?.avg_response_time ||
+        "N/A",
+      customerSatisfaction:
+        apiBot.stats?.customerSatisfaction || apiBot.stats?.satisfaction || 0,
       activeUsers: apiBot.stats?.activeUsers || apiBot.stats?.active_users || 0,
     },
-    performance: apiBot.performance || [], // Use performance data if available, else empty array
+    performance: apiBot.performance || dummyPerformance, // Use performance data if available, else empty array
     customization: {
       name: (apiBot.customization && apiBot.customization.name) || apiBot.name,
-      avatarUrl: (apiBot.customization && apiBot.customization.avatarUrl) || apiBot.avatar_url,
-      primaryColor: (apiBot.customization && apiBot.customization.primaryColor) ||
-                    apiBot.primary_color ||
-                    "#6366f1",
-      secondaryColor: (apiBot.customization && apiBot.customization.secondaryColor) ||
-                      apiBot.secondary_color ||
-                      "#f9fafb",
+      avatarUrl:
+        (apiBot.customization && apiBot.customization.avatarUrl) ||
+        apiBot.avatar_url,
+      primaryColor:
+        (apiBot.customization && apiBot.customization.primaryColor) ||
+        apiBot.primary_color ||
+        "#6366f1",
+      secondaryColor:
+        (apiBot.customization && apiBot.customization.secondaryColor) ||
+        apiBot.secondary_color ||
+        "#f9fafb",
       chatBubbleStyle: mapChatBubbleStyle(
-        (apiBot.customization && apiBot.customization.chatBubbleStyle) || apiBot.chat_bubble_style
+        (apiBot.customization && apiBot.customization.chatBubbleStyle) ||
+          apiBot.chat_bubble_style
       ),
-      welcomeMessage: (apiBot.customization && apiBot.customization.welcomeMessage) ||
-                      apiBot.welcome_message ||
-                      apiBot.initial_message,
+      welcomeMessage:
+        (apiBot.customization && apiBot.customization.welcomeMessage) ||
+        apiBot.welcome_message ||
+        apiBot.initial_message,
       font: mapFontStyle(
         (apiBot.customization && apiBot.customization.font) || apiBot.font_style
       ),
       position: mapPosition(
-        (apiBot.customization && apiBot.customization.position) || apiBot.position
+        (apiBot.customization && apiBot.customization.position) ||
+          apiBot.position
       ),
-      predefinedQuestions: (apiBot.customization && apiBot.customization.predefinedQuestions) ||
-                           apiBot.predefined_questions ||
-                           [],
-      responseTemplates: (apiBot.customization && apiBot.customization.responseTemplates) ||
-                         apiBot.response_templates ||
-                         []
-    }
+      predefinedQuestions:
+        (apiBot.customization && apiBot.customization.predefinedQuestions) ||
+        apiBot.predefined_questions ||
+        [],
+      responseTemplates:
+        (apiBot.customization && apiBot.customization.responseTemplates) ||
+        apiBot.response_templates ||
+        [],
+    },
   };
 }
 
 
-
-
 export default function BotDetailPageClient({ id, fallbackBot }) {
 
-  const chatbotInfo = {
-    name: "Astra",
-    description:
-      "Astra is an AI-driven customer support chatbot designed to streamline user interactions, resolve queries instantly, and improve overall satisfaction.",
-    stats: [
-      { label: "Conversion Rate", value: "18.4%" },
-      { label: "Total Views", value: "24,786" },
-      { label: "Avg Response Time", value: "1.2s" },
-      { label: "Satisfaction", value: "93%" },
-    ],
-  };
   // const { id } = useParams();
   // const [bot, setBot] = useState(dummyBots.find(b => b.id.toString() === id));
   // const [customization, setCustomization] = useState<BotCustomization | null>(null);
@@ -622,10 +633,24 @@ export default function BotDetailPageClient({ id, fallbackBot }) {
                       <Line
                         type="monotone"
                         dataKey="conversations"
+                        name="Conversations"
                         stroke="#8884d8"
+                        dot={{ r: 3 }}
                       />
-                      <Line type="monotone" dataKey="leads" stroke="#82ca9d" />
-                      <Line type="monotone" dataKey="sales" stroke="#ffc658" />
+                      <Line
+                        type="monotone"
+                        dataKey="leads"
+                        name="Leads"
+                        stroke="#82ca9d"
+                        dot={{ r: 3 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="sales"
+                        name="Sales"
+                        stroke="#ffc658"
+                        dot={{ r: 3 }}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

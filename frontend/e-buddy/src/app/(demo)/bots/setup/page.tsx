@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { botAPI } from "@/services/api";
 
 const MyBotsPage = () => {
+  const router = useRouter();
   const totalSteps = 3;
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -69,7 +71,9 @@ const MyBotsPage = () => {
 
       const response = await botAPI.createBot(apiData);
       setSuccess(true);
-      setTimeout(() => alert("Bot setup completed! Ready to deploy."), 500);
+      // setTimeout(() => alert("Bot setup completed! Ready to deploy."), 500);
+      const newBotId = response.data.data._id;
+      router.push(`/bots/${newBotId}`);
     } catch (err: any) {
       setError(
         err.response?.data?.message || "Failed to create bot. Please try again."

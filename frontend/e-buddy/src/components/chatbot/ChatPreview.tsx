@@ -284,7 +284,11 @@ export const ChatPreview = ({
 
   const getBubbleStyle = (sender: string) => {
     if (sender === "user") {
-      return `bg-gray-100 text-gray-800 ml-auto rounded-t-lg rounded-bl-lg`;
+      const bgColor = customization.secondaryColor || "#e5e7eb"; // default gray
+      const bgColorClass = bgColor.startsWith("#") ? "" : bgColor;
+      return `${bgColorClass} text-gray-800 ml-auto rounded-t-lg rounded-bl-lg ${
+        bgColorClass ? "" : "bg-user-secondary"
+      }`;
     } else {
       const bgColor = customization.primaryColor || "#9b87f5";
       const bgColorClass = bgColor.startsWith("#") ? "" : bgColor;
@@ -629,7 +633,7 @@ export const ChatPreview = ({
       {/* Chat Area - Only shown when expanded */}
       {isExpanded && (
         <>
-          <div className="bg-white flex-grow overflow-y-auto p-4 h-96">
+          <div className="bg-white flex-grow overflow-y-auto p-4 h-[68vh]">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -648,14 +652,18 @@ export const ChatPreview = ({
                       ? "rounded-full"
                       : ""
                   )}
-                  style={
-                    message.sender === "bot" &&
+                  style={{
+                    // Bot bubble inline HEX
+                    ...(message.sender === "bot" &&
                     customization.primaryColor?.startsWith("#")
-                      ? {
-                          backgroundColor: customization.primaryColor,
-                        }
-                      : {}
-                  }
+                      ? { backgroundColor: customization.primaryColor }
+                      : {}),
+                    // User bubble inline HEX
+                    ...(message.sender === "user" &&
+                    customization.secondaryColor?.startsWith("#")
+                      ? { backgroundColor: customization.secondaryColor }
+                      : {}),
+                  }}
                 >
                   {renderMessageContent(message.content)}
                 </div>
