@@ -1,13 +1,44 @@
+"""
+generate_sample_data.py
+
+This script generates sample product data for two chatbots (Chatbot A and Chatbot B) 
+in multiple formats: Markdown, CSV, and XLSX. The data is stored in the 
+`chatbot_data` directory within the script's directory.
+
+Usage:
+    python generate_sample_data.py --generate
+"""
+
 import argparse
 import os
 import pandas as pd
 
 def generate_data():
-    # Compute the base directory (i.e. testbot directory)
+    """
+    Generates sample data files for two chatbot directories: Chatbot A and Chatbot B.
+    
+    - Chatbot A:
+        - products.md: Markdown format containing sample product information.
+        - products.csv: CSV format with sample product listings.
+    
+    - Chatbot B:
+        - products.xlsx: Excel format with sample product listings.
+
+    The structure created:
+    └── chatbot_data/
+        ├── chatbot_A/
+        │   ├── products.md
+        │   └── products.csv
+        └── chatbot_B/
+            └── products.xlsx
+
+    Directories are created if they do not already exist.
+    """
+    # Compute the base directory (i.e. where this script is located)
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_dir = os.path.join(base_dir, "chatbot_data")
     
-    # Ensure directories exist for sample data inside the testbot folder
+    # Ensure directories exist for sample data
     chatbot_a_dir = os.path.join(data_dir, "chatbot_A")
     chatbot_b_dir = os.path.join(data_dir, "chatbot_B")
     os.makedirs(chatbot_a_dir, exist_ok=True)

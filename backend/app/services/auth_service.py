@@ -1,3 +1,17 @@
+"""
+auth_service.py
+
+This module defines the AuthService class which handles user authentication and account management functionalities.
+It interacts with the database layer via UserCrud and AuthCrud, providing features such as:
+
+- User registration
+- User login
+- Token-based authentication and renewal
+- Password reset token generation and verification
+
+All methods handle logging, response formatting, and proper exception handling.
+"""
+
 from fastapi import BackgroundTasks
 from fastapi.responses import JSONResponse
 from utils.hashing import hash_password, verify_password
@@ -33,10 +47,36 @@ USER_NOT_FOUND_MSG = "User not found"
 INVALID_TOKEN_MSG = "Invalid token subject"
 
 class AuthService:
+    """
+    Service class responsible for handling authentication and authorization logic.
+    Integrates with user and authentication CRUD operations to register, login,
+    and manage password-related features.
+
+    Methods
+    -------
+    - register(user: UserCreate): Registers a new user after validation.
+    - login(login_data: UserLogin): Authenticates user and returns tokens.
+    - renew_access_token(refresh_token: str): Issues a new access token using a valid refresh token.
+    - generate_pass_reset_token(generate_reset_password: GenerateResetPassword): Sends password reset link to email.
+    - check_password_reset_token_and_reset_password(reset_password: ResetPassword): Resets password using valid token.
+    """
+
     async def register(
         self,
         user: UserCreate,
     ):
+        
+        """
+        Registers a new user after validating email and username uniqueness.
+        Hashes the password and stores the user in the database.
+
+        Parameters:
+            user (UserCreate): Object containing user's email, username, and password.
+
+        Returns:
+            JSONResponse: Status and message indicating the result of registration.
+        """
+
         try:
             logger.debug(
                 f"Checking if user with email {user.email} exists or not"
@@ -101,6 +141,17 @@ class AuthService:
             )
         
     async def login(self, login_data: UserLogin):
+        """
+        Authenticates a user using email and password.
+        Generates access and refresh tokens on successful authentication.
+
+        Parameters:
+            login_data (UserLogin): Object containing user's email and password.
+
+        Returns:
+            JSONResponse: Authentication result and JWT tokens on success.
+        """
+
         try:
             logger.debug(
                 f"Login attempt for user with email {login_data.email}"
@@ -183,6 +234,15 @@ class AuthService:
             )
         
     async def renew_access_token(self, refresh_token: str):
+        """
+        Generates new access and refresh tokens using a valid refresh token.
+
+        Parameters:
+            refresh_token (str): JWT refresh token.
+
+        Returns:
+            JSONResponse: New tokens or appropriate error messages.
+        """
         try:
             logger.debug("Verifying refresh token")
             user_id = verify_token(refresh_token)
@@ -258,6 +318,16 @@ class AuthService:
         self,
         generate_reset_password: GenerateResetPassword,
     ):
+        """
+        Generates a one-time password reset token and constructs a reset link.
+        (Email sending should be handled in background tasks.)
+
+        Parameters:
+            generate_reset_password (GenerateResetPassword): Object with email and reset form URL.
+
+        Returns:
+            JSONResponse: Success message with reset link or error details.
+        """
         try:
             logger.debug(
                 f"Checking if user with email {generate_reset_password.email} exists or not"
@@ -314,6 +384,15 @@ class AuthService:
     async def check_password_reset_token_and_reset_password(
         self, reset_password: ResetPassword
     ):
+        """
+        Validates the password reset token and resets the user password after hashing.
+
+        Parameters:
+            reset_password (ResetPassword): Object containing reset token and new password.
+
+        Returns:
+            JSONResponse: Success or error message indicating reset outcome.
+        """
         try:
             logger.debug("Verifying password reset token")
             user_email = verify_token(reset_password.pass_reset_token)

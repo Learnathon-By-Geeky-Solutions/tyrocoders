@@ -24,7 +24,23 @@ subscription_crud = SubscriptionCrud()
 
 class SubscriptionService:
     async def create_checkout_session(self, user_id: str, payment_data: PaymentRequest):
-        """Create a Stripe checkout session with proper amount handling"""
+        """
+        Creates a Stripe Checkout Session for the given user and payment data.
+
+        This method validates the user, sets up the Stripe checkout session with the provided
+        package and amount details, and returns a checkout URL for the frontend to redirect the user.
+
+        Args:
+            user_id (str): The ID of the user initiating the payment.
+            payment_data (PaymentRequest): An object containing payment details such as package name, amount, and interval.
+
+        Returns:
+            JSONResponse: A response containing the checkout session URL and session ID if successful.
+                        Returns 404 if the user is not found, or 400/500 if an error occurs during Stripe integration.
+
+        Raises:
+            HTTPException: If a Stripe API error or any unexpected error occurs.
+        """
         try:
             user = await user_service.validate_user(user_id)
             if not user:
@@ -85,6 +101,24 @@ class SubscriptionService:
             )
         
     async def save_checkout_session(self, user_id, session_data: SaveCheckoutSessionRequest):
+        """
+        Confirms and saves a Stripe checkout session after payment.
+
+        This method retrieves the Stripe session using the session ID, extracts metadata and payment
+        details, saves the transaction to the database, and updates the user's subscription or addon
+        benefits accordingly.
+
+        Args:
+            user_id (str): The ID of the user who completed the checkout.
+            session_data (SaveCheckoutSessionRequest): Contains the Stripe session ID to retrieve.
+
+        Returns:
+            JSONResponse: A response confirming the successful payment and benefit update.
+                        Returns 404 if user not found, or 400 for invalid session ID or errors.
+
+        Raises:
+            HTTPException: If the session ID is invalid or any other processing error occurs.
+        """
 
         try:
             user = await user_service.validate_user(user_id)
