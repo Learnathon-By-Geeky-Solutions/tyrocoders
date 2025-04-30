@@ -213,15 +213,58 @@ Distributed under the [MIT License](LICENSE). See the `LICENSE` file for more in
 
 <h1 align="center">🛍️  E-Buddy &nbsp;|&nbsp; 10-Minute AI Chatbots for E-commerce</h1>
 <p align="center">
-  <i>Turn your store into a 24 × 7 sales & support powerhouse – no code, no hassle.</i>
+  <b><i>Turn your store into a 24 × 7 sales & support powerhouse – no code, no hassle.</i></b>
 </p>
 
+<!-- Badges -->
 <p align="center">
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg"/></a>
-  <a href="https://github.com/our-org/e-buddy/actions"><img alt="CI" src="https://github.com/our-org/e-buddy/actions/workflows/ci.yml/badge.svg"/></a>
-  <a href="https://sonarcloud.io"><img alt="Quality Gate" src="https://sonarcloud.io/api/project_badges/measure?project=e-buddy&metric=alert_status"/></a>
-  <a href="https://hub.docker.com/r/e-buddy/platform"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/e-buddy/platform?logo=docker"/></a>
-</p>
+  <!-- Tech Stack -->
+  <img alt="GitHub" src="https://img.shields.io/badge/GitHub-100000?logo=github&logoColor=white"/>
+  <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"/>
+  <img alt="FastAPI"       src="https://img.shields.io/badge/FastAPI-005571?logo=fastapi&logoColor=white"/>
+  <img alt="Swagger UI"    src="https://img.shields.io/badge/Swagger%20UI-85EA2D?logo=swagger&logoColor=black"/>
+  <img alt="MongoDB"       src="https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white"/>
+  <img alt="Next.js"       src="https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white"/>
+  <img alt="Tailwind CSS"  src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwind-css&logoColor=white"/>
+  <img alt="Webpack"       src="https://img.shields.io/badge/Webpack-8DD6F9?logo=webpack&logoColor=black"/>
+  <img alt="Hugging Face"  src="https://img.shields.io/badge/Hugging%20Face-FF7F00?logo=huggingface&logoColor=white"/>
+  <img alt="Stripe"        src="https://img.shields.io/badge/Stripe-008CDD?logo=stripe&logoColor=white"/>
+  <img alt="SonarCloud" src="https://img.shields.io/badge/SonarCloud-F3702A?logo=sonarcloud&logoColor=white"/>
+
+</p> 
+
+<!-- <p align="center">
+
+  <!-- Repository / License -->
+  <!-- <img alt="GitHub"
+       src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white&logoHeight=25"/>
+  <img alt="License: MIT"
+       src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge&logoHeight=25"/>
+
+  <img alt="FastAPI"
+       src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white&logoHeight=25"/>
+  <img alt="Swagger UI"
+       src="https://img.shields.io/badge/Swagger%20UI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black&logoHeight=25"/>
+  <img alt="MongoDB"
+       src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white&logoHeight=25"/>
+  <img alt="Next.js"
+       src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white&logoHeight=25"/>
+  <img alt="Tailwind CSS"
+       src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white&logoHeight=25"/>
+  <img alt="Webpack"
+       src="https://img.shields.io/badge/Webpack-8DD6F9?style=for-the-badge&logo=webpack&logoColor=black&logoHeight=25"/>
+  <img alt="Hugging Face"
+       src="https://img.shields.io/badge/Hugging%20Face-FF7F00?style=for-the-badge&logo=huggingface&logoColor=white&logoHeight=25"/>
+  <img alt="Stripe"
+       src="https://img.shields.io/badge/Stripe-008CDD?style=for-the-badge&logo=stripe&logoColor=white&logoHeight=25"/> -->
+
+  <!-- Quality / Analysis -->
+  <!-- <img alt="Quality Gate" src="https://sonarcloud.io/api/project_badges/measure?project=e-buddy&metric=alert_status"/>
+  <img alt="Quality Gate"
+       src="https://img.shields.io/badge/SonarCloud-F3702A?logo=sonarcloud&logoColor=white&logoHeight=25"/>
+
+</p> --> 
+
 
 <p align="center">
   <!-- <a href="#-live-demo">Live Demo</a> • -->
