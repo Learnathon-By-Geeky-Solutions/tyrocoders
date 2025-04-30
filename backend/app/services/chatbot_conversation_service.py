@@ -35,10 +35,30 @@ CHATBOT_NOT_FOUND_MSG = "Chatbot not found"
 CHATBOT_CONVERSATION_NOT_FOUND_MSG = "Conversation not found"
 
 class ChatbotConversationService:
+    """
+    Service class responsible for managing chatbot conversations.
+    
+    This class provides methods for starting, retrieving, updating, and deleting
+    chatbot conversations. It also provides functionality to continue conversations
+    and collect lead information.
+    """
 
     async def validate_conversation(
         self, user_id: ObjectId, conversation_id: str
     ):
+        """
+        Validate if a conversation with the specified ID exists for the given user.
+        
+        Args:
+            user_id (ObjectId): The ID of the user.
+            conversation_id (str): The ID of the conversation to validate.
+            
+        Returns:
+            dict or None: The conversation document if found, None otherwise.
+            
+        Notes:
+            This method logs debug and info messages during the validation process.
+        """
         logger.debug(
             f"User ID: {user_id} | Checking if conversation with id {conversation_id} exists or not"
         )
@@ -62,6 +82,26 @@ class ChatbotConversationService:
         user_id: ObjectId,
         chatbot_id: str,
     ):
+        """
+        Start a new conversation with a chatbot.
+        
+        Args:
+            user_id (ObjectId): The ID of the user starting the conversation.
+            chatbot_id (str): The ID of the chatbot to converse with.
+            
+        Returns:
+            JSONResponse: A response containing the newly created conversation details
+            or an error message with an appropriate HTTP status code.
+            
+        Raises:
+            Exception: If any error occurs during the process.
+            
+        Notes:
+            - Validates if the user and chatbot exist before creating a conversation.
+            - Returns HTTP 404 if user or chatbot not found.
+            - Returns HTTP 500 if an internal server error occurs.
+            - Returns HTTP 201 with conversation data on success.
+        """
         try:
             if not await user_service.validate_user(user_id):
                 return JSONResponse(
@@ -116,6 +156,26 @@ class ChatbotConversationService:
     async def fetch_single_conversation_by_id(
         self, user_id: ObjectId, conversation_id: str
     ):
+        """
+        Fetch a single conversation by its ID for a specific user.
+        
+        Args:
+            user_id (ObjectId): The ID of the user.
+            conversation_id (str): The ID of the conversation to fetch.
+            
+        Returns:
+            JSONResponse: A response containing the conversation details or an error
+            message with an appropriate HTTP status code.
+            
+        Raises:
+            Exception: If any error occurs during the process.
+            
+        Notes:
+            - Validates if the user and conversation exist.
+            - Returns HTTP 404 if user or conversation not found.
+            - Returns HTTP 500 if an internal server error occurs.
+            - Returns HTTP 200 with conversation data on success.
+        """
         try:
             if not await user_service.validate_user(user_id):
                 return JSONResponse(
@@ -151,6 +211,25 @@ class ChatbotConversationService:
             )
 
     async def get_all_conversations(self, user_id: ObjectId):
+        """
+        Get all non-single conversations for a user.
+        
+        Args:
+            user_id (ObjectId): The ID of the user whose conversations to fetch.
+            
+        Returns:
+            JSONResponse: A response containing a list of conversations or an error
+            message with an appropriate HTTP status code.
+            
+        Raises:
+            Exception: If any error occurs during the process.
+            
+        Notes:
+            - Validates if the user exists before fetching conversations.
+            - Returns HTTP 404 if user not found.
+            - Returns HTTP 500 if an internal server error occurs.
+            - Returns HTTP 200 with conversations list on success.
+        """
         try:
             if not await user_service.validate_user(user_id):
                 return JSONResponse(
@@ -194,6 +273,27 @@ class ChatbotConversationService:
         data: UpdateSingleConversation,
         user_id: ObjectId,
     ):
+        """
+        Update a specific message in a conversation.
+        
+        Args:
+            data (UpdateSingleConversation): The data containing conversation ID, 
+                message ID, and the new message content.
+            user_id (ObjectId): The ID of the user.
+            
+        Returns:
+            JSONResponse: A response containing the updated conversation details or an error
+            message with an appropriate HTTP status code.
+            
+        Raises:
+            Exception: If any error occurs during the process.
+            
+        Notes:
+            - Validates if the user and conversation exist.
+            - Returns HTTP 404 if user or conversation not found.
+            - Returns HTTP 500 if an internal server error occurs.
+            - Returns HTTP 200 with updated conversation data on success.
+        """
         try:
             if not await user_service.validate_user(user_id):
                 return JSONResponse(
@@ -248,6 +348,30 @@ class ChatbotConversationService:
         user_id: ObjectId,
         conversation_id: str,
     ):
+        """
+        Continue an existing conversation by processing a new user message and generating a bot response.
+        
+        Args:
+            continue_conversation (ContinueConversation): The data containing the user message.
+            user_id (ObjectId): The ID of the user.
+            conversation_id (str): The ID of the conversation to continue.
+            
+        Returns:
+            JSONResponse: A response containing the bot's response message or an error
+            message with an appropriate HTTP status code.
+            
+        Raises:
+            Exception: If any error occurs during the process.
+            
+        Notes:
+            - Validates if the user and conversation exist.
+            - Fetches conversation history and chatbot details.
+            - Processes the user message using the LLM client.
+            - Updates the conversation history with both user and bot messages.
+            - Returns HTTP 404 if user or conversation not found.
+            - Returns HTTP 500 if an internal server error occurs or if LLM processing fails.
+            - Returns HTTP 200 with bot response on success.
+        """
         try:
             user = await user_service.validate_user(user_id)
             if not user:
@@ -291,7 +415,7 @@ class ChatbotConversationService:
                 f"User ID: {user_id} | Getting the fallback response from the chatbot"
             )
 
-            fallback_response = chatbot.get("fallback_message", "Sorry, I couldn’t understand that.")
+            fallback_response = chatbot.get("fallback_message", "Sorry, I couldn't understand that.")
             logger.info(
                 f"User ID: {user_id} | Fallback response fetched successfully"
             )
@@ -409,6 +533,29 @@ class ChatbotConversationService:
         user_id: ObjectId,
         conversation_id: str,
     ):
+        """
+        Collect lead information from a conversation.
+        
+        Args:
+            lead_collect_conversation (LeadCollectConversation): The data containing 
+                lead fields to collect.
+            user_id (ObjectId): The ID of the user.
+            conversation_id (str): The ID of the conversation.
+            
+        Returns:
+            JSONResponse: A response containing the updated conversation details or an error
+            message with an appropriate HTTP status code.
+            
+        Raises:
+            Exception: If any error occurs during the process.
+            
+        Notes:
+            - Validates if the user and conversation exist.
+            - Updates the conversation with collected lead fields.
+            - Returns HTTP 404 if user or conversation not found.
+            - Returns HTTP 500 if an internal server error occurs.
+            - Returns HTTP 200 with updated conversation data on success.
+        """
         try:
             if not await user_service.validate_user(user_id):
                 return JSONResponse(
@@ -462,11 +609,33 @@ class ChatbotConversationService:
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 content={"message": f"Internal server error. ERROR: {e}"},
             )
+            
     async def delete_conversations(
         self,
         delete_conversation_ids: DeleteConversationIds,
         user_id: ObjectId,
     ):
+        """
+        Delete multiple conversations for a user.
+        
+        Args:
+            delete_conversation_ids (DeleteConversationIds): The data containing IDs of 
+                conversations to delete.
+            user_id (ObjectId): The ID of the user.
+            
+        Returns:
+            JSONResponse: A response indicating success or an error
+            message with an appropriate HTTP status code.
+            
+        Raises:
+            Exception: If any error occurs during the process.
+            
+        Notes:
+            - Validates if the user exists before deleting conversations.
+            - Returns HTTP 404 if user not found.
+            - Returns HTTP 500 if an internal server error occurs.
+            - Returns HTTP 200 on successful deletion.
+        """
         try:
             if not await user_service.validate_user(user_id):
                 return JSONResponse(

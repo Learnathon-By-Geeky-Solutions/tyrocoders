@@ -36,8 +36,25 @@ user_service = UserService()
 chatbot_conversation_crud = ChatbotConversationCrud()
 
 class ChatbotService:
+    """
+    Service class for managing chatbot operations.
+    
+    This service handles CRUD operations for chatbots, user validation,
+    and chatbot interaction functionality. It connects to the database through
+    CRUD services and manages the processing of website scraping and 
+    knowledge base creation for chatbots.
+    """
     
     async def validate_user(self, user_id: ObjectId):
+        """
+        Validate if a user exists in the database.
+        
+        Args:
+            user_id (ObjectId): The MongoDB ObjectId of the user to validate.
+            
+        Returns:
+            bool: True if the user exists, False otherwise.
+        """
         logger.debug(f"Validating user with ID: {user_id}")
         user = await user_crud.get_user_by_id(user_id)
         if not user:
@@ -47,61 +64,97 @@ class ChatbotService:
         return True
     
     async def create_chatbot(self, user_id: ObjectId, chatbot: ChatbotCreate):
-            try:
-                if not await user_service.validate_user(user_id):
-                    return JSONResponse(status_code=HTTPStatus.NOT_FOUND, content={"message": USER_NOT_FOUND_MSG})
+        """
+        Create a new chatbot for a user with website scraping and knowledge base building.
+        
+        This method performs several steps:
+        1. Validates the user exists
+        2. Checks for duplicate chatbot names
+        3. Scrapes products from the provided website URL
+        4. Stores the scraped data in a JSON file
+        5. Builds a knowledge base from the scraped data
+        6. Creates a chatbot entry in the database
+        
+        Args:
+            user_id (ObjectId): The MongoDB ObjectId of the user creating the chatbot.
+            chatbot (ChatbotCreate): The chatbot creation model containing name, website URL, and other details.
+            
+        Returns:
+            JSONResponse: HTTP response with status code and message:
+                - 201 CREATED: Successful creation with chatbot data
+                - 404 NOT_FOUND: User not found
+                - 409 CONFLICT: Chatbot with same name already exists
+                - 400 BAD_REQUEST: No products could be scraped
+                - 500 INTERNAL_SERVER_ERROR: Server error with error message
+        """
+        try:
+            if not await user_service.validate_user(user_id):
+                return JSONResponse(status_code=HTTPStatus.NOT_FOUND, content={"message": USER_NOT_FOUND_MSG})
 
-                # prevent duplicate names
-                existing = await chatbot_crud.get_chatbot_by_chatbot_name_and_user_id(chatbot.name, str(user_id))
-                if existing:
-                    return JSONResponse(status_code=HTTPStatus.CONFLICT,
-                                        content={"message": f"Chatbot with name {chatbot.name} already exists"})
+            # prevent duplicate names
+            existing = await chatbot_crud.get_chatbot_by_chatbot_name_and_user_id(chatbot.name, str(user_id))
+            if existing:
+                return JSONResponse(status_code=HTTPStatus.CONFLICT,
+                                    content={"message": f"Chatbot with name {chatbot.name} already exists"})
 
-                # scrape products
-                logger.debug(f"Scraping {chatbot.website_url}")
-                products = await scrape_from_website(str(chatbot.website_url), scrape_limit=100, sample_size=3,
-                                                    max_concurrent=20)
-                if not products:
-                    return JSONResponse(status_code=HTTPStatus.BAD_REQUEST,
-                                        content={"message": "No products could be scraped from the provided URL"})
+            # scrape products
+            logger.debug(f"Scraping {chatbot.website_url}")
+            products = await scrape_from_website(str(chatbot.website_url), scrape_limit=100, sample_size=3,
+                                                max_concurrent=20)
+            if not products:
+                return JSONResponse(status_code=HTTPStatus.BAD_REQUEST,
+                                    content={"message": "No products could be scraped from the provided URL"})
 
-                # prepare file storage
-                new_uuid = str(uuid.uuid4())
-                filename = f"products_{new_uuid}.json"
-                chatbot.products_file = filename
-                chatbot.user_id = str(user_id)
+            # prepare file storage
+            new_uuid = str(uuid.uuid4())
+            filename = f"products_{new_uuid}.json"
+            chatbot.products_file = filename
+            chatbot.user_id = str(user_id)
 
-                # save to DB
-                inserted = await chatbot_crud.create_chatbot(chatbot)
-                record = await chatbot_crud.get_chatbot_by_id(inserted.inserted_id, str(user_id))
-                record = convert_object_id_to_string(record)
+            # save to DB
+            inserted = await chatbot_crud.create_chatbot(chatbot)
+            record = await chatbot_crud.get_chatbot_by_id(inserted.inserted_id, str(user_id))
+            record = convert_object_id_to_string(record)
 
-                # ensure directories
-                scrap_dir = Path("scrapped_files") / record["_id"]
-                scrap_dir.mkdir(parents=True, exist_ok=True)
-                json_path = scrap_dir / filename
-                with open(json_path, "w", encoding="utf-8") as f:
-                    json.dump(products, f, indent=2)
-                logger.info(f"Saved scraped products to {json_path}")
+            # ensure directories
+            scrap_dir = Path("scrapped_files") / record["_id"]
+            scrap_dir.mkdir(parents=True, exist_ok=True)
+            json_path = scrap_dir / filename
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(products, f, indent=2)
+            logger.info(f"Saved scraped products to {json_path}")
 
-                # build knowledge base directly from JSON file using generic loader
-                kb_dir = Path("kb_storage") / record["_id"]
-                kb_dir.mkdir(parents=True, exist_ok=True)
-                success = build_knowledge_base(record["_id"], [str(json_path)])
-                if success:
-                    logger.info(f"Knowledge base built for chatbot {record['_id']}")
-                else:
-                    logger.warning(f"Failed to build knowledge base for chatbot {record['_id']}")
+            # build knowledge base directly from JSON file using generic loader
+            kb_dir = Path("kb_storage") / record["_id"]
+            kb_dir.mkdir(parents=True, exist_ok=True)
+            success = build_knowledge_base(record["_id"], [str(json_path)])
+            if success:
+                logger.info(f"Knowledge base built for chatbot {record['_id']}")
+            else:
+                logger.warning(f"Failed to build knowledge base for chatbot {record['_id']}")
 
-                return JSONResponse(status_code=HTTPStatus.CREATED,
-                                    content={"message": "Chatbot created successfully with knowledge base",
-                                            "data": record})
-            except Exception as e:
-                logger.error(f"Error in create_chatbot: {e}")
-                return JSONResponse(status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                                    content={"message": f"Internal server error: {e}"})
+            return JSONResponse(status_code=HTTPStatus.CREATED,
+                                content={"message": "Chatbot created successfully with knowledge base",
+                                        "data": record})
+        except Exception as e:
+            logger.error(f"Error in create_chatbot: {e}")
+            return JSONResponse(status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                                content={"message": f"Internal server error: {e}"})
     
     async def read_chatbot(self, user_id: ObjectId, chatbot_id: str):
+        """
+        Retrieve a specific chatbot by ID.
+        
+        Args:
+            user_id (ObjectId): The MongoDB ObjectId of the user.
+            chatbot_id (str): The ID of the chatbot to retrieve.
+            
+        Returns:
+            JSONResponse: HTTP response with status code and message:
+                - 200 OK: Successful retrieval with chatbot data
+                - 404 NOT_FOUND: User or chatbot not found
+                - 500 INTERNAL_SERVER_ERROR: Server error with error message
+        """
         try:
             if not await user_service.validate_user(user_id):
                 return JSONResponse(
@@ -138,6 +191,24 @@ class ChatbotService:
 
         
     async def query_chatbot(self, user_id: ObjectId, chatbot_id: str, query: str):
+        """
+        Process user query against a specific chatbot.
+        
+        This method validates the user and chatbot, then sends the user query to the
+        contextual chatbot for processing and response generation.
+        
+        Args:
+            user_id (ObjectId): The MongoDB ObjectId of the user.
+            chatbot_id (str): The ID of the chatbot to query.
+            query (str): The user's query text to be processed by the chatbot.
+            
+        Returns:
+            JSONResponse: HTTP response with status code and message:
+                - 200 OK: Successful query with generated response
+                - 404 NOT_FOUND: User or chatbot not found
+                - 403 FORBIDDEN: User doesn't have permission to access the chatbot
+                - 500 INTERNAL_SERVER_ERROR: Server error with error message
+        """
         try:
             logger.debug(
                 f"Validating user with ID: {user_id}"
@@ -204,6 +275,20 @@ class ChatbotService:
             )
     
     async def update_chatbot(self, user_id: ObjectId, chatbot_id: str, chatbot_data: ChatbotUpdate):
+        """
+        Update an existing chatbot's information.
+        
+        Args:
+            user_id (ObjectId): The MongoDB ObjectId of the user.
+            chatbot_id (str): The ID of the chatbot to update.
+            chatbot_data (ChatbotUpdate): The updated chatbot data.
+            
+        Returns:
+            JSONResponse: HTTP response with status code and message:
+                - 200 OK: Successful update with updated chatbot data
+                - 404 NOT_FOUND: User or chatbot not found
+                - 500 INTERNAL_SERVER_ERROR: Server error with error message
+        """
         try:
             logger.debug(
                 f"Validating user with ID: {user_id}"
@@ -253,6 +338,22 @@ class ChatbotService:
             )
     
     async def delete_chatbot(self, user_id: ObjectId, chatbot_id: str):
+        """
+        Delete a specific chatbot.
+        
+        This method validates the user and ensures they own the chatbot before deletion.
+        
+        Args:
+            user_id (ObjectId): The MongoDB ObjectId of the user.
+            chatbot_id (str): The ID of the chatbot to delete.
+            
+        Returns:
+            JSONResponse: HTTP response with status code and message:
+                - 200 OK: Successful deletion
+                - 404 NOT_FOUND: User or chatbot not found
+                - 403 FORBIDDEN: User doesn't have permission to delete the chatbot
+                - 500 INTERNAL_SERVER_ERROR: Server error with error message
+        """
         try:
             logger.debug(
                 f"Validating user with ID: {user_id}"
@@ -312,6 +413,18 @@ class ChatbotService:
             )
         
     async def get_all_chatbots(self, user_id: ObjectId):
+        """
+        Retrieve all chatbots owned by a specific user.
+        
+        Args:
+            user_id (ObjectId): The MongoDB ObjectId of the user.
+            
+        Returns:
+            JSONResponse: HTTP response with status code and message:
+                - 200 OK: Successful retrieval with list of chatbots
+                - 404 NOT_FOUND: User not found
+                - 500 INTERNAL_SERVER_ERROR: Server error with error message
+        """
         try:
             logger.debug(
                 f"Validating user with ID: {user_id}"
@@ -352,6 +465,7 @@ class ChatbotService:
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 content={"message": f"Internal server error. ERROR: {e}"},
             )
+        
         
     # async def upload_chatbot_files(self, user_id: ObjectId, chatbot_id: str, uploaded_files: List[UploadFile]):
     #     """
@@ -494,13 +608,19 @@ class ChatbotService:
 
     async def upload_chatbot_files(self, user_id: ObjectId, chatbot_id: str, uploaded_files: List[UploadFile]):
         """
-        Update files for a chatbot knowledge base.
-        Each call completely replaces the previous set of files with the new set.
-        
+        Upload and manage files for a chatbot's knowledge base.
+
+        This method replaces the chatbot's existing knowledge base files with the new uploaded set.
+        It supports both regular knowledge documents and database files (SQLite, SQL dumps, etc.).
+        If database files are uploaded, they are handled separately to configure Vanna AI.
+
         Args:
-            user_id: The ID of the user
-            chatbot_id: The ID of the chatbot
-            uploaded_files: Complete list of files that should exist after this update
+            user_id (ObjectId): The ID of the user uploading files.
+            chatbot_id (str): The ID of the chatbot for which files are uploaded.
+            uploaded_files (List[UploadFile]): List of uploaded files to associate with the chatbot.
+
+        Returns:
+            JSONResponse: A response object containing status and result message.
         """
         try:
             # Validate user and chatbot
@@ -543,7 +663,16 @@ class ChatbotService:
             )
 
     async def _validate_user_and_chatbot(self, user_id, chatbot_id):
-        """Validate user and chatbot exist"""
+        """
+        Validates the existence of the user and the chatbot.
+
+        Args:
+            user_id (ObjectId): The ID of the user.
+            chatbot_id (str): The ID of the chatbot.
+
+        Returns:
+            Union[dict, JSONResponse]: The chatbot document if found, otherwise a JSON error response.
+        """
         logger.debug(f"Validating user with ID: {user_id}")
         if not await self.validate_user(user_id):
             return JSONResponse(
@@ -563,7 +692,16 @@ class ChatbotService:
         return chatbot
 
     def _prepare_directories(self, chatbot_id):
-        """Create knowledge and DB directories"""
+        """
+        Prepare the directory structure for storing knowledge and database files.
+
+        Args:
+            chatbot_id (str): The ID of the chatbot.
+
+        Returns:
+            Tuple[Path, Path]: Paths to the knowledge base directory and database directory.
+        """
+
         knowledge_dir = Path("knowledge_bases") / str(chatbot_id)
         knowledge_dir.mkdir(parents=True, exist_ok=True)
         
@@ -573,12 +711,31 @@ class ChatbotService:
         return knowledge_dir, db_dir
 
     def _get_database_files(self, uploaded_files):
-        """Filter database files by extension"""
+        """
+        Identify uploaded files that are database files based on their extension.
+
+        Args:
+            uploaded_files (List[UploadFile]): List of uploaded files.
+
+        Returns:
+            List[UploadFile]: List of database file candidates.
+        """
+
         db_exts = {".sqlite", ".db", ".sqlite3", ".sql", ".dump"}
         return [f for f in uploaded_files if Path(f.filename).suffix.lower() in db_exts]
 
     async def _process_database_files(self, chatbot_id, db_candidates):
-        """Process database files using Vanna AI"""
+        """
+        Handle database file ingestion and Vanna AI configuration.
+
+        Args:
+            chatbot_id (str): The ID of the chatbot.
+            db_candidates (List[UploadFile]): List of uploaded database files.
+
+        Returns:
+            JSONResponse: A response containing success message and processing results.
+        """
+
         from processing.db_detector import DatabaseDetector
         from processing.db_storage import DatabaseStorageManager
         
@@ -616,7 +773,16 @@ class ChatbotService:
         )
 
     def _map_existing_files(self, current_files):
-        """Map original filenames to their UUID versions"""
+        """
+        Map original filenames to the existing stored UUID-prefixed versions.
+
+        Args:
+            current_files (List[str]): List of filenames already stored.
+
+        Returns:
+            Dict[str, str]: Mapping from original filename to stored UUID-prefixed filename.
+        """
+
         existing_files_map = {}
         for f in current_files:
             try:
@@ -632,7 +798,15 @@ class ChatbotService:
         return existing_files_map
 
     def _clean_up_old_files(self, knowledge_dir, existing_files_map, new_file_names):
-        """Remove files that aren't in the new upload"""
+        """
+        Remove files from disk that are not part of the new upload.
+
+        Args:
+            knowledge_dir (Path): Directory where knowledge files are stored.
+            existing_files_map (Dict[str, str]): Mapping of original filenames to stored versions.
+            new_file_names (List[str]): Filenames that are being uploaded in this update.
+        """
+
         for original_name, uuid_filename in existing_files_map.items():
             if original_name not in new_file_names:
                 file_path = knowledge_dir / uuid_filename
@@ -641,7 +815,18 @@ class ChatbotService:
                     logger.debug(f"Deleted file: {uuid_filename}")
 
     def _process_new_files(self, knowledge_dir, existing_files_map, uploaded_files):
-        """Process all uploads, whether new or replacements"""
+        """
+        Save uploaded files to disk, replacing existing ones if necessary.
+
+        Args:
+            knowledge_dir (Path): Directory where knowledge files are stored.
+            existing_files_map (Dict[str, str]): Mapping of original filenames to stored versions.
+            uploaded_files (List[UploadFile]): List of uploaded files.
+
+        Returns:
+            List[str]: List of stored filenames with UUID prefixes.
+        """
+
         final_files = []
         for new_file in uploaded_files:
             original_name = new_file.filename
@@ -663,7 +848,16 @@ class ChatbotService:
         return final_files
 
     async def _update_chatbot_and_rebuild_kb(self, chatbot_id, final_files):
-        """Update database with complete file list and rebuild KB"""
+        """
+        Update chatbot record in the database and trigger knowledge base rebuild.
+
+        Args:
+            chatbot_id (str): The ID of the chatbot.
+            final_files (List[str]): List of processed and stored knowledge files.
+
+        Returns:
+            JSONResponse: A response indicating the result of the update and rebuild.
+        """
         chatbot_data = ChatbotUpdate(knowledge_files=final_files)
         await chatbot_crud.update_chatbot(chatbot_id, chatbot_data)
 
@@ -680,9 +874,17 @@ class ChatbotService:
             },
         )
             
-    async def get_leads_by_chatbot_id(
-        self, user_id: ObjectId, chatbot_id: str
-        ):
+    async def get_leads_by_chatbot_id(self, user_id: ObjectId, chatbot_id: str):
+        """
+        Retrieve all lead conversations associated with a given chatbot.
+
+        Args:
+            user_id (ObjectId): ID of the user requesting the leads.
+            chatbot_id (str): ID of the chatbot whose leads are to be fetched.
+
+        Returns:
+            JSONResponse: Response containing list of leads or an error message.
+        """
         logger.debug(f"Validating user with ID: {user_id}")
         if not await user_service.validate_user(user_id):
             return JSONResponse(
